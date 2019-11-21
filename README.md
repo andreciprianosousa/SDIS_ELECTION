@@ -1,6 +1,5 @@
 # SDIS_ELECTION
 
-
 Leader election is a basic building block in many fault-tolerant distributed systems. The goal of this project is to evaluate one of the protocols proposed in [1], [2], [3] and [4]. This evaluation may be done via either an experimental study or simulation.
 
 For an example of the metrics that may be useful to consider in this evaluation, you may find it interesting to take a look at [4]. You should discuss these metrics with other groups that will evaluate other leader election protocols.
