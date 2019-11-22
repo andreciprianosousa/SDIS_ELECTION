@@ -1,0 +1,8 @@
+
+- implementar o algoritmo e emular o ambiente
+- api comunicaçao com sockets
+- multicast ip para comunicaçao
+- como filtrar com base na posiçao?
+- linux permite introduzir perdas 
+- ou subclasse com possibilidade de perdas
+- 
