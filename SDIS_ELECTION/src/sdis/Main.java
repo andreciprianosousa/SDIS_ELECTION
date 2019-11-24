@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 
 public class Main {
 	
-	// ----------------------------------ONLY CHANGE HERE---------------------------------------
+	// ----------------------------------ONLY CHANGE HERE - SETUP ---------------------------------------
 	/**
 	 * Provide absolute JAVA file path, change name of file accordingly
 	 */
@@ -19,10 +19,8 @@ public class Main {
 	
 	private static final String PACKAGE_CLASS = "sdis.Test";
 	
-	private static final String ARG = "1";
-	
 
-	// ----------------------------------END CHANGE HERE-------------------------------------------
+	// ----------------------------------END SETUP-------------------------------------------
 	private static void print(String status, InputStream input) throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(input));
 		System.out.println("************* " + status + "***********************");
@@ -33,8 +31,7 @@ public class Main {
 		in.close();
 	}
 
-	public static void main(String args[]) throws IOException, InterruptedException {
-
+	private static void newProcess(String argument) throws IOException, InterruptedException {
 		// Compile Program first
 		String command[] = { "javac", JAVAC_FILE_LOCATION };
 		ProcessBuilder processBuilder = new ProcessBuilder(command);
@@ -53,9 +50,8 @@ public class Main {
 		 * Check if javac process execute successfully or Not 0 - successful
 		 */
 		if (process.exitValue() == 0) {
-			// Change name of file accordingly -> "Test" to whatever the class is
 			process = new ProcessBuilder(
-					new String[] { "java", "-cp", JAVA_FILE_LOCATION, PACKAGE_CLASS, ARG })
+					new String[] { "java", "-cp", JAVA_FILE_LOCATION, PACKAGE_CLASS, argument })
 							.start();
 			/**
 			 * Check if RuntimeException or Errors encounter during execution then print
@@ -66,10 +62,14 @@ public class Main {
 			} else {
 				print("Output ", process.getInputStream());
 			}
-
 		}
 	}
-
-
+	
+	public static void main(String args[]) throws IOException, InterruptedException {
+		
+		String argument = "2";
+		
+		newProcess(argument);
+	}
 
 }
