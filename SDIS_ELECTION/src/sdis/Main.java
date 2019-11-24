@@ -18,6 +18,9 @@ public class Main {
 			+ "/SDIS_ELECTION/SDIS_ELECTION/src/";
 	
 	private static final String PACKAGE_CLASS = "sdis.Test";
+	
+	private static final String ARG = "1";
+	
 
 	// ----------------------------------END CHANGE HERE-------------------------------------------
 	private static void print(String status, InputStream input) throws IOException {
@@ -52,7 +55,7 @@ public class Main {
 		if (process.exitValue() == 0) {
 			// Change name of file accordingly -> "Test" to whatever the class is
 			process = new ProcessBuilder(
-					new String[] { "java", "-cp", JAVA_FILE_LOCATION, PACKAGE_CLASS })
+					new String[] { "java", "-cp", JAVA_FILE_LOCATION, PACKAGE_CLASS, ARG })
 							.start();
 			/**
 			 * Check if RuntimeException or Errors encounter during execution then print
