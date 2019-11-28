@@ -6,7 +6,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 public class Main {
-
+	
 	public static void main(String[] args) throws IOException {
 		if (args[0].equals("1")) {
 
