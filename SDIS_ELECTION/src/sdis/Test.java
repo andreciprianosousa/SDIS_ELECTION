@@ -10,7 +10,7 @@ public class Test {
 
 			// Which port should we listen to
 			int port = 5000;
-			// Which addresss
+			// Which address
 			String group = "225.4.5.6";
 
 			// Create the socket and bind it to port 'port'.
