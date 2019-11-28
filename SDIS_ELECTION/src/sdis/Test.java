@@ -63,13 +63,5 @@ public class Test {
 			s.close();
 
 		}
-<<<<<<< HEAD
-
-=======
-		else {
-			System.out.println("Hello,Mars - Musk!!"); 
-		}
-		
->>>>>>> refs/remotes/origin/master
 	}
 }
