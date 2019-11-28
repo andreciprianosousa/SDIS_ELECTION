@@ -8,8 +8,6 @@ public class Test {
 		}
 		else {
 			System.out.println("Hello, Mars!!"); 
-			int x = 0;
-			x++;
 		}
 		
 	}
