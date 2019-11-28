@@ -21,7 +21,7 @@ public class Test {
 			// Now the socket is set up and we are ready to receive packets
 
 			// Create a DatagramPacket and do a receive
-			byte buf[] = new byte[1024];
+			byte buf[] = new byte[10];
 			DatagramPacket pack = new DatagramPacket(buf, buf.length);
 			s.receive(pack);
 
@@ -29,7 +29,7 @@ public class Test {
 			// like print it on stdout :-)
 			System.out.println("Received data from: " + pack.getAddress().toString() + ":" + pack.getPort()
 					+ " with length: " + pack.getLength());
-			System.out.write(pack.getData(), 0, pack.getLength());
+			System.out.println(pack.getData());
 			System.out.println();
 
 			// And when we have finished receiving data leave the multicast group and
