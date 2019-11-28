@@ -7,7 +7,7 @@ public class Test {
 			System.out.println("Hello, Earth!!"); 
 		}
 		else {
-			System.out.println("Hello, Mars!!"); 
+			System.out.println("Hello, Mars - Musk!!"); 
 		}
 		
 	}
