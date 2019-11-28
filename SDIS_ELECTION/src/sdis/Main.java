@@ -67,9 +67,10 @@ public class Main {
 	
 	public static void main(String args[]) throws IOException, InterruptedException {
 		
-		String argument = "2";
+		String argument = "1";
 		
 		newProcess(argument);
+		newProcess("2");
 	}
 
 }
