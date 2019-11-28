@@ -1,76 +1,70 @@
 package sdis;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 
 public class Main {
-	
-	// ----------------------------------ONLY CHANGE HERE - SETUP ---------------------------------------
-	/**
-	 * Provide absolute JAVA file path, change name of file accordingly
-	 */
-	private static final String JAVAC_FILE_LOCATION = System.getProperty("user.home")
-			+ "/SDIS_ELECTION/SDIS_ELECTION/src/sdis/Test.java";
-	
-	private static final String JAVA_FILE_LOCATION = System.getProperty("user.home")
-			+ "/SDIS_ELECTION/SDIS_ELECTION/src/";
-	
-	private static final String PACKAGE_CLASS = "sdis.Test";
-	
 
-	// ----------------------------------END SETUP-------------------------------------------
-	private static void print(String status, InputStream input) throws IOException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(input));
-		System.out.println("************* " + status + "***********************");
-		String line = null;
-		while ((line = in.readLine()) != null) {
-			System.out.println(line);
+	public static void main(String[] args) throws IOException {
+		if (args[0].equals("1")) {
+
+			// Which port should we listen to
+			int port = 5000;
+			// Which address
+			String group = "225.4.5.6";
+
+			// Create the socket and bind it to port 'port'.
+			MulticastSocket s = new MulticastSocket(port);
+
+			// join the multicast group
+			s.joinGroup(InetAddress.getByName(group));
+			// Now the socket is set up and we are ready to receive packets
+
+			// Create a DatagramPacket and do a receive
+			byte buf[] = new byte[10];
+			DatagramPacket pack = new DatagramPacket(buf, buf.length);
+			s.receive(pack);
+
+			// Finally, let us do something useful with the data we just received,
+			// like print it on stdout :-)
+			System.out.println("Received data from: " + pack.getAddress().toString() + ":" + pack.getPort()
+					+ " with length: " + pack.getLength());
+			System.out.println(pack.getData());
+			System.out.println();
+
+			// And when we have finished receiving data leave the multicast group and
+			// close the socket
+			s.leaveGroup(InetAddress.getByName(group));
+			s.close();
+
+		} else {
+
+			// Which port should we send to
+			int port = 5000;
+			// Which address
+			String group = "225.4.5.6";
+
+			// Create the socket but we don't bind it as we are only going to send data
+			MulticastSocket s = new MulticastSocket();
+
+			// Note that we don't have to join the multicast group if we are only
+			// sending data and not receiving
+
+			// Fill the buffer with some data
+			byte buf[] = new byte[10];
+			for (int i = 0; i < buf.length; i++)
+				buf[i] = (byte) i;
+			// Create a DatagramPacket
+			DatagramPacket pack = new DatagramPacket(buf, buf.length, InetAddress.getByName(group), port);
+			// Do a send. Note that send takes a byte for the ttl and not an int.
+			s.send(pack);
+
+			// And when we have finished sending data close the socket
+			s.close();
+
 		}
-		in.close();
-	}
-
-	private static void newProcess(String argument) throws IOException, InterruptedException {
-		// Compile Program first
-		String command[] = { "javac", JAVAC_FILE_LOCATION };
-		ProcessBuilder processBuilder = new ProcessBuilder(command);
-
-		Process process = processBuilder.start();
-		process.waitFor(); // Wait for compilation
-
-		/**
-		 * Check if any errors or compilation errors encounter then print on Console.
-		 */
-
-		if (process.getErrorStream().read() != -1) {
-			print("Compilation Errors", process.getErrorStream());
-		}
-		/**
-		 * Check if javac process execute successfully or Not 0 - successful
-		 */
-		if (process.exitValue() == 0) {
-			process = new ProcessBuilder(
-					new String[] { "java", "-cp", JAVA_FILE_LOCATION, PACKAGE_CLASS, argument })
-							.start();
-			/**
-			 * Check if RuntimeException or Errors encounter during execution then print
-			 * errors on console Otherwise print Output
-			 */
-			if (process.getErrorStream().read() != -1) {
-				print("Errors ", process.getErrorStream());
-			} else {
-				print("Output ", process.getInputStream());
-			}
-		}
-	}
-	
-	public static void main(String args[]) throws IOException, InterruptedException {
-		
-		String argument = "1";
-		
-		newProcess(argument);
-		newProcess("2");
 	}
 
 }
