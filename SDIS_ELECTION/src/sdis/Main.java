@@ -8,7 +8,7 @@ import java.net.MulticastSocket;
 public class Main {
 	
 	public static void main(String[] args) throws IOException {
-		if (args[0].equals("1")) {
+		if (args[0].equals("1")) { 
 
 			// Which port should we listen to
 			int port = 5000;
