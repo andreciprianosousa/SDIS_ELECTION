@@ -62,6 +62,7 @@ public class Main {
 			String message = "Ola";
 			byte[] buf = message.getBytes();
 			
+			
 			// Create a DatagramPacket
 			DatagramPacket pack = new DatagramPacket(buf, buf.length, InetAddress.getByName(group), port);
 			// Do a send. Note that send takes a byte for the ttl and not an int.
