@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.nio.charset.Charset;
 
 public class Main {
 	
@@ -23,7 +24,7 @@ public class Main {
 			// Now the socket is set up and we are ready to receive packets
 
 			// Create a DatagramPacket and do a receive
-			byte buf[] = new byte[10];
+			byte buf[] = new byte[100];
 			DatagramPacket pack = new DatagramPacket(buf, buf.length);
 			s.receive(pack);
 
@@ -31,8 +32,13 @@ public class Main {
 			// like print it on stdout :-)
 			System.out.println("Received data from: " + pack.getAddress().toString() + ":" + pack.getPort()
 					+ " with length: " + pack.getLength());
-			System.out.println(pack.getData());
-			System.out.println();
+			System.out.println(pack.toString());
+			System.out.println(pack.getLength());
+			
+			String message = new String(pack.getData(), 0, pack.getLength());
+			
+			System.out.println(message);
+		
 
 			// And when we have finished receiving data leave the multicast group and
 			// close the socket
@@ -53,9 +59,9 @@ public class Main {
 			// sending data and not receiving
 
 			// Fill the buffer with some data
-			byte buf[] = new byte[10];
-			for (int i = 0; i < buf.length; i++)
-				buf[i] = (byte) i;
+			String message = "Ola";
+			byte[] buf = message.getBytes();
+			
 			// Create a DatagramPacket
 			DatagramPacket pack = new DatagramPacket(buf, buf.length, InetAddress.getByName(group), port);
 			// Do a send. Note that send takes a byte for the ttl and not an int.
@@ -65,6 +71,15 @@ public class Main {
 			s.close();
 
 		}
+		
 	}
-
+	
+	static String byteArrayToString(byte[] in) {
+	    char out[] = new char[in.length * 2];
+	    for (int i = 0; i < in.length; i++) {
+	        out[i * 2] = "0123456789ABCDEF".charAt((in[i] >> 4) & 15);
+	        out[i * 2 + 1] = "0123456789ABCDEF".charAt(in[i] & 15);
+	    }
+	    return new String(out);
+	}
 }
