@@ -33,7 +33,7 @@ public class Main {
 			System.out.println("Received data from: " + pack.getAddress().toString() + ":" + pack.getPort()
 					+ " with length: " + pack.getLength());
 			System.out.println(pack.toString());
-			System.out.println(pack.getLength());
+			System.out.println(pack.getPort());
 			
 			String message = new String(pack.getData(), 0, pack.getLength());
 			
@@ -72,14 +72,5 @@ public class Main {
 
 		}
 		
-	}
-	
-	static String byteArrayToString(byte[] in) {
-	    char out[] = new char[in.length * 2];
-	    for (int i = 0; i < in.length; i++) {
-	        out[i * 2] = "0123456789ABCDEF".charAt((in[i] >> 4) & 15);
-	        out[i * 2 + 1] = "0123456789ABCDEF".charAt(in[i] & 15);
-	    }
-	    return new String(out);
 	}
 }
