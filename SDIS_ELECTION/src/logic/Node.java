@@ -9,11 +9,12 @@ public class Node {
 	protected int nodeID;
 	protected int computationIndex;
 	protected boolean electionActive;
-	protected boolean parentActive;
+	protected int parentActive;
 	protected boolean ackSent;
 	protected int leaderID;
 	protected HashSet<Node> neighbors;
 	protected HashSet<Node> waitingACK;
+	protected float nodeValue;
 	
 	protected int port;
 	protected String ipAddress;
@@ -22,7 +23,7 @@ public class Node {
 		this.nodeID = nodeID;
 		this.port = port;
 		this.ipAddress = ipAddress;
-		
+		this.nodeValue = nodeID;
 		new NodeListener(this).start();
 		new NodeTransmitter(this).start();
 		
@@ -40,10 +41,10 @@ public class Node {
 	public void setElectionActive(boolean electionActive) {
 		this.electionActive = electionActive;
 	}
-	public boolean isParentActive() {
+	public int isParentActive() {
 		return parentActive;
 	}
-	public void setParentActive(boolean parentActive) {
+	public void setParentActive(int parentActive) {
 		this.parentActive = parentActive;
 	}
 	public int getLeaderID() {

@@ -43,7 +43,7 @@ public class NodeTransmitter extends Thread{
 
 		try {
 			socket.joinGroup(group);
-			socket.setTimeToLive(1); //each datagram only does one hope 
+			socket.setTimeToLive(1); //each datagram only does one hop 
 		} catch (IOException e) {
 
 			System.out.println("Transmitter: Error configuring Group (Node: " + node.getNodeID()+ ")");
