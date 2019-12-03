@@ -70,6 +70,12 @@ public class NodeTransmitter extends Thread{
 				e.printStackTrace();
 			} 
 			
+			// Test Packet
+			if (this.node.testPacket() == true) {
+				System.out.println("Packet Drop!");
+				message = "Dropped";
+			}
+			
 			if (message instanceof HelloMessage) {
 				helloMessage = (HelloMessage) message;
 				//System.out.println(helloMessage.getNode().getNodeID());
