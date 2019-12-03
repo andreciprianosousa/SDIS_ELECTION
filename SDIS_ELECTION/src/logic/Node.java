@@ -38,6 +38,12 @@ public class Node implements Serializable{
 		this.storedId = this.nodeID;
 		// don't forget to increase num when starting election
 		this.computationIndex = new ComputationIndex(this.getNodeID(), 0, this.getNodeValue()); 
+		this.parentActive = -1;
+		this.electionActive = false;
+		this.leaderID = -1; // -1 is no leader set
+		this.ackSent = true; // true means no ack sent yet, which technically is correct he
+		this.waitingACK = new HashSet<Node>();
+		
 		
 		this.xMax=dimensions[0];
 		this.yMax=dimensions[1];

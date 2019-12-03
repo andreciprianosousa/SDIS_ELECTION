@@ -1,33 +1,40 @@
 package logic;
 
+import java.util.Iterator;
+
 public class LeaderMessageHandler extends Thread{
 	
 	protected Node node;
-	//protected Message message;
+	protected Node incomingNode;
 	
-	public LeaderMessageHandler(Node node /*, Message message */) {
+	public LeaderMessageHandler(Node node, Node incomingNode) {
 		
 		// Assume initialization of the node parameters was done previously
 		// in the node creation or by default values
 		this.node = node;
-		
-		//this.message = message;
-		
+		this.incomingNode = incomingNode;
 	}
 	
 	@Override
-	public void run() {
+	public synchronized void run() {
 		
 		// If this node receives leader message, update parameters accordingly
 		node.setElectionActive(false);
-		node.setLeaderID(/*message leader id*/);
+		node.setLeaderID(incomingNode.getLeaderID());
 		node.setParentActive(-1);
 		node.setAckStatus(true); // may change...
-		node.setStoredValue(/*message leader value*/);
-		node.setStoredId(/*message leader id*/);
+		node.setStoredValue(incomingNode.getStoredValue());
+		node.setStoredId(incomingNode.getStoredId());
 		
 		// Then send election messages to neighbours except to the message sender's id
-		// Use iterator
+		Iterator<Node> i=node.getNeighbors().iterator();
+		while(i.hasNext()) {
+			Node temp = i.next();
+			if(!(temp.getNodeID() == incomingNode.getNodeID())) {
+				node.getWaitingAcks().add(temp);
+				// Send Election Message to current selected neighbour
+			}
+		}
 		
 	}
 }
