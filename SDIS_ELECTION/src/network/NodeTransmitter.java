@@ -1,6 +1,8 @@
 package network;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -8,13 +10,13 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
 import logic.Node;
+import logic.*;
 
 public class NodeTransmitter extends Thread{
 	protected Node node;
 	protected int port;
 	protected String ipAddress;
 	
-	protected DatagramPacket datagram; 
 	protected byte[] dataToReceive = new byte[2048];
 	
 	public NodeTransmitter(Node node) {
@@ -27,6 +29,9 @@ public class NodeTransmitter extends Thread{
 	public void run() {
 		MulticastSocket socket = null;
 		InetAddress group = null;
+		Object message = null;
+		HelloMessage helloMessage = null;
+		DatagramPacket datagram; 
 		
 		try {
 			group = InetAddress.getByName(ipAddress);
@@ -49,20 +54,38 @@ public class NodeTransmitter extends Thread{
 			System.out.println("Transmitter: Error configuring Group (Node: " + node.getNodeID()+ ")");
 		}
 		
-		String message;
 		while (true) {
 			datagram = new DatagramPacket (dataToReceive, dataToReceive.length);
-			
+			//System.out.println(dataToReceive.length);
 			try {
 				socket.receive(datagram);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Transmitter: Error receiving datagram (Node: " + node.getNodeID()+ ")");
 			}
 			
-			message = new String (datagram.getData(), StandardCharsets.UTF_8);
+			try {
+				message = deserializeMessage (datagram.getData());
+			} catch (ClassNotFoundException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
 			
-			System.out.println("Message received by Node " + node.getNodeID() + ": " + message);
+			if (message instanceof HelloMessage) {
+				helloMessage = (HelloMessage) message;
+				//System.out.println(helloMessage.getNode().getNodeID());
+				this.node.updateNeighbors (helloMessage, datagram.getAddress());
+			}
+			
+			//System.out.println("Message received by Node " + node.getNodeID() + ": " + message);
 		}
+	}
+	
+	public Object deserializeMessage (byte[] bytes) throws IOException, ClassNotFoundException {
+		ByteArrayInputStream message = new ByteArrayInputStream(bytes);
+        ObjectInputStream object = new ObjectInputStream(message);
+        Object o = object.readObject();
+        object.close();
+        message.close();
+        return o;
 	}
 }
