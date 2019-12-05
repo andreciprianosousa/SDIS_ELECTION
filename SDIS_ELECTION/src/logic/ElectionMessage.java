@@ -8,13 +8,15 @@ import java.io.Serializable;
 public class ElectionMessage implements Serializable{
 	
 	//This message needs to be serializable to allow its representation as a sequence of bytes
-		private Node node;
+		private ComputationIndex cp;
+		private int incomingId;
 
-		public ElectionMessage(Node node) {
-			this.node = node;
+		public ElectionMessage(int incomingId, ComputationIndex cp) {
+			this.cp = cp;
+			this.incomingId = incomingId;
 		}
 		
-		public byte[] serializeHelloMessage () throws IOException {
+		public byte[] serializeElectionMessage () throws IOException {
 			ByteArrayOutputStream message = new ByteArrayOutputStream();
 	        ObjectOutputStream object = new ObjectOutputStream(message);
 	        object.writeObject((Object)this);
@@ -24,11 +26,14 @@ public class ElectionMessage implements Serializable{
 	        return message.toByteArray();
 		}
 		
-		public Node getNode() {
-			return node;
+		public int getNodeID() {
+			return this.incomingId;
 		}
 
-		public void setNode(Node node) {
-			this.node = node;
+		public void setincomingId(int incomingId) {
+			this.incomingId = incomingId;
+		}
+		public ComputationIndex getCP() {
+			return this.cp;
 		}
 }

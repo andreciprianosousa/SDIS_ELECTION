@@ -80,15 +80,15 @@ public class NodeTransmitter extends Thread{
 			}
 			else if(message instanceof ElectionMessage) {
 				electionMessage = (ElectionMessage) message;
-				new ElectionMessageHandler(this.node, electionMessage.getNode()).start();
+				new ElectionMessageHandler(this.node, electionMessage).start();
 			}
 			else if(message instanceof AckMessage) {
 				ackMessage = (AckMessage) message;
-				new AckMessageHandler(this.node, ackMessage.getNode()).start();
+				new AckMessageHandler(this.node, ackMessage).start();
 			}
 			else if(message instanceof LeaderMessage) {
 				leaderMessage = (LeaderMessage) message;
-				new LeaderMessageHandler(this.node, leaderMessage.getNode()).start();
+				new LeaderMessageHandler(this.node, leaderMessage).start();
 			}
 			
 			//System.out.println("Message received by Node " + node.getNodeID() + ": " + message);

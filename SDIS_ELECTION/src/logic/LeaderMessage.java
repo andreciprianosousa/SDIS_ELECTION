@@ -7,14 +7,17 @@ import java.io.Serializable;
 
 public class LeaderMessage implements Serializable{
 	
-	//This message needs to be serializable to allow its representation as a sequence of bytes
-		private Node node;
+		private int incomingId;
+		private int storedID;
+		private float storedValue;
 
-		public LeaderMessage(Node node) {
-			this.node = node;
+		public LeaderMessage(int incomingId, int leaderID, float leaderValue) {
+			this.incomingId = incomingId;
+			this.storedID = leaderID;
+			this.storedValue = leaderValue;
 		}
 		
-		public byte[] serializeHelloMessage () throws IOException {
+		public byte[] serializeLeaderMessage () throws IOException {
 			ByteArrayOutputStream message = new ByteArrayOutputStream();
 	        ObjectOutputStream object = new ObjectOutputStream(message);
 	        object.writeObject((Object)this);
@@ -23,12 +26,30 @@ public class LeaderMessage implements Serializable{
 	        message.close();
 	        return message.toByteArray();
 		}
-		
-		public Node getNode() {
-			return node;
+
+		public int getIncomingId() {
+			return incomingId;
 		}
 
-		public void setNode(Node node) {
-			this.node = node;
+		public void setIncomingId(int incomingId) {
+			this.incomingId = incomingId;
 		}
+
+		public int getStoredID() {
+			return storedID;
+		}
+
+		public void setStoredID(int storedID) {
+			this.storedID = storedID;
+		}
+
+		public float getStoredValue() {
+			return storedValue;
+		}
+
+		public void setStoredValue(float storedValue) {
+			this.storedValue = storedValue;
+		}
+		
+
 }

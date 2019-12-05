@@ -3,14 +3,14 @@ package logic;
 public class AckMessageHandler extends Thread{
 
 	protected Node node;
-	protected Node incomingNode;
+	protected AckMessage ackMessage;
 	
-	public AckMessageHandler(Node node, Node incomingNode) {
+	public AckMessageHandler(Node node, AckMessage ackMessage) {
 		
 		// Assume initialization of the node parameters was done previously
 		// in the node creation or by default values
 		this.node = node;
-		this.incomingNode = incomingNode;
+		this.ackMessage = ackMessage;
 	}
 	
 	@Override
@@ -20,7 +20,7 @@ public class AckMessageHandler extends Thread{
 		// When this node receives an Ack Message, updates waiting Acks first
 		
 		if(!(node.getWaitingAcks().isEmpty())) {
-			node.getWaitingAcks().remove(incomingNode);
+			node.getWaitingAcks().remove(ackMessage.getIncomingId());
 		}
 		// caso das computations simultaneas: este nó pode entrar nouta eleição e já ter recebido aluns acks 
 		// nesse caso manda de novo election para dar update dos CP values dos vizinhos, mas o valor dos
@@ -28,9 +28,9 @@ public class AckMessageHandler extends Thread{
 		// e este nó começa nova eleição, este valor pode não vir a ser superado e a propagar um nó fantasma!!
 		
 		// Then, update this node stored value and stored id if value is bigger
-		if(incomingNode.getStoredValue() > node.getStoredValue()) {
-			node.setStoredValue(incomingNode.getStoredValue() );
-			node.setStoredId(incomingNode.getStoredId());
+		if(ackMessage.getStoredValue() > node.getStoredValue()) {
+			node.setStoredValue(ackMessage.getStoredValue() );
+			node.setStoredId(ackMessage.getStoredID());
 		}
 		
 		// If this was the last acknowledge needed, then send to parent my own ack and update my parameters
