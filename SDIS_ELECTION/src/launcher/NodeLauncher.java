@@ -22,7 +22,7 @@ public class NodeLauncher {
 		dimensions[2] = Integer.parseInt(args[3]);
 		
 		port = 5000;
-		ipAddress = "225.4.5.6"; //between 224.0.0.0 and 239.255.255.255
+		ipAddress = "225.225.221.6"; //between 224.0.0.0 and 239.255.255.255
 		System.out.println("Starting Node " + nodeID);
 		new Node(nodeID, port, ipAddress, dimensions);
 	}
