@@ -8,10 +8,14 @@ import java.util.HashSet;
 
 public class HelloMessage implements Serializable{
 	//This message needs to be serializable to allow its representation as a sequence of bytes
-	private Node node;
-
+	private int nodeID;
+	private int xCoordinate;
+	private int yCoordinate;
+	
 	public HelloMessage(Node node) {
-		this.node = node;
+		this.nodeID = node.getNodeID();
+		this.xCoordinate = node.getxCoordinate();
+		this.yCoordinate = node.getyCoordinate();
 	}
 	
 	public byte[] serializeHelloMessage () throws IOException {
@@ -23,12 +27,31 @@ public class HelloMessage implements Serializable{
         message.close();
         return message.toByteArray();
 	}
-	
-	public Node getNode() {
-		return node;
+
+	public int getNodeID() {
+		return nodeID;
 	}
 
-	public void setNode(Node node) {
-		this.node = node;
+	public void setNodeID(int nodeID) {
+		this.nodeID = nodeID;
 	}
+
+	public int getxCoordinate() {
+		return xCoordinate;
+	}
+
+	public void setxCoordinate(int xCoordinate) {
+		this.xCoordinate = xCoordinate;
+	}
+
+	public int getyCoordinate() {
+		return yCoordinate;
+	}
+
+	public void setyCoordinate(int yCoordinate) {
+		this.yCoordinate = yCoordinate;
+	}
+
+	
+
 }
