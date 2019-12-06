@@ -33,7 +33,7 @@ public class ElectionMessage implements Serializable{
 		public void setincomingId(int incomingId) {
 			this.incomingId = incomingId;
 		}
-		public ComputationIndex getCP() {
+		public ComputationIndex getComputationIndex() {
 			return this.cp;
 		}
 }

@@ -32,10 +32,10 @@ public class LeaderMessageHandler extends Thread{
 		}
 		
 		// If not send election messages to neighbours except to the message sender's id
-		Iterator<Node> i=node.getNeighbors().iterator();
+		Iterator<Integer> i=node.getNeighbors().iterator();
 		while(i.hasNext()) {
-			Node temp = i.next();
-			if(!(temp.getNodeID() == leaderMessage.getIncomingId())) {
+			int temp = i.next();
+			if(!(temp == leaderMessage.getIncomingId())) {
 				// Send Election Message to current selected neighbour
 			}
 		}

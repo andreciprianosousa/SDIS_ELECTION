@@ -17,7 +17,7 @@ public class Node implements Serializable{
 	protected boolean ackSent;
 	protected int leaderID;
 	protected HashSet<Integer> neighbors;
-	protected HashSet<Node> waitingACK;
+	protected HashSet<Integer> waitingACK;
 	protected float nodeValue;
 	protected float storedValue;
 	protected int storedId;
@@ -48,7 +48,7 @@ public class Node implements Serializable{
 		this.electionActive = false;
 		this.leaderID = -1; // -1 is no leader set
 		this.ackSent = true; // true means no ack sent yet, which technically is correct he
-		this.waitingACK = new HashSet<Node>();
+		this.waitingACK = new HashSet<Integer>();
 
 		this.xMax=dimensions[0];
 		this.yMax=dimensions[1];
@@ -155,12 +155,7 @@ public class Node implements Serializable{
 	public void setStoredId(int storedId) {
 		this.storedId = storedId;;
 	}
-	public float getNodeValue() {
-		return nodeValue;
-	}
-	public void setNodeValue(float nodeValue) {
-		this.nodeValue = nodeValue;
-	}
+
 	public float getStoredValue() {
 		return storedValue;
 	}
@@ -173,9 +168,7 @@ public class Node implements Serializable{
 	public void setElectionActive(boolean electionActive) {
 		this.electionActive = electionActive;
 	}
-	public int getParentActive() {
-		return parentActive;
-	}
+
 	public void setParentActive(int parentActive) {
 		this.parentActive = parentActive;
 	}
@@ -191,10 +184,10 @@ public class Node implements Serializable{
 	public void setNeighbors(HashSet<Integer> neighbors) {
 		this.neighbors = neighbors;
 	}
-	public HashSet<Node> getWaitingAcks() {
+	public HashSet<Integer> getWaitingAcks() {
 		return this.waitingACK;
 	}
-	public void setWaitingAck(HashSet<Node> waitingACK) {
+	public void setWaitingAck(HashSet<Integer> waitingACK) {
 		this.waitingACK = waitingACK;
 	}
 	public int getPort() {
@@ -215,23 +208,11 @@ public class Node implements Serializable{
 	public void setAckStatus(boolean ackSent) {
 		this.ackSent = ackSent;
 	}
-	public ComputationIndex getCP() {
+	public ComputationIndex getComputationIndex() {
 		return this.computationIndex;
 	}
-	public float getxMax() {
-		return xMax;
-	}
 
-	public void setxMax(float xMax) {
-		this.xMax = xMax;
-	}
-
-
-	public int getComputationIndex() {
-		return computationIndex;
-	}
-
-	public void setComputationIndex(int computationIndex) {
+	public void setComputationIndex(ComputationIndex computationIndex) {
 		this.computationIndex = computationIndex;
 	}
 
@@ -243,11 +224,11 @@ public class Node implements Serializable{
 		this.ackSent = ackSent;
 	}
 
-	public HashSet<Node> getWaitingACK() {
+	public HashSet<Integer> getWaitingACK() {
 		return waitingACK;
 	}
 
-	public void setWaitingACK(HashSet<Node> waitingACK) {
+	public void setWaitingACK(HashSet<Integer> waitingACK) {
 		this.waitingACK = waitingACK;
 	}
 
