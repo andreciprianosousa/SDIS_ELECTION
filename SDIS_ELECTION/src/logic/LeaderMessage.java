@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-public class LeaderMessage implements Serializable{
+public class LeaderMessage extends Message implements Serializable{
 	
 		private int incomingId;
 		private int storedID;

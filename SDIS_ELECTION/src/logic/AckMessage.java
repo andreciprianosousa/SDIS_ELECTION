@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-public class AckMessage implements Serializable{
+public class AckMessage extends Message implements Serializable  {
 	
 	//This message needs to be serializable to allow its representation as a sequence of bytes
 		private int incomingId;
