@@ -11,7 +11,7 @@ import simulation.Simulation;
 public class Node implements Serializable{
 	
 	protected int nodeID;
-	protected int computationIndex;
+	protected ComputationIndex computationIndex;
 	protected boolean electionActive;
 	protected int parentActive;
 	protected boolean ackSent;
@@ -19,13 +19,17 @@ public class Node implements Serializable{
 	protected HashSet<Integer> neighbors;
 	protected HashSet<Node> waitingACK;
 	protected float nodeValue;
+	protected float storedValue;
+	protected int storedId;
 	
 	// Used in mobile implementation
 	private float xMax;
 	private float yMax;
+
 	private int xCoordinate;
 	private int yCoordinate;
 	private int nodeRange;
+
 	protected int port;
 	protected String ipAddress;
 	protected Simulation simNode;
@@ -35,6 +39,17 @@ public class Node implements Serializable{
 		this.port = port;
 		this.ipAddress = ipAddress;
 		this.nodeValue = nodeID;
+
+		this.storedValue = this.nodeValue;
+		this.storedId = this.nodeID;
+		// don't forget to increase num when starting election
+		this.computationIndex = new ComputationIndex(this.getNodeID(), 0, this.getNodeValue()); 
+		this.parentActive = -1;
+		this.electionActive = false;
+		this.leaderID = -1; // -1 is no leader set
+		this.ackSent = true; // true means no ack sent yet, which technically is correct he
+		this.waitingACK = new HashSet<Node>();
+
 		this.xMax=dimensions[0];
 		this.yMax=dimensions[1];
 		this.nodeRange = dimensions[2];
@@ -43,6 +58,7 @@ public class Node implements Serializable{
 		//Initial coordinates 
 		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
 		yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
+
 		
 		new NodeListener(this).start();
 		new NodeTransmitter(this).start();
@@ -96,7 +112,8 @@ public class Node implements Serializable{
 		else 
 			return false;
 	}
-	
+
+
 	
 	@Override
     public String toString() {
@@ -114,7 +131,7 @@ public class Node implements Serializable{
         }
 
     }
-    
+   
     public float distanceBetweenNodes(Node node) {
     	float distanceBetweenNodes;
     	
@@ -132,13 +149,31 @@ public class Node implements Serializable{
 	public void setNodeID(int nodeID) {
 		this.nodeID = nodeID;
 	}
+	public int getStoredId() {
+		return storedId;
+	}
+	public void setStoredId(int storedId) {
+		this.storedId = storedId;;
+	}
+	public float getNodeValue() {
+		return nodeValue;
+	}
+	public void setNodeValue(float nodeValue) {
+		this.nodeValue = nodeValue;
+	}
+	public float getStoredValue() {
+		return storedValue;
+	}
+	public void setStoredValue(float storedValue) {
+		this.storedValue = storedValue;
+	}
 	public boolean isElectionActive() {
 		return electionActive;
 	}
 	public void setElectionActive(boolean electionActive) {
 		this.electionActive = electionActive;
 	}
-	public int isParentActive() {
+	public int getParentActive() {
 		return parentActive;
 	}
 	public void setParentActive(int parentActive) {
@@ -156,6 +191,12 @@ public class Node implements Serializable{
 	public void setNeighbors(HashSet<Integer> neighbors) {
 		this.neighbors = neighbors;
 	}
+	public HashSet<Node> getWaitingAcks() {
+		return this.waitingACK;
+	}
+	public void setWaitingAck(HashSet<Node> waitingACK) {
+		this.waitingACK = waitingACK;
+	}
 	public int getPort() {
 		return port;
 	}
@@ -168,6 +209,23 @@ public class Node implements Serializable{
 	public void setIpAddress(String ipAddress) {
 		this.ipAddress = ipAddress;
 	}
+	public boolean getAckStatus() {
+		return this.ackSent;
+	}
+	public void setAckStatus(boolean ackSent) {
+		this.ackSent = ackSent;
+	}
+	public ComputationIndex getCP() {
+		return this.computationIndex;
+	}
+	public float getxMax() {
+		return xMax;
+	}
+
+	public void setxMax(float xMax) {
+		this.xMax = xMax;
+	}
+
 
 	public int getComputationIndex() {
 		return computationIndex;
@@ -208,7 +266,6 @@ public class Node implements Serializable{
 	public void setxMax(float xMax) {
 		this.xMax = xMax;
 	}
-
 	public float getyMax() {
 		return yMax;
 	}
@@ -216,6 +273,7 @@ public class Node implements Serializable{
 	public void setyMax(float yMax) {
 		this.yMax = yMax;
 	}
+
 
 	public int getxCoordinate() {
 		return xCoordinate;

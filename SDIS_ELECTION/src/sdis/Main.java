@@ -1,77 +1,33 @@
 package sdis;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.nio.charset.Charset;
+import java.util.Iterator;
 
 public class Main {
 	
-	public static void main(String[] args) throws IOException {
-		if (args[0].equals("1")) { 
-
-			// Which port should we listen to
-			int port = 5000;
-			// Which address
-			String group = "225.4.5.6";
-
-			// Create the socket and bind it to port 'port'.
-			MulticastSocket s = new MulticastSocket(port);
-
-			// join the multicast group
-			s.joinGroup(InetAddress.getByName(group));
-			// Now the socket is set up and we are ready to receive packets
-
-			// Create a DatagramPacket and do a receive
-			byte buf[] = new byte[100];
-			DatagramPacket pack = new DatagramPacket(buf, buf.length);
-			s.receive(pack);
-
-			// Finally, let us do something useful with the data we just received,
-			// like print it on stdout :-)
-			System.out.println("Received data from: " + pack.getAddress().toString() + ":" + pack.getPort()
-					+ " with length: " + pack.getLength());
-			System.out.println(pack.toString());
-			System.out.println(pack.getPort());
-			
-			String message = new String(pack.getData(), 0, pack.getLength());
-			
-			System.out.println(message);
+	public static void main(String[] args) {
 		
-
-			// And when we have finished receiving data leave the multicast group and
-			// close the socket
-			s.leaveGroup(InetAddress.getByName(group));
-			s.close();
-
-		} else {
-
-			// Which port should we send to
-			int port = 5000;
-			// Which address
-			String group = "225.4.5.6";
-
-			// Create the socket but we don't bind it as we are only going to send data
-			MulticastSocket s = new MulticastSocket();
-
-			// Note that we don't have to join the multicast group if we are only
-			// sending data and not receiving
-
-			// Fill the buffer with some data
-			String message = "Ola";
-			byte[] buf = message.getBytes();
-			
-			
-			// Create a DatagramPacket
-			DatagramPacket pack = new DatagramPacket(buf, buf.length, InetAddress.getByName(group), port);
-			// Do a send. Note that send takes a byte for the ttl and not an int.
-			s.send(pack);
-
-			// And when we have finished sending data close the socket
-			s.close();
-
+		NodeTest n1 = new NodeTest(1,2);
+		NodeTest n2 = new NodeTest(2,-1);
+		NodeTest n3 = new NodeTest(3, 1);
+		NodeTest n4 = new NodeTest(4, 2);
+		
+		n1.getNeighbors().add(n2);
+		n1.getNeighbors().add(n3);
+		n1.getNeighbors().add(n4);
+		
+		Iterator<NodeTest> i=n1.getNeighbors().iterator();
+		while(i.hasNext()) {
+			// This will not work most likely...
+			NodeTest temp = i.next();
+			if(!(temp.getId() == n1.getParent())) {
+				n1.getWaitingAcks().add(temp);
+				// Send Election Message to current selected neighbour
+			}
 		}
 		
+		Iterator<NodeTest> ii=n1.getWaitingAcks().iterator();
+		while(ii.hasNext()) {
+			System.out.println(ii.next().getId());
+		}
 	}
 }

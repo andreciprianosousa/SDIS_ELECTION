@@ -7,9 +7,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 
-import logic.Node;
 import logic.*;
 
 public class NodeTransmitter extends Thread{
@@ -31,6 +29,11 @@ public class NodeTransmitter extends Thread{
 		InetAddress group = null;
 		Object message = null;
 		HelloMessage helloMessage = null;
+
+		ElectionMessage electionMessage = null;
+		AckMessage ackMessage = null;
+		LeaderMessage leaderMessage = null;
+
 		DatagramPacket datagram; 
 		
 		try {
@@ -70,19 +73,38 @@ public class NodeTransmitter extends Thread{
 				e.printStackTrace();
 			} 
 			
-			// Test Packet
-//			if (this.node.testPacket() == true) {
-//				System.out.println("Packet Drop!");
-//				message = "Dropped";
-//			}
+			//------------- Reception and logic starts here-----------------
 			
 			if (message instanceof HelloMessage) {
 				helloMessage = (HelloMessage) message;
 				//System.out.println(helloMessage.getNode().getNodeID());
 				this.node.updateNeighbors (helloMessage, datagram.getAddress());
 			}
+			else if(message instanceof ElectionMessage) {
+				electionMessage = (ElectionMessage) message;
+				new ElectionMessageHandler(this.node, electionMessage).start();
+			}
+			else if(message instanceof AckMessage) {
+				ackMessage = (AckMessage) message;
+				new AckMessageHandler(this.node, ackMessage).start();
+			}
+			else if(message instanceof LeaderMessage) {
+				leaderMessage = (LeaderMessage) message;
+				new LeaderMessageHandler(this.node, leaderMessage).start();
+			}
 			
-			//System.out.println("Message received by Node " + node.getNodeID() + ": " + message);
+			
+			//----------------------------------------------------------------
+
+			
+			// Test Packet
+//			if (this.node.testPacket() == true) {
+//				System.out.println("Packet Drop!");
+//				message = "Dropped";
+//			}
+			
+
+			
 		}
 	}
 	
@@ -95,3 +117,4 @@ public class NodeTransmitter extends Thread{
         return o;
 	}
 }
+
