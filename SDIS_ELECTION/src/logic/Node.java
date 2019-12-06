@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 import network.*;
+import simulation.Simulation;
 
 public class Node implements Serializable{
 	
@@ -27,6 +28,7 @@ public class Node implements Serializable{
 	private float nodeRange;
 	protected int port;
 	protected String ipAddress;
+	protected Simulation simNode;
 	
 	public Node (int nodeID, int port, String ipAddress, int[] dimensions) throws InterruptedException {
 		this.nodeID = nodeID;
@@ -53,7 +55,7 @@ public class Node implements Serializable{
 
 		if(nodeMessageID != nodeID) {
 			//if this node does not contain the name in the message
-			if(!(neighbors.contains( message.getNode()))) {
+			if(!(neighbors.contains(message.getNode()))) {
 				//if message node is inside neighborhood
 				if(message.getNode().isInsideNeighborhood(this)) {
 					neighbors.add(message.getNode());
@@ -69,9 +71,9 @@ public class Node implements Serializable{
 	}
 	
 	public boolean isInsideNeighborhood(Node node) {
-		float range, distanceBetweenNodes;
+		float distanceBetweenNodes;
 		
-		distanceBetweenNodes = (float) Math.sqrt(Math.pow((node.xCoordinate-xCoordinate),2) + Math.pow((node.yCoordinate-yCoordinate),2));
+		distanceBetweenNodes = distanceBetweenNodes(node);
 		
 		if(distanceBetweenNodes <= node.nodeRange) {
 			return true;
@@ -80,6 +82,19 @@ public class Node implements Serializable{
 			return false;
 		}
 	}
+	
+	public boolean testPacket () {
+		boolean isPacketDropped;
+		float distanceBetweenNodes = 0;
+		
+		//distanceBetweenNodes = distanceBetweenNodes();
+		
+		if ((isPacketDropped = simNode.dropPacket(this.nodeRange, distanceBetweenNodes)) == true)
+			return true;
+		else 
+			return false;
+	}
+	
 	
 	@Override
     public String toString() {
@@ -96,6 +111,13 @@ public class Node implements Serializable{
         	return false;
         }
 
+    }
+    
+    public float distanceBetweenNodes(Node node) {
+    	float distanceBetweenNodes;
+    	
+    	distanceBetweenNodes = (float) Math.sqrt(Math.pow((node.xCoordinate-xCoordinate),2) + Math.pow((node.yCoordinate-yCoordinate),2));
+    	return distanceBetweenNodes;
     }
 
     public int hashCode() {
