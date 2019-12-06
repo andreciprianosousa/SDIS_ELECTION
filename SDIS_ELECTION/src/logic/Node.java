@@ -3,8 +3,10 @@ package logic;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 
 import network.*;
+import simulation.Simulation;
 
 public class Node implements Serializable{
 	
@@ -14,7 +16,7 @@ public class Node implements Serializable{
 	protected int parentActive;
 	protected boolean ackSent;
 	protected int leaderID;
-	protected HashSet<Node> neighbors;
+	protected HashSet<Integer> neighbors;
 	protected HashSet<Node> waitingACK;
 	protected float nodeValue;
 	protected float storedValue;
@@ -23,17 +25,21 @@ public class Node implements Serializable{
 	// Used in mobile implementation
 	private float xMax;
 	private float yMax;
-	private float xCoordinate;
-	private float yCoordinate;
-	private float nodeRange;
+
+	private int xCoordinate;
+	private int yCoordinate;
+	private int nodeRange;
+
 	protected int port;
 	protected String ipAddress;
+	protected Simulation simNode;
 	
 	public Node (int nodeID, int port, String ipAddress, int[] dimensions) throws InterruptedException {
 		this.nodeID = nodeID;
 		this.port = port;
 		this.ipAddress = ipAddress;
 		this.nodeValue = nodeID;
+
 		this.storedValue = this.nodeValue;
 		this.storedId = this.nodeID;
 		// don't forget to increase num when starting election
@@ -43,36 +49,36 @@ public class Node implements Serializable{
 		this.leaderID = -1; // -1 is no leader set
 		this.ackSent = true; // true means no ack sent yet, which technically is correct he
 		this.waitingACK = new HashSet<Node>();
-		
-		
+
 		this.xMax=dimensions[0];
 		this.yMax=dimensions[1];
 		this.nodeRange = dimensions[2];
-		this.neighbors = new HashSet <Node>();
+		this.neighbors = new HashSet <Integer>();
 		
 		//Initial coordinates 
-		xCoordinate = (float) ((Math.random() * ((xMax - 0) + 1)) + 0);
-		yCoordinate = (float) ((Math.random() * ((yMax - 0) + 1)) + 0);
+		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
+		yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
+
 		
 		new NodeListener(this).start();
 		new NodeTransmitter(this).start();
-		
+
 	}
 	
 	public void updateNeighbors(HelloMessage message, InetAddress ipaddress) {
-		int nodeMessageID = message.getNode().getNodeID();
+		int nodeMessageID = message.getNodeID();
 		//if message node is not this node
 
 		if(nodeMessageID != nodeID) {
 			//if this node does not contain the name in the message
-			if(!(neighbors.contains( message.getNode()))) {
+			if(!(neighbors.contains( message.getNodeID()))) {
 				//if message node is inside neighborhood
-				if(message.getNode().isInsideNeighborhood(this)) {
-					neighbors.add(message.getNode());
+				if(this.isInsideNeighborhood(message.getNodeID(), message.getxCoordinate(), message.getyCoordinate())) {
+					neighbors.add(message.getNodeID());
 					
 					System.out.print("Node " + this.getNodeID() + " is neighbor of: [");
-					for(Node neighbor : neighbors) {
-						System.out.print(neighbor.getNodeID()+ " ");
+					for(int neighbor : neighbors) {
+						System.out.print(neighbor+ " ");
 					}
 					System.out.println("]");
 				}
@@ -80,18 +86,34 @@ public class Node implements Serializable{
 		}
 	}
 	
-	public boolean isInsideNeighborhood(Node node) {
+
+	public boolean isInsideNeighborhood(int neighborID, int xNeighbor, int yNeighbor) {
+		int range;
 		float distanceBetweenNodes;
 		
-		distanceBetweenNodes = (float) Math.sqrt(Math.pow((node.xCoordinate-xCoordinate),2) + Math.pow((node.yCoordinate-yCoordinate),2));
+		distanceBetweenNodes = (float) Math.sqrt(Math.pow((xNeighbor-xCoordinate),2) + Math.pow((yNeighbor-yCoordinate),2));
 		
-		if(distanceBetweenNodes <= node.nodeRange) {
+		if(distanceBetweenNodes <= this.nodeRange) {
 			return true;
 		}
 		else {
 			return false;
 		}
 	}
+	
+	public boolean testPacket () {
+		boolean isPacketDropped;
+		float distanceBetweenNodes = 0;
+		
+		//distanceBetweenNodes = distanceBetweenNodes();
+		
+		if ((isPacketDropped = simNode.dropPacket(this.nodeRange, distanceBetweenNodes)) == true)
+			return true;
+		else 
+			return false;
+	}
+
+
 	
 	@Override
     public String toString() {
@@ -109,11 +131,18 @@ public class Node implements Serializable{
         }
 
     }
-    
+   
+    public float distanceBetweenNodes(Node node) {
+    	float distanceBetweenNodes;
+    	
+    	distanceBetweenNodes = (float) Math.sqrt(Math.pow((node.xCoordinate-xCoordinate),2) + Math.pow((node.yCoordinate-yCoordinate),2));
+    	return distanceBetweenNodes;
+    }
+
     public int hashCode() {
         return toString().hashCode();
     }
-	
+    
 	public int getNodeID() {
 		return nodeID;
 	}
@@ -156,10 +185,10 @@ public class Node implements Serializable{
 	public void setLeaderID(int leaderID) {
 		this.leaderID = leaderID;
 	}
-	public HashSet<Node> getNeighbors() {
+	public HashSet<Integer> getNeighbors() {
 		return neighbors;
 	}
-	public void setNeighbors(HashSet<Node> neighbors) {
+	public void setNeighbors(HashSet<Integer> neighbors) {
 		this.neighbors = neighbors;
 	}
 	public HashSet<Node> getWaitingAcks() {
@@ -197,6 +226,46 @@ public class Node implements Serializable{
 		this.xMax = xMax;
 	}
 
+
+	public int getComputationIndex() {
+		return computationIndex;
+	}
+
+	public void setComputationIndex(int computationIndex) {
+		this.computationIndex = computationIndex;
+	}
+
+	public boolean isAckSent() {
+		return ackSent;
+	}
+
+	public void setAckSent(boolean ackSent) {
+		this.ackSent = ackSent;
+	}
+
+	public HashSet<Node> getWaitingACK() {
+		return waitingACK;
+	}
+
+	public void setWaitingACK(HashSet<Node> waitingACK) {
+		this.waitingACK = waitingACK;
+	}
+
+	public float getNodeValue() {
+		return nodeValue;
+	}
+
+	public void setNodeValue(float nodeValue) {
+		this.nodeValue = nodeValue;
+	}
+
+	public float getxMax() {
+		return xMax;
+	}
+
+	public void setxMax(float xMax) {
+		this.xMax = xMax;
+	}
 	public float getyMax() {
 		return yMax;
 	}
@@ -205,28 +274,33 @@ public class Node implements Serializable{
 		this.yMax = yMax;
 	}
 
-	public float getxCoordinate() {
+
+	public int getxCoordinate() {
 		return xCoordinate;
 	}
 
-	public void setxCoordinate(float xCoordinate) {
+	public void setxCoordinate(int xCoordinate) {
 		this.xCoordinate = xCoordinate;
 	}
 
-	public float getyCoordinate() {
+	public int getyCoordinate() {
 		return yCoordinate;
 	}
 
-	public void setyCoordinate(float yCoordinate) {
+	public void setyCoordinate(int yCoordinate) {
 		this.yCoordinate = yCoordinate;
 	}
 
-	public float getNodeRange() {
+	public int getNodeRange() {
 		return nodeRange;
 	}
 
-	public void setNodeRange(float nodeRange) {
+	public void setNodeRange(int nodeRange) {
 		this.nodeRange = nodeRange;
 	}
 
+	public int getParentActive() {
+		return parentActive;
+	}
+	
 }

@@ -29,9 +29,11 @@ public class NodeTransmitter extends Thread{
 		InetAddress group = null;
 		Object message = null;
 		HelloMessage helloMessage = null;
+
 		ElectionMessage electionMessage = null;
 		AckMessage ackMessage = null;
 		LeaderMessage leaderMessage = null;
+
 		DatagramPacket datagram; 
 		
 		try {
@@ -91,9 +93,18 @@ public class NodeTransmitter extends Thread{
 				new LeaderMessageHandler(this.node, leaderMessage).start();
 			}
 			
-			//System.out.println("Message received by Node " + node.getNodeID() + ": " + message);
 			
 			//----------------------------------------------------------------
+
+			
+			// Test Packet
+//			if (this.node.testPacket() == true) {
+//				System.out.println("Packet Drop!");
+//				message = "Dropped";
+//			}
+			
+
+			
 		}
 	}
 	
@@ -106,3 +117,4 @@ public class NodeTransmitter extends Thread{
         return o;
 	}
 }
+
