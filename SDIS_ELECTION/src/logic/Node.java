@@ -55,11 +55,7 @@ public class Node implements Serializable{
 
 		if(nodeMessageID != nodeID) {
 			//if this node does not contain the name in the message
-<<<<<<< Upstream, based on branch 'network' of https://github.com/andreciprianosousa/SDIS_ELECTION.git
-			if(!(neighbors.contains(message.getNode()))) {
-=======
 			if(!(neighbors.contains( message.getNodeID()))) {
->>>>>>> 6c22e4e simplified messages
 				//if message node is inside neighborhood
 				if(this.isInsideNeighborhood(message.getNodeID(), message.getxCoordinate(), message.getyCoordinate())) {
 					neighbors.add(message.getNodeID());
@@ -74,19 +70,12 @@ public class Node implements Serializable{
 		}
 	}
 	
-<<<<<<< Upstream, based on branch 'network' of https://github.com/andreciprianosousa/SDIS_ELECTION.git
-	public boolean isInsideNeighborhood(Node node) {
-=======
+
 	public boolean isInsideNeighborhood(int neighborID, int xNeighbor, int yNeighbor) {
 		int range;
->>>>>>> 6c22e4e simplified messages
 		float distanceBetweenNodes;
 		
-<<<<<<< Upstream, based on branch 'network' of https://github.com/andreciprianosousa/SDIS_ELECTION.git
-		distanceBetweenNodes = distanceBetweenNodes(node);
-=======
 		distanceBetweenNodes = (float) Math.sqrt(Math.pow((xNeighbor-xCoordinate),2) + Math.pow((yNeighbor-yCoordinate),2));
->>>>>>> 6c22e4e simplified messages
 		
 		if(distanceBetweenNodes <= this.nodeRange) {
 			return true;

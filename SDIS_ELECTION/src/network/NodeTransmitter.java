@@ -71,10 +71,10 @@ public class NodeTransmitter extends Thread{
 			} 
 			
 			// Test Packet
-			if (this.node.testPacket() == true) {
-				System.out.println("Packet Drop!");
-				message = "Dropped";
-			}
+//			if (this.node.testPacket() == true) {
+//				System.out.println("Packet Drop!");
+//				message = "Dropped";
+//			}
 			
 			if (message instanceof HelloMessage) {
 				helloMessage = (HelloMessage) message;
