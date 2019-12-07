@@ -69,7 +69,6 @@ public class NodeTransmitter extends Thread{
 			try {
 				message = deserializeMessage (datagram.getData());
 			} catch (ClassNotFoundException | IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
 			
@@ -78,27 +77,38 @@ public class NodeTransmitter extends Thread{
 				System.out.println("Packet Drop!");
 			} else {			
 				
+			
 			//------------- Reception and logic starts here-----------------
+			
+			if (message instanceof HelloMessage) {
+				helloMessage = (HelloMessage) message;
+				//System.out.println(helloMessage.getNode().getNodeID());
+				this.node.updateNeighbors (helloMessage, datagram.getAddress());
+			}
+			else if(message instanceof ElectionMessage) {
+				electionMessage = (ElectionMessage) message;
 				
-				if (message instanceof HelloMessage) {
-					helloMessage = (HelloMessage) message;
-					//System.out.println(helloMessage.getNode().getNodeID());
-					this.node.updateNeighbors (helloMessage, datagram.getAddress());
-				}
-				else if(message instanceof ElectionMessage) {
-					electionMessage = (ElectionMessage) message;
+				// If Node is the message recipient, starts handling it
+				if (electionMessage.getAddresseeId() == node.getNodeID()) {
 					new ElectionMessageHandler(this.node, electionMessage).start();
 				}
-				else if(message instanceof AckMessage) {
-					ackMessage = (AckMessage) message;
+			}
+			else if(message instanceof AckMessage) {
+				ackMessage = (AckMessage) message;
+				
+				if (ackMessage.getAddresseeId() == node.getNodeID()) {
 					new AckMessageHandler(this.node, ackMessage).start();
 				}
-				else if(message instanceof LeaderMessage) {
-					leaderMessage = (LeaderMessage) message;
-					new LeaderMessageHandler(this.node, leaderMessage).start();
-				}
 			}
-			//----------------------------------------------------------------			
+			else if(message instanceof LeaderMessage) {
+				
+				
+				leaderMessage = (LeaderMessage) message;
+				new LeaderMessageHandler(this.node, leaderMessage).start();
+			}
+			
+			
+			//---------------------------------------------------------------
 		}
 	}
 	
