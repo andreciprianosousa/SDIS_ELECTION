@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import network.*;
 import simulation.Simulation;
 
+
 public class Node implements Serializable{
 	
 	protected int nodeID;

@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 
 public class Handler extends Thread { 
 	protected Node node;	
-	protected Message message;
+	protected MessageType messageType;
 	protected AckMessage      ackMessage      = null;
 	protected ElectionMessage electionMessage = null;
 	protected LeaderMessage   leaderMessage   = null;
@@ -16,9 +16,9 @@ public class Handler extends Thread {
 	DatagramPacket datagram;
 	
 	// Constructor
-	public Handler(Node node, Message message) {
+	public Handler(Node node, MessageType messageType) {
 		this.node = node;
-		this.message = message; 
+		this.messageType = messageType; 
 	}
 	
 	// Thread Method
@@ -39,7 +39,7 @@ public class Handler extends Thread {
 		}
 		
 		// Selects Type of Message and Serializes it
-		if (message instanceof AckMessage) {
+		if (messageType == MessageType.ACK) {
 			try {
 				ackMessage = new AckMessage(node.getNodeID(), node.getStoredId(), node.getStoredValue());
 				messageToSend = ackMessage.serializeAckMessage();
@@ -48,7 +48,7 @@ public class Handler extends Thread {
 				System.out.println("Handler: Error Serializing AckMessage (Node: " + node.getNodeID()+ ")");
 			}
 			
-		} else if (message instanceof ElectionMessage) {
+		} else if (messageType == MessageType.ELECTION) {
 			try {
 				electionMessage = new ElectionMessage(node.getNodeID(), node.getComputationIndex());
 				messageToSend = electionMessage.serializeElectionMessage();
@@ -57,7 +57,7 @@ public class Handler extends Thread {
 				System.out.println("Handler: Error Serializing ElectionMessage (Node: " + node.getNodeID()+ ")");
 			}
 			
-		} else if (message instanceof LeaderMessage) {
+		} else if (messageType == MessageType.LEADER) {
 			try {
 				leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue());
 				messageToSend = leaderMessage.serializeLeaderMessage();

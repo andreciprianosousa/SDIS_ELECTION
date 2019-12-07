@@ -14,9 +14,12 @@ public class AckMessageHandler extends Thread{
 		this.ackMessage = ackMessage;
 	}
 	
-	// I think this should be the implementation to send an ACK Message, see where it fits ;)
 	public void sendAckMessage() {
-		new Handler(node, ackMessage).start();
+		new Handler(this.node, MessageType.ACK).start();
+	}
+	
+	public void sendLeaderMessage() {
+		new Handler(this.node, MessageType.LEADER).start();
 	}
 	
 	@Override
@@ -45,12 +48,14 @@ public class AckMessageHandler extends Thread{
 			if(node.getParentActive() != -1) {
 				node.setAckStatus(false);
 				// send ACK message to parent stored in node.getParentActive()
+				sendAckMessage();
 			}
 			else {
 				node.setAckStatus(true); // may change
 				node.setElectionActive(false);
 				node.setLeaderID(node.getStoredId());
 				// send Leader message to all children, needs id and value of leader chosen (stored already)
+				sendLeaderMessage();
 			}
 		}
 		

@@ -15,6 +15,10 @@ public class LeaderMessageHandler extends Thread{
 		this.leaderMessage = lm;
 	}
 	
+	public void sendLeaderMessage() {
+		new Handler(this.node, MessageType.LEADER).start();
+	}
+	
 	@Override
 	public synchronized void run() {
 		
@@ -31,12 +35,13 @@ public class LeaderMessageHandler extends Thread{
 			return;
 		}
 		
-		// If not send election messages to neighbours except to the message sender's id
+		// If not send leader messages to neighbours except to the message sender's id
 		Iterator<Integer> i=node.getNeighbors().iterator();
 		while(i.hasNext()) {
 			int temp = i.next();
 			if(!(temp == leaderMessage.getIncomingId())) {
-				// Send Election Message to current selected neighbour
+				// Send Leader Message to current selected neighbour
+				sendLeaderMessage();
 			}
 		}
 		
