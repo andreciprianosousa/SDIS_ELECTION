@@ -29,6 +29,8 @@ public class Node implements Serializable{
 	private int xCoordinate;
 	private int yCoordinate;
 	private int nodeRange;
+	
+	private boolean isKilled;
 
 	protected int port;
 	protected String ipAddress;
@@ -91,7 +93,7 @@ public class Node implements Serializable{
 		int range;
 		float distanceBetweenNodes;
 		
-		distanceBetweenNodes = (float) Math.sqrt(Math.pow((xNeighbor-xCoordinate),2) + Math.pow((yNeighbor-yCoordinate),2));
+		distanceBetweenNodes = distanceBetweenNodes(xNeighbor, yNeighbor);
 		
 		if(distanceBetweenNodes <= this.nodeRange) {
 			return true;
@@ -101,17 +103,22 @@ public class Node implements Serializable{
 		}
 	}
 	
-	public boolean testPacket () {
-		boolean isPacketDropped;
-		float distanceBetweenNodes = 0;
+	public boolean testPacket (int xNeighbor, int yNeighbor) {
 		
-		//distanceBetweenNodes = distanceBetweenNodes();
+		float distanceBetweenNodes = distanceBetweenNodes(xNeighbor, yNeighbor);
 		
-		if ((isPacketDropped = simNode.dropPacket(this.nodeRange, distanceBetweenNodes)) == true)
+		if (simNode.dropPacket(this.nodeRange, distanceBetweenNodes) == true)
 			return true;
 		else 
 			return false;
 	}
+
+	public float distanceBetweenNodes(int xNeighbor, int yNeighbor) {
+		
+    	float distanceBetweenNodes = (float) Math.sqrt(Math.pow((xNeighbor-xCoordinate),2) + Math.pow((yNeighbor-yCoordinate),2));
+    	
+    	return distanceBetweenNodes;
+    }
 
 
 	
@@ -132,13 +139,7 @@ public class Node implements Serializable{
 
     }
    
-    public float distanceBetweenNodes(Node node) {
-    	float distanceBetweenNodes;
-    	
-    	distanceBetweenNodes = (float) Math.sqrt(Math.pow((node.xCoordinate-xCoordinate),2) + Math.pow((node.yCoordinate-yCoordinate),2));
-    	return distanceBetweenNodes;
-    }
-
+    
     public int hashCode() {
         return toString().hashCode();
     }
@@ -283,5 +284,12 @@ public class Node implements Serializable{
 	public int getParentActive() {
 		return parentActive;
 	}
-	
+
+	public boolean isKilled() {
+		return isKilled;
+	}
+
+	public void setKilled(boolean isKilled) {
+		this.isKilled = isKilled;
+	}
 }
