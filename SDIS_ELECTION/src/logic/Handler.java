@@ -41,7 +41,7 @@ public class Handler extends Thread {
 		// Selects Type of Message and Serializes it
 		if (message instanceof AckMessage) {
 			try {
-				ackMessage = new AckMessage(node.getStoredId(), node.getLeaderID(), node.getStoredValue());
+				ackMessage = new AckMessage(node.getNodeID(), node.getStoredId(), node.getStoredValue());
 				messageToSend = ackMessage.serializeAckMessage();
 			} catch (IOException e1) {
 				e1.printStackTrace();
@@ -59,7 +59,7 @@ public class Handler extends Thread {
 			
 		} else if (message instanceof LeaderMessage) {
 			try {
-				leaderMessage = new LeaderMessage(node.getStoredId(), node.getLeaderID() , node.getStoredValue());
+				leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue());
 				messageToSend = leaderMessage.serializeLeaderMessage();
 			} catch (IOException e3) {
 				e3.printStackTrace();
