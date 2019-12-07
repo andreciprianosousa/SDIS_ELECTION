@@ -71,24 +71,22 @@ public class NodeTransmitter extends Thread{
 			} catch (ClassNotFoundException | IOException e) {
 				e.printStackTrace();
 			} 
-			
-			// ------------ Simulation: Drop Packets -----------------------
-			if (this.node.testPacket() == true) {
-				System.out.println("Packet Drop!");
 				
-			} else {			
-				
-			
+
 			//------------- Reception and logic starts here-----------------
 			
-				if (message instanceof HelloMessage) {
-					helloMessage = (HelloMessage) message;
-					//System.out.println(helloMessage.getNode().getNodeID());
-					this.node.updateNeighbors (helloMessage, datagram.getAddress());
-				}
-				else if(message instanceof ElectionMessage) {
-					electionMessage = (ElectionMessage) message;
-					
+			if (message instanceof HelloMessage) {
+				helloMessage = (HelloMessage) message;
+				//System.out.println(helloMessage.getNode().getNodeID());
+				this.node.updateNeighbors (helloMessage, datagram.getAddress());
+			}
+			else if(message instanceof ElectionMessage) {
+				electionMessage = (ElectionMessage) message;
+				
+				//------- Simulation -------
+				if (this.node.testPacket(electionMessage.getxCoordinate(), electionMessage.getyCoordinate()) == true) {
+					System.out.println("Election Message Packet Drop");
+				} else {					
 					// If Node is the message recipient, starts handling it
 					// Separates Group messages from Individual ones
 					
@@ -101,25 +99,30 @@ public class NodeTransmitter extends Thread{
 						new ElectionMessageHandler(this.node, electionMessage).start();
 					}
 				}
+			}
+			else if(message instanceof AckMessage) {
+				ackMessage = (AckMessage) message;
 				
-				else if(message instanceof AckMessage) {
-					ackMessage = (AckMessage) message;
-					
+				if(this.node.testPacket(ackMessage.getxCoordinate(), ackMessage.getyCoordinate())) {
+					System.out.println("Ack Message Packet Drop");
+				} else {
 					if (ackMessage.getAddresseeId() == node.getNodeID()) {
 						new AckMessageHandler(this.node, ackMessage).start();
-					}
+					}	
 				}
+			}
+			else if(message instanceof LeaderMessage) {
+				leaderMessage = (LeaderMessage) message;
 				
-				else if(message instanceof LeaderMessage) {
-					leaderMessage = (LeaderMessage) message;
-					
+				if(this.node.testPacket(leaderMessage.getxCoordinate(), ackMessage.getyCoordinate())) {
+					System.out.println("Leader Message Packet Drop");
+				} else {
 					if (leaderMessage.getMailingList().contains(node.getNodeID())) 		// Hope it works :D
 						new LeaderMessageHandler(this.node, leaderMessage).start();
 				}
 			}
-			
-			//---------------------------------------------------------------
 		}
+			//---------------------------------------------------------------
 	}
 	
 	public Object deserializeMessage (byte[] bytes) throws IOException, ClassNotFoundException {
