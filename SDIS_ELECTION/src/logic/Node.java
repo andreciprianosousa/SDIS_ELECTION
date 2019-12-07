@@ -2,11 +2,15 @@ package logic;
 
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import network.*;
 import simulation.Simulation;
+import java.time.Instant; 
+import java.time.Duration;
 
 public class Node implements Serializable{
 	
@@ -16,7 +20,7 @@ public class Node implements Serializable{
 	protected int parentActive;
 	protected boolean ackSent;
 	protected int leaderID;
-	protected HashSet<Integer> neighbors;
+	protected HashMap<Integer, Instant> neighbors;
 	protected HashSet<Integer> waitingACK;
 	protected float nodeValue;
 	protected float storedValue;
@@ -34,7 +38,7 @@ public class Node implements Serializable{
 	protected String ipAddress;
 	protected Simulation simNode;
 	
-	public Node (int nodeID, int port, String ipAddress, int[] dimensions) throws InterruptedException {
+	public Node (int nodeID, int port, String ipAddress, int[] dimensions, int refreshRate, int timeOut) throws InterruptedException {
 		this.nodeID = nodeID;
 		this.port = port;
 		this.ipAddress = ipAddress;
@@ -53,37 +57,46 @@ public class Node implements Serializable{
 		this.xMax=dimensions[0];
 		this.yMax=dimensions[1];
 		this.nodeRange = dimensions[2];
-		this.neighbors = new HashSet <Integer>();
+		this.neighbors = new HashMap <Integer, Instant>();
 		
 		//Initial coordinates 
 		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
 		yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
 
 		
-		new NodeListener(this).start();
-		new NodeTransmitter(this).start();
+		new NodeListener(this, refreshRate).start();
+		new NodeTransmitter(this, timeOut).start();
 
 	}
 	
-	public void updateNeighbors(HelloMessage message, InetAddress ipaddress) {
+	public void updateNeighbors(HelloMessage message, InetAddress ipaddress, int timeOut) {
 		int nodeMessageID = message.getNodeID();
 		//if message node is not this node
 
 		if(nodeMessageID != nodeID) {
-			//if this node does not contain the name in the message
-			if(!(neighbors.contains( message.getNodeID()))) {
-				//if message node is inside neighborhood
-				if(this.isInsideNeighborhood(message.getNodeID(), message.getxCoordinate(), message.getyCoordinate())) {
-					neighbors.add(message.getNodeID());
-					
+			//if message node is inside neighborhood
+			if(this.isInsideNeighborhood(nodeMessageID, message.getxCoordinate(), message.getyCoordinate())) {
+				//does node exist? update time, otherwise add it and update time
+				if(!neighbors.containsKey(nodeMessageID)) {
 					System.out.print("Node " + this.getNodeID() + " is neighbor of: [");
-					for(int neighbor : neighbors) {
+					for(int neighbor : neighbors.keySet()) {
 						System.out.print(neighbor+ " ");
 					}
+					System.out.print(nodeMessageID+ " ");
 					System.out.println("]");
 				}
-			}	
+				neighbors.put(message.getNodeID(), Instant.now());
+			}
+			
+			for(int neighbor : neighbors.keySet()) {
+				//System.out.println(Duration.between(neighbors.get(neighbor), Instant.now()).toSeconds());
+				if(Duration.between(neighbors.get(neighbor), Instant.now()).toSeconds()>timeOut) {
+					neighbors.remove(neighbor);
+					System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
+				}		
+			}
 		}
+		
 	}
 	
 
@@ -178,10 +191,10 @@ public class Node implements Serializable{
 	public void setLeaderID(int leaderID) {
 		this.leaderID = leaderID;
 	}
-	public HashSet<Integer> getNeighbors() {
-		return neighbors;
+	public Set<Integer> getNeighbors() {
+		return neighbors.keySet();
 	}
-	public void setNeighbors(HashSet<Integer> neighbors) {
+	public void setNeighbors(HashMap<Integer, Instant> neighbors) {
 		this.neighbors = neighbors;
 	}
 	public HashSet<Integer> getWaitingAcks() {
