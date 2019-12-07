@@ -5,17 +5,25 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-public class AckMessage extends Message implements Serializable  {
+public class AckMessage implements Serializable  {
 	
-	//This message needs to be serializable to allow its representation as a sequence of bytes
+	    //This message needs to be serializable to allow its representation as a sequence of bytes
 		private int incomingId;
 		private int storedID;
 		private float storedValue;
 
-		public AckMessage(int incomingId, int leaderID, float leaderValue) {
+		private int myCoordX;
+		private int myCoordY;
+		private int addresseeId;
+		
+
+		public AckMessage(int incomingId, int leaderID, float leaderValue, int myCoordX, int myCoordY, int addresseeId) {
 			this.incomingId = incomingId;
 			this.storedID = leaderID;
 			this.storedValue = leaderValue;
+			this.addresseeId = addresseeId;
+			this.myCoordX = myCoordX;
+			this.myCoordY = myCoordY;
 		}
 		
 		public byte[] serializeAckMessage () throws IOException {
@@ -52,5 +60,29 @@ public class AckMessage extends Message implements Serializable  {
 			this.storedValue = storedValue;
 		}
 		
+		public int getAddresseeId() {
+			return addresseeId;
+		}
 
+		public void setAddresseeId(int addresseeId) {
+			this.addresseeId = addresseeId;
+		}
+
+		public int getMyCoordX() {
+			return myCoordX;
+		}
+
+		public void setMyCoordX(int myCoordX) {
+			this.myCoordX = myCoordX;
+		}
+
+		public int getMyCoordY() {
+			return myCoordY;
+		}
+
+		public void setMyCoordY(int myCoordY) {
+			this.myCoordY = myCoordY;
+		}
+
+		// Pai destinario - manda quando recebe de todos os filhos
 }

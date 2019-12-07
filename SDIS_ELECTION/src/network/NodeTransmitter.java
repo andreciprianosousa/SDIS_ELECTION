@@ -69,9 +69,9 @@ public class NodeTransmitter extends Thread{
 			try {
 				message = deserializeMessage (datagram.getData());
 			} catch (ClassNotFoundException | IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
+			
 			
 			//------------- Reception and logic starts here-----------------
 			
@@ -82,11 +82,18 @@ public class NodeTransmitter extends Thread{
 			}
 			else if(message instanceof ElectionMessage) {
 				electionMessage = (ElectionMessage) message;
-				new ElectionMessageHandler(this.node, electionMessage).start();
+				
+				// If Node is the message recipient, starts handling it
+				if (electionMessage.getAddresseeId() == node.getNodeID()) {
+					new ElectionMessageHandler(this.node, electionMessage).start();
+				}
 			}
 			else if(message instanceof AckMessage) {
 				ackMessage = (AckMessage) message;
-				new AckMessageHandler(this.node, ackMessage).start();
+				
+				if (ackMessage.getAddresseeId() == node.getNodeID()) {
+					new AckMessageHandler(this.node, ackMessage).start();
+				}
 			}
 			else if(message instanceof LeaderMessage) {
 				leaderMessage = (LeaderMessage) message;
@@ -94,14 +101,8 @@ public class NodeTransmitter extends Thread{
 			}
 			
 			
-			//----------------------------------------------------------------
-
-			
-			// Test Packet
-//			if (this.node.testPacket() == true) {
-//				System.out.println("Packet Drop!");
-//				message = "Dropped";
-//			}
+			//---------------------------------------------------------------
+		    
 			
 
 			

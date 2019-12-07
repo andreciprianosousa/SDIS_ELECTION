@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 public class Handler extends Thread { 
 	protected Node node;	
 	protected MessageType messageType;
+	protected int addresseeId;							   // message recipient
 	protected AckMessage      ackMessage      = null;
 	protected ElectionMessage electionMessage = null;
 	protected LeaderMessage   leaderMessage   = null;
@@ -16,14 +17,17 @@ public class Handler extends Thread {
 	DatagramPacket datagram;
 	
 	// Constructor
-	public Handler(Node node, MessageType messageType) {
+	public Handler(Node node, MessageType messageType, int addresseeId) {
 		this.node = node;
-		this.messageType = messageType; 
+		this.messageType = messageType;
+		this.addresseeId = addresseeId;
 	}
 	
 	// Thread Method
 	@Override
 	public void run() {
+
+		System.out.println("Handler");
 		MulticastSocket socket = null;
 		InetAddress group = null;
 		try {
@@ -41,7 +45,7 @@ public class Handler extends Thread {
 		// Selects Type of Message and Serializes it
 		if (messageType == MessageType.ACK) {
 			try {
-				ackMessage = new AckMessage(node.getNodeID(), node.getStoredId(), node.getStoredValue());
+				ackMessage = new AckMessage(node.getNodeID(), node.getStoredId(), node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), addresseeId);
 				messageToSend = ackMessage.serializeAckMessage();
 			} catch (IOException e1) {
 				e1.printStackTrace();
@@ -50,7 +54,7 @@ public class Handler extends Thread {
 			
 		} else if (messageType == MessageType.ELECTION) {
 			try {
-				electionMessage = new ElectionMessage(node.getNodeID(), node.getComputationIndex());
+				electionMessage = new ElectionMessage(node.getNodeID(), node.getComputationIndex(), node.getxCoordinate(), node.getyCoordinate(), addresseeId);
 				messageToSend = electionMessage.serializeElectionMessage();
 			} catch (IOException e2) {
 				e2.printStackTrace();
@@ -59,7 +63,7 @@ public class Handler extends Thread {
 			
 		} else if (messageType == MessageType.LEADER) {
 			try {
-				leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue());
+				leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), addresseeId);
 				messageToSend = leaderMessage.serializeLeaderMessage();
 			} catch (IOException e3) {
 				e3.printStackTrace();
@@ -77,10 +81,6 @@ public class Handler extends Thread {
 			System.out.println(": Error sending datagram (Node: " + node.getNodeID()+ ")");
 		}
 		
-		// Thread Sends and Dies - As we spoke in the class
-		// If you prefer and if it gives you more power, I can try to change it to a thread that just sleeps
-		// Cipriano's response - I think we will not need to have sleeping threads consuming space, since these messages
-		// will be quick and the partitions may not be that intense xD, also it's easier to just finish the socket
-		// on that note, you did not close the socket created, is it intended?
+		socket.close();
 	}
 }

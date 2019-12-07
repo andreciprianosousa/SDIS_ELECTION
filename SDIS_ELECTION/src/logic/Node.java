@@ -35,6 +35,8 @@ public class Node implements Serializable{
 	protected String ipAddress;
 	protected Simulation simNode;
 	
+	protected ElectionMessage electionMessage;
+	
 	public Node (int nodeID, int port, String ipAddress, int[] dimensions) throws InterruptedException {
 		this.nodeID = nodeID;
 		this.port = port;
@@ -47,7 +49,7 @@ public class Node implements Serializable{
 		this.computationIndex = new ComputationIndex(this.getNodeID(), 0, this.getNodeValue()); 
 		this.parentActive = -1;
 		this.electionActive = false;
-		this.leaderID = -1; // -1 is no leader set
+		this.leaderID = -1;  // -1 is no leader set
 		this.ackSent = true; // true means no ack sent yet, which technically is correct he
 		this.waitingACK = new HashSet<Integer>();
 
@@ -59,10 +61,10 @@ public class Node implements Serializable{
 		//Initial coordinates 
 		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
 		yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
-
 		
 		new NodeListener(this).start();
 		new NodeTransmitter(this).start();
+		//new ElectionMessageHandler(this).start();
 
 	}
 	

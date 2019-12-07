@@ -1,6 +1,7 @@
 package logic;
 
 import java.awt.TrayIcon.MessageType;
+import java.util.Iterator;
 
 public class AckMessageHandler extends Thread{
 
@@ -16,8 +17,8 @@ public class AckMessageHandler extends Thread{
 		this.ackMessage = ackMessage;
 	}
 	
-	public void sendMessage(logic.MessageType messageType) {
-		new Handler(this.node, messageType).start();
+	public void sendMessage(logic.MessageType messageType, int addresseeId) {
+		new Handler(this.node, messageType, addresseeId).start();
 	}
 	
 	@Override
@@ -46,16 +47,23 @@ public class AckMessageHandler extends Thread{
 			if(node.getParentActive() != -1) {
 				node.setAckStatus(false);
 				// send ACK message to parent stored in node.getParentActive()
-				sendMessage(logic.MessageType.ACK);
+				sendMessage(logic.MessageType.ACK, node.getParentActive());
 			}
 			else {
 				node.setAckStatus(true); // may change
 				node.setElectionActive(false);
 				node.setLeaderID(node.getStoredId());
 				// send Leader message to all children, needs id and value of leader chosen (stored already)
-				sendMessage(logic.MessageType.LEADER);
+				Iterator<Integer> i=node.getNeighbors().iterator();
+				while(i.hasNext()) {
+					Integer temp = i.next();
+					if(!(temp == node.getParentActive())) {
+						node.getWaitingAcks().add(temp);
+						// Send Election Message to current selected neighbour
+						sendMessage(logic.MessageType.LEADER, temp);	
+					}
+				}
 			}
-		}
-		
+		}		
 	}
 }

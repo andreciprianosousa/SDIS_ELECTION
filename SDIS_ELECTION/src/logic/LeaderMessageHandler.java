@@ -15,8 +15,8 @@ public class LeaderMessageHandler extends Thread{
 		this.leaderMessage = lm;
 	}
 	
-	public void sendMessage(logic.MessageType messageType) {
-		new Handler(this.node, messageType).start();
+	public void sendMessage(logic.MessageType messageType, int addresseeId) {
+		new Handler(this.node, messageType, addresseeId).start();
 	}
 	
 	@Override
@@ -41,10 +41,9 @@ public class LeaderMessageHandler extends Thread{
 			int temp = i.next();
 			if(!(temp == leaderMessage.getIncomingId())) {
 				// Send Leader Message to current selected neighbour
-				sendMessage(MessageType.LEADER);
+				sendMessage(MessageType.LEADER, temp);
+				System.out.println("Leader Message from " + node.getNodeID() + " to " + temp);
 			}
 		}
-		
-		
 	}
 }

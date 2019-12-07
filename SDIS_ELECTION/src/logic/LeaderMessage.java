@@ -5,16 +5,22 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-public class LeaderMessage extends Message implements Serializable{
+public class LeaderMessage implements Serializable{
 	
 		private int incomingId;
 		private int storedID;
 		private float storedValue;
+		private int myCoordX;
+		private int myCoordY;
+		private int addresseeId;
 
-		public LeaderMessage(int incomingId, int leaderID, float leaderValue) {
+		public LeaderMessage(int incomingId, int leaderID, float leaderValue, int myCoordX, int myCoordY, int addresseeId) {
 			this.incomingId = incomingId;
 			this.storedID = leaderID;
 			this.storedValue = leaderValue;
+			this.myCoordX = myCoordX;
+			this.myCoordY = myCoordY;
+			this.addresseeId = addresseeId;
 		}
 		
 		public byte[] serializeLeaderMessage () throws IOException {
@@ -50,6 +56,28 @@ public class LeaderMessage extends Message implements Serializable{
 		public void setStoredValue(float storedValue) {
 			this.storedValue = storedValue;
 		}
-		
 
+		public int getMyCoordX() {
+			return myCoordX;
+		}
+
+		public void setMyCoordX(int myCoordX) {
+			this.myCoordX = myCoordX;
+		}
+
+		public int getMyCoordY() {
+			return myCoordY;
+		}
+
+		public void setMyCoordY(int myCoordY) {
+			this.myCoordY = myCoordY;
+		}
+
+		public int getAddresseeId() {
+			return addresseeId;
+		}
+
+		public void setAddresseeId(int addresseeId) {
+			this.addresseeId = addresseeId;
+		}
 }

@@ -9,6 +9,13 @@ public class ElectionMessageHandler extends Thread {
 
 	protected Node node;
 	protected ElectionMessage electionMessage;
+	
+	public ElectionMessageHandler(Node node) {
+
+		// Assume initialization of the node parameters was done previously
+		// in the node creation or by default values
+		this.node = node;
+	}
 
 	public ElectionMessageHandler(Node node, ElectionMessage em) {
 
@@ -18,8 +25,8 @@ public class ElectionMessageHandler extends Thread {
 		this.electionMessage = em;
 	}
 	
-	public void sendMessage(logic.MessageType messageType) {
-		new Handler(this.node, messageType).start();
+	public void sendMessage(logic.MessageType messageType, int addresseeId) {
+		new Handler(this.node, messageType, addresseeId).start();
 	}
 
 
@@ -36,13 +43,13 @@ public class ElectionMessageHandler extends Thread {
 			//If the election sent to me is the same as my current election
 			if((electionMessage.getComputationIndex().getNum() == node.getComputationIndex().getNum()) && (node.getComputationIndex().getValue()== electionMessage.getComputationIndex().getValue()) && (node.getComputationIndex().getId()==electionMessage.getComputationIndex().getId())) {
 			// send ACK Message to the same id of the message, also passing storedValue and storedId
-			sendMessage(logic.MessageType.ACK);	
+			sendMessage(logic.MessageType.ACK, electionMessage.getNodeID());	
 			}
 			else{
 				// If I have priority in Computation Index, send to sender of message new Election in my terms
 				if( (electionMessage.getComputationIndex().getValue() < node.getComputationIndex().getValue() ) || ( (electionMessage.getComputationIndex().getValue() == node.getComputationIndex().getValue()) && (electionMessage.getComputationIndex().getId() < node.getComputationIndex().getId()) )) {
 					// send election message to sender with my stored id, value and CP stuff
-					sendMessage(logic.MessageType.ELECTION);
+					sendMessage(logic.MessageType.ELECTION, electionMessage.getNodeID());
 				}
 				else {
 					// If the sender has priority, I clean myself and propagate its message
@@ -56,7 +63,7 @@ public class ElectionMessageHandler extends Thread {
 					if(node.getNeighbors().isEmpty()) {
 						node.setAckStatus(false);
 						// send Ack message to sender/parent with my stored id and value
-						sendMessage(logic.MessageType.ACK);	
+						sendMessage(logic.MessageType.ACK, node.getParentActive());	
 					}
 					else {	
 						node.setAckStatus(true); // true means it has not sent ack to parent, in ack handler we will put this to false again
@@ -68,7 +75,7 @@ public class ElectionMessageHandler extends Thread {
 							if(!(temp == node.getParentActive())) {
 								node.getWaitingAcks().add(temp);
 								// Send Election Message to current selected neighbour
-								sendMessage(logic.MessageType.LEADER);	
+								sendMessage(logic.MessageType.LEADER, temp);	
 							}
 						}
 					}
@@ -92,19 +99,20 @@ public class ElectionMessageHandler extends Thread {
 			if(node.getNeighbors().size() == 1) {
 				node.setAckStatus(false);
 				// send Ack message to sender/parent with my stored id and value
-				sendMessage(logic.MessageType.ACK);	
+				sendMessage(logic.MessageType.ACK, node.getParentActive());	
 			}
 			else {	
 				node.setAckStatus(true); // true means it has not sent ack to parent, in ack handler we will put this to false again
 				
 				// For every neighbour except parent, put them in waitingAck 
+				
 				Iterator<Integer> i=node.getNeighbors().iterator();
 				while(i.hasNext()) {
 					Integer temp = i.next();
 					if(!(temp == node.getParentActive())) {
 						node.getWaitingAcks().add(temp);
 						// Send Election Message to current selected neighbour
-						sendMessage(logic.MessageType.LEADER);	
+						sendMessage(logic.MessageType.LEADER, temp);	
 					}
 				}
 			}
