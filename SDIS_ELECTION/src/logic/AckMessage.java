@@ -4,18 +4,27 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashSet;
 
-public class AckMessage implements Serializable{
+public class AckMessage implements Serializable  {
 	
-	//This message needs to be serializable to allow its representation as a sequence of bytes
+	    //This message needs to be serializable to allow its representation as a sequence of bytes
 		private int incomingId;
 		private int storedID;
 		private float storedValue;
 
-		public AckMessage(int incomingId, int leaderID, float leaderValue) {
+		private int xCoordinate;
+		private int yCoordinate;
+		private int addresseeId;
+		
+		// ACK Message always sent to 1 node (Parent)
+		public AckMessage(int incomingId, int leaderID, float leaderValue, int xCoordinate, int yCoordinate, int addresseeId) {
 			this.incomingId = incomingId;
 			this.storedID = leaderID;
 			this.storedValue = leaderValue;
+			this.addresseeId = addresseeId;
+			this.xCoordinate = xCoordinate;
+			this.yCoordinate = yCoordinate;
 		}
 		
 		public byte[] serializeAckMessage () throws IOException {
@@ -52,5 +61,27 @@ public class AckMessage implements Serializable{
 			this.storedValue = storedValue;
 		}
 		
+		public int getAddresseeId() {
+			return addresseeId;
+		}
 
+		public void setAddresseeId(int addresseeId) {
+			this.addresseeId = addresseeId;
+		}
+
+		public int getxCoordinate() {
+			return xCoordinate;
+		}
+
+		public void setxCoordinate(int xCoordinate) {
+			this.xCoordinate = xCoordinate;
+		}
+
+		public int getyCoordinate() {
+			return yCoordinate;
+		}
+
+		public void setyCoordinate(int yCoordinate) {
+			this.yCoordinate = yCoordinate;
+		}
 }
