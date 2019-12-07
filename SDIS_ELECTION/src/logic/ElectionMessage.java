@@ -4,22 +4,32 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashSet;
 
 public class ElectionMessage implements Serializable{
 	
 	//This message needs to be serializable to allow its representation as a sequence of bytes
 		private ComputationIndex cp;
 		private int incomingId;
-		private int myCoordX;
-		private int myCoordY;
+		private int xCoordinate;
+		private int yCoordinate;
 		private int addresseeId;
+		private HashSet<Integer> mailingList;
 
-		public ElectionMessage(int incomingId, ComputationIndex cp, int myCoordX, int myCoordY, int addresseeId) {
+		public ElectionMessage(int incomingId, ComputationIndex cp, int xCoordinate, int yCoordinate, int addresseeId) {
 			this.cp = cp;
 			this.incomingId = incomingId;
-			this.myCoordX = myCoordX;
-			this.myCoordY = myCoordY;
+			this.xCoordinate = xCoordinate;
+			this.yCoordinate = yCoordinate;
 			this.addresseeId = addresseeId;
+		}
+		
+		public ElectionMessage(int incomingId, ComputationIndex cp, int xCoordinate, int yCoordinate, HashSet<Integer> mailingList) {
+			this.cp = cp;
+			this.incomingId = incomingId;
+			this.xCoordinate = xCoordinate;
+			this.yCoordinate = yCoordinate;
+			this.mailingList = mailingList;
 		}
 		
 		public byte[] serializeElectionMessage () throws IOException {
@@ -51,20 +61,20 @@ public class ElectionMessage implements Serializable{
 			this.cp = cp;
 		}
 
-		public int getMyCoordX() {
-			return myCoordX;
+		public int getxCoordinate() {
+			return xCoordinate;
 		}
 
-		public void setMyCoordX(int myCoordX) {
-			this.myCoordX = myCoordX;
+		public void setxCoordinate(int xCoordinate) {
+			this.xCoordinate = xCoordinate;
 		}
 
-		public int getMyCoordY() {
-			return myCoordY;
+		public int getyCoordinate() {
+			return yCoordinate;
 		}
 
-		public void setMyCoordY(int myCoordY) {
-			this.myCoordY = myCoordY;
+		public void setyCoordinate(int yCoordinate) {
+			this.yCoordinate = yCoordinate;
 		}
 
 		public int getAddresseeId() {
@@ -73,5 +83,13 @@ public class ElectionMessage implements Serializable{
 
 		public void setAddresseeId(int addresseeId) {
 			this.addresseeId = addresseeId;
+		}
+
+		public HashSet<Integer> getMailingList() {
+			return mailingList;
+		}
+
+		public void setMailingList(HashSet<Integer> mailingList) {
+			this.mailingList = mailingList;
 		}
 }

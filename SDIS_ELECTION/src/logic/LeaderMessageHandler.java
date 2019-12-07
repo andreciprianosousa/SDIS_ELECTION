@@ -1,5 +1,6 @@
 package logic;
 
+import java.util.HashSet;
 import java.util.Iterator;
 
 public class LeaderMessageHandler extends Thread{
@@ -15,8 +16,8 @@ public class LeaderMessageHandler extends Thread{
 		this.leaderMessage = lm;
 	}
 	
-	public void sendMessage(logic.MessageType messageType, int addresseeId) {
-		new Handler(this.node, messageType, addresseeId).start();
+	public void sendMessage(logic.MessageType messageType, HashSet<Integer> mailingList) {
+		new Handler(this.node, messageType, mailingList).start();
 	}
 	
 	@Override
@@ -36,14 +37,16 @@ public class LeaderMessageHandler extends Thread{
 		}
 		
 		// If not send leader messages to neighbours except to the message sender's id
+		HashSet<Integer> mailingList = new HashSet<Integer>();
 		Iterator<Integer> i=node.getNeighbors().iterator();
 		while(i.hasNext()) {
 			int temp = i.next();
 			if(!(temp == leaderMessage.getIncomingId())) {
 				// Send Leader Message to current selected neighbour
-				sendMessage(MessageType.LEADER, temp);
+				mailingList.add(temp);
 				System.out.println("Leader Message from " + node.getNodeID() + " to " + temp);
 			}
 		}
+		sendMessage(MessageType.LEADER, mailingList);
 	}
 }

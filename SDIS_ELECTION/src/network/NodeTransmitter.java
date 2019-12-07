@@ -96,6 +96,8 @@ public class NodeTransmitter extends Thread{
 				}
 			}
 			else if(message instanceof LeaderMessage) {
+				
+				
 				leaderMessage = (LeaderMessage) message;
 				new LeaderMessageHandler(this.node, leaderMessage).start();
 			}

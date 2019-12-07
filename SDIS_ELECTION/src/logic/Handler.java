@@ -5,11 +5,13 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.HashSet;
 
 public class Handler extends Thread { 
 	protected Node node;	
 	protected MessageType messageType;
-	protected int addresseeId;							   // message recipient
+	protected HashSet<Integer> mailingList;							   // message recipient
+	protected int addresseeId;							  			   // message recipient
 	protected AckMessage      ackMessage      = null;
 	protected ElectionMessage electionMessage = null;
 	protected LeaderMessage   leaderMessage   = null;
@@ -17,6 +19,12 @@ public class Handler extends Thread {
 	DatagramPacket datagram;
 	
 	// Constructor
+	public Handler(Node node, MessageType messageType, HashSet<Integer> mailingList) {
+		this.node = node;
+		this.messageType = messageType;
+		this.mailingList = mailingList;
+	}
+	
 	public Handler(Node node, MessageType messageType, int addresseeId) {
 		this.node = node;
 		this.messageType = messageType;
@@ -43,14 +51,16 @@ public class Handler extends Thread {
 		}
 		
 		// Selects Type of Message and Serializes it
+		// ACK and ELECTION are always sent to just one node. LEADER can be sent to several nodes.
 		if (messageType == MessageType.ACK) {
+			
 			try {
 				ackMessage = new AckMessage(node.getNodeID(), node.getStoredId(), node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), addresseeId);
 				messageToSend = ackMessage.serializeAckMessage();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 				System.out.println("Handler: Error Serializing AckMessage (Node: " + node.getNodeID()+ ")");
-			}
+			}		
 			
 		} else if (messageType == MessageType.ELECTION) {
 			try {
@@ -61,9 +71,21 @@ public class Handler extends Thread {
 				System.out.println("Handler: Error Serializing ElectionMessage (Node: " + node.getNodeID()+ ")");
 			}
 			
-		} else if (messageType == MessageType.LEADER) {
+		} else if (messageType == MessageType.ELECTION_GROUP) {
 			try {
-				leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), addresseeId);
+				electionMessage = new ElectionMessage(node.getNodeID(), node.getComputationIndex(), node.getxCoordinate(), node.getyCoordinate(), mailingList);
+				messageToSend = electionMessage.serializeElectionMessage();
+			} catch (IOException e2) {
+				e2.printStackTrace();
+				System.out.println("Handler: Error Serializing ElectionMessage (Node: " + node.getNodeID()+ ")");
+			}
+		
+			
+		} else if (messageType == MessageType.LEADER) {
+			
+			// Leader Message sends always messages to a group (it can be a "group of 1"), so we can use just an HashSet
+			try {
+				leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), mailingList);
 				messageToSend = leaderMessage.serializeLeaderMessage();
 			} catch (IOException e3) {
 				e3.printStackTrace();

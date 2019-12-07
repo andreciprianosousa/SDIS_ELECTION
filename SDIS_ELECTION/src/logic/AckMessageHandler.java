@@ -1,6 +1,6 @@
 package logic;
 
-import java.awt.TrayIcon.MessageType;
+import java.util.HashSet;
 import java.util.Iterator;
 
 public class AckMessageHandler extends Thread{
@@ -17,9 +17,17 @@ public class AckMessageHandler extends Thread{
 		this.ackMessage = ackMessage;
 	}
 	
+	
+	// "Send Message" for type Leader - Needs HashSet to send to a group of Nodes
+	public void sendMessage(logic.MessageType messageType, HashSet <Integer> mailingList) {
+		new Handler(this.node, messageType, mailingList).start();
+	}
+	
+	// "Send Message" for type Ack
 	public void sendMessage(logic.MessageType messageType, int addresseeId) {
 		new Handler(this.node, messageType, addresseeId).start();
 	}
+	
 	
 	@Override
 	public synchronized void run() { // Needs synchronization because 2+ acks may arrive at same time and alter hashset simultaneously, other handlers also have this
@@ -30,7 +38,7 @@ public class AckMessageHandler extends Thread{
 		if(!(node.getWaitingAcks().isEmpty())) {
 			node.getWaitingAcks().remove(ackMessage.getIncomingId());
 		}
-		// caso das computations simultaneas: este nó pode entrar nouta eleição e já ter recebido aluns acks 
+		// caso das computations simultaneas: este nao pode entrar nouta eleicao e ja ter recebido alguns acks 
 		// nesse caso manda de novo election para dar update dos CP values dos vizinhos, mas o valor dos
 		// acks seriam os mesmos, assumindo vizinhos estáticos: se vizinho muito forte que deu ack saiu da network
 		// e este nó começa nova eleição, este valor pode não vir a ser superado e a propagar um nó fantasma!!
@@ -59,10 +67,10 @@ public class AckMessageHandler extends Thread{
 					Integer temp = i.next();
 					if(!(temp == node.getParentActive())) {
 						node.getWaitingAcks().add(temp);
-						// Send Election Message to current selected neighbour
-						sendMessage(logic.MessageType.LEADER, temp);	
 					}
 				}
+				// Send Election Message to all neighbours, except parent
+				sendMessage(logic.MessageType.LEADER, node.getWaitingAcks());
 			}
 		}		
 	}

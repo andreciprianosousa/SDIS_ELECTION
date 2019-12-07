@@ -1,5 +1,5 @@
 package logic;
 
 public enum MessageType{
-	ACK, LEADER, ELECTION
+	ACK, LEADER, ELECTION, ELECTION_GROUP
 }

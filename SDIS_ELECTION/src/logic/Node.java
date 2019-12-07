@@ -64,7 +64,6 @@ public class Node implements Serializable{
 		
 		new NodeListener(this).start();
 		new NodeTransmitter(this).start();
-		//new ElectionMessageHandler(this).start();
 
 	}
 	

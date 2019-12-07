@@ -1,6 +1,7 @@
 package logic;
 
 import java.awt.TrayIcon.MessageType;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import network.*;
@@ -9,13 +10,6 @@ public class ElectionMessageHandler extends Thread {
 
 	protected Node node;
 	protected ElectionMessage electionMessage;
-	
-	public ElectionMessageHandler(Node node) {
-
-		// Assume initialization of the node parameters was done previously
-		// in the node creation or by default values
-		this.node = node;
-	}
 
 	public ElectionMessageHandler(Node node, ElectionMessage em) {
 
@@ -25,8 +19,12 @@ public class ElectionMessageHandler extends Thread {
 		this.electionMessage = em;
 	}
 	
-	public void sendMessage(logic.MessageType messageType, int addresseeId) {
-		new Handler(this.node, messageType, addresseeId).start();
+	public void sendMessage(logic.MessageType messageType, HashSet<Integer> mailingList) {
+		new Handler(this.node, messageType, mailingList).start();
+	}
+	
+	public void sendMessage(logic.MessageType messageType, int addresseId) {
+		new Handler(this.node, messageType, addresseId).start();
 	}
 
 
@@ -74,14 +72,14 @@ public class ElectionMessageHandler extends Thread {
 							int temp = i.next();
 							if(!(temp == node.getParentActive())) {
 								node.getWaitingAcks().add(temp);
-								// Send Election Message to current selected neighbour
-								sendMessage(logic.MessageType.LEADER, temp);	
+								// Send Election Message to current selected neighbour	
 							}
 						}
-					}
+						// Sends messages to all possible nodes 
+						sendMessage(logic.MessageType.ELECTION_GROUP, node.getWaitingAcks());						
+					}	
 				}
 			}
-				
 		}
 		// If I'm not in an election, setup myself and send ACKs to neighbours
 		else {
@@ -111,10 +109,10 @@ public class ElectionMessageHandler extends Thread {
 					Integer temp = i.next();
 					if(!(temp == node.getParentActive())) {
 						node.getWaitingAcks().add(temp);
-						// Send Election Message to current selected neighbour
-						sendMessage(logic.MessageType.LEADER, temp);	
+						// Send Election Message to current selected neighbour	
 					}
 				}
+				sendMessage(logic.MessageType.LEADER, node.getWaitingAcks());
 			}
 		}
 	}

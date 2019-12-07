@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashSet;
 
 public class AckMessage implements Serializable  {
 	
@@ -12,18 +13,18 @@ public class AckMessage implements Serializable  {
 		private int storedID;
 		private float storedValue;
 
-		private int myCoordX;
-		private int myCoordY;
+		private int xCoordinate;
+		private int yCoordinate;
 		private int addresseeId;
 		
-
-		public AckMessage(int incomingId, int leaderID, float leaderValue, int myCoordX, int myCoordY, int addresseeId) {
+		// ACK Message always sent to 1 node (Parent)
+		public AckMessage(int incomingId, int leaderID, float leaderValue, int xCoordinate, int yCoordinate, int addresseeId) {
 			this.incomingId = incomingId;
 			this.storedID = leaderID;
 			this.storedValue = leaderValue;
 			this.addresseeId = addresseeId;
-			this.myCoordX = myCoordX;
-			this.myCoordY = myCoordY;
+			this.xCoordinate = xCoordinate;
+			this.yCoordinate = yCoordinate;
 		}
 		
 		public byte[] serializeAckMessage () throws IOException {
@@ -68,21 +69,19 @@ public class AckMessage implements Serializable  {
 			this.addresseeId = addresseeId;
 		}
 
-		public int getMyCoordX() {
-			return myCoordX;
+		public int getxCoordinate() {
+			return xCoordinate;
 		}
 
-		public void setMyCoordX(int myCoordX) {
-			this.myCoordX = myCoordX;
+		public void setxCoordinate(int xCoordinate) {
+			this.xCoordinate = xCoordinate;
 		}
 
-		public int getMyCoordY() {
-			return myCoordY;
+		public int getyCoordinate() {
+			return yCoordinate;
 		}
 
-		public void setMyCoordY(int myCoordY) {
-			this.myCoordY = myCoordY;
+		public void setyCoordinate(int yCoordinate) {
+			this.yCoordinate = yCoordinate;
 		}
-
-		// Pai destinario - manda quando recebe de todos os filhos
 }

@@ -4,23 +4,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashSet;
 
 public class LeaderMessage implements Serializable{
 	
 		private int incomingId;
 		private int storedID;
 		private float storedValue;
-		private int myCoordX;
-		private int myCoordY;
-		private int addresseeId;
+		private int xCoordinate;
+		private int yCoordinate;
+		private HashSet<Integer> mailingList;
 
-		public LeaderMessage(int incomingId, int leaderID, float leaderValue, int myCoordX, int myCoordY, int addresseeId) {
+		public LeaderMessage(int incomingId, int leaderID, float leaderValue, int xCoordinate, int yCoordinate, HashSet<Integer> mailingList) {
 			this.incomingId = incomingId;
 			this.storedID = leaderID;
 			this.storedValue = leaderValue;
-			this.myCoordX = myCoordX;
-			this.myCoordY = myCoordY;
-			this.addresseeId = addresseeId;
+			this.xCoordinate = xCoordinate;
+			this.yCoordinate = yCoordinate;
+			this.mailingList = mailingList;
 		}
 		
 		public byte[] serializeLeaderMessage () throws IOException {
@@ -57,27 +58,26 @@ public class LeaderMessage implements Serializable{
 			this.storedValue = storedValue;
 		}
 
-		public int getMyCoordX() {
-			return myCoordX;
+		public int getxCoordinate() {
+			return xCoordinate;
 		}
 
-		public void setMyCoordX(int myCoordX) {
-			this.myCoordX = myCoordX;
+		public void setxCoordinate(int xCoordinate) {
+			this.xCoordinate = xCoordinate;
 		}
 
-		public int getMyCoordY() {
-			return myCoordY;
+		public int getyCoordinate() {
+			return yCoordinate;
 		}
 
-		public void setMyCoordY(int myCoordY) {
-			this.myCoordY = myCoordY;
+		public void setyCoordinate(int yCoordinate) {
+			this.yCoordinate = yCoordinate;
 		}
 
-		public int getAddresseeId() {
-			return addresseeId;
+		public HashSet<Integer> getMailingList() {
+			return mailingList;
 		}
-
-		public void setAddresseeId(int addresseeId) {
-			this.addresseeId = addresseeId;
+		public void setMailingList(HashSet<Integer> mailingList) {
+			this.mailingList = mailingList;
 		}
 }
