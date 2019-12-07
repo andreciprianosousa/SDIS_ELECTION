@@ -72,6 +72,11 @@ public class NodeTransmitter extends Thread{
 				e.printStackTrace();
 			} 
 			
+			// ------------ Simulation: Drop Packets -----------------------
+			if (this.node.testPacket() == true) {
+				System.out.println("Packet Drop!");
+			} else {			
+				
 			
 			//------------- Reception and logic starts here-----------------
 			
@@ -104,10 +109,6 @@ public class NodeTransmitter extends Thread{
 			
 			
 			//---------------------------------------------------------------
-		    
-			
-
-			
 		}
 	}
 	

@@ -93,7 +93,7 @@ public class Node implements Serializable{
 		int range;
 		float distanceBetweenNodes;
 		
-		distanceBetweenNodes = (float) Math.sqrt(Math.pow((xNeighbor-xCoordinate),2) + Math.pow((yNeighbor-yCoordinate),2));
+		distanceBetweenNodes = distanceBetweenNodes(xNeighbor, yNeighbor);
 		
 		if(distanceBetweenNodes <= this.nodeRange) {
 			return true;
@@ -107,7 +107,7 @@ public class Node implements Serializable{
 		boolean isPacketDropped;
 		float distanceBetweenNodes = 0;
 		
-		//distanceBetweenNodes = distanceBetweenNodes();
+		//distanceBetweenNodes = distanceBetweenNodes(xNeighbor, yNeighbor);
 		
 		if ((isPacketDropped = simNode.dropPacket(this.nodeRange, distanceBetweenNodes)) == true)
 			return true;
@@ -134,10 +134,10 @@ public class Node implements Serializable{
 
     }
    
-    public float distanceBetweenNodes(Node node) {
+    public float distanceBetweenNodes(int xNeighbor, int yNeighbor) {
     	float distanceBetweenNodes;
     	
-    	distanceBetweenNodes = (float) Math.sqrt(Math.pow((node.xCoordinate-xCoordinate),2) + Math.pow((node.yCoordinate-yCoordinate),2));
+    	distanceBetweenNodes = (float) Math.sqrt(Math.pow((xNeighbor-xCoordinate),2) + Math.pow((yNeighbor-yCoordinate),2));
     	return distanceBetweenNodes;
     }
 
