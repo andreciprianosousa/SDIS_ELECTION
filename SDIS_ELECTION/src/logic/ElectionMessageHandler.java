@@ -80,7 +80,7 @@ public class ElectionMessageHandler extends Thread {
 		// If I'm not in an election, setup myself and send ACKs to neighbours
 		else {
 			node.setElectionActive(true);
-			node.setParentActive(electionMessage.getNodeID());
+			node.setParentActive(electionMessage.getNodeID()); 
 			
 			// IMPORTANT -> if this node starts an election after other elections in the past, 
 			// don't forget to update these values to a bigger num but with id equal to this node's
