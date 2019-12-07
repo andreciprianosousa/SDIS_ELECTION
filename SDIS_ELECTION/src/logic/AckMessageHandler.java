@@ -5,7 +5,6 @@ public class AckMessageHandler extends Thread{
 	protected Node node;
 	protected AckMessage ackMessage;
 	
-	private Handler handlerACK;
 	
 	public AckMessageHandler(Node node, AckMessage ackMessage) {
 		
@@ -17,8 +16,7 @@ public class AckMessageHandler extends Thread{
 	
 	// I think this should be the implementation to send an ACK Message, see where it fits ;)
 	public void sendAckMessage() {
-		handlerACK = new Handler(node, ackMessage);
-		handlerACK.start();
+		new Handler(node, ackMessage).start();
 	}
 	
 	@Override
