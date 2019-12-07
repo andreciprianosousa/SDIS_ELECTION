@@ -15,6 +15,7 @@ public class ElectionMessage implements Serializable{
 		private int yCoordinate;
 		private int addresseeId;
 		private HashSet<Integer> mailingList;
+		private boolean isAGroup;
 
 		public ElectionMessage(int incomingId, ComputationIndex cp, int xCoordinate, int yCoordinate, int addresseeId) {
 			this.cp = cp;
@@ -91,5 +92,13 @@ public class ElectionMessage implements Serializable{
 
 		public void setMailingList(HashSet<Integer> mailingList) {
 			this.mailingList = mailingList;
+		}
+
+		public boolean isAGroup() {
+			return isAGroup;
+		}
+
+		public void setAGroup(boolean isAGroup) {
+			this.isAGroup = isAGroup;
 		}
 }

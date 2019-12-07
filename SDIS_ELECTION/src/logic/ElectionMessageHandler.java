@@ -47,6 +47,7 @@ public class ElectionMessageHandler extends Thread {
 				// If I have priority in Computation Index, send to sender of message new Election in my terms
 				if( (electionMessage.getComputationIndex().getValue() < node.getComputationIndex().getValue() ) || ( (electionMessage.getComputationIndex().getValue() == node.getComputationIndex().getValue()) && (electionMessage.getComputationIndex().getId() < node.getComputationIndex().getId()) )) {
 					// send election message to sender with my stored id, value and CP stuff
+					electionMessage.setAGroup(false);
 					sendMessage(logic.MessageType.ELECTION, electionMessage.getNodeID());
 				}
 				else {
@@ -76,6 +77,7 @@ public class ElectionMessageHandler extends Thread {
 							}
 						}
 						// Sends messages to all possible nodes 
+						electionMessage.setAGroup(true);
 						sendMessage(logic.MessageType.ELECTION_GROUP, node.getWaitingAcks());						
 					}	
 				}

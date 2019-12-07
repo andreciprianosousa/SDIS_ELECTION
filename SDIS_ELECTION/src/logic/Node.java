@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import network.*;
 import simulation.Simulation;
 
-
 public class Node implements Serializable{
 	
 	protected int nodeID;
@@ -35,8 +34,6 @@ public class Node implements Serializable{
 	protected String ipAddress;
 	protected Simulation simNode;
 	
-	protected ElectionMessage electionMessage;
-	
 	public Node (int nodeID, int port, String ipAddress, int[] dimensions) throws InterruptedException {
 		this.nodeID = nodeID;
 		this.port = port;
@@ -49,7 +46,7 @@ public class Node implements Serializable{
 		this.computationIndex = new ComputationIndex(this.getNodeID(), 0, this.getNodeValue()); 
 		this.parentActive = -1;
 		this.electionActive = false;
-		this.leaderID = -1;  // -1 is no leader set
+		this.leaderID = -1; // -1 is no leader set
 		this.ackSent = true; // true means no ack sent yet, which technically is correct he
 		this.waitingACK = new HashSet<Integer>();
 
@@ -61,6 +58,7 @@ public class Node implements Serializable{
 		//Initial coordinates 
 		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
 		yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
+
 		
 		new NodeListener(this).start();
 		new NodeTransmitter(this).start();
@@ -93,7 +91,7 @@ public class Node implements Serializable{
 		int range;
 		float distanceBetweenNodes;
 		
-		distanceBetweenNodes = distanceBetweenNodes(xNeighbor, yNeighbor);
+		distanceBetweenNodes = (float) Math.sqrt(Math.pow((xNeighbor-xCoordinate),2) + Math.pow((yNeighbor-yCoordinate),2));
 		
 		if(distanceBetweenNodes <= this.nodeRange) {
 			return true;
@@ -107,7 +105,7 @@ public class Node implements Serializable{
 		boolean isPacketDropped;
 		float distanceBetweenNodes = 0;
 		
-		//distanceBetweenNodes = distanceBetweenNodes(xNeighbor, yNeighbor);
+		//distanceBetweenNodes = distanceBetweenNodes();
 		
 		if ((isPacketDropped = simNode.dropPacket(this.nodeRange, distanceBetweenNodes)) == true)
 			return true;
@@ -134,10 +132,10 @@ public class Node implements Serializable{
 
     }
    
-    public float distanceBetweenNodes(int xNeighbor, int yNeighbor) {
+    public float distanceBetweenNodes(Node node) {
     	float distanceBetweenNodes;
     	
-    	distanceBetweenNodes = (float) Math.sqrt(Math.pow((xNeighbor-xCoordinate),2) + Math.pow((yNeighbor-yCoordinate),2));
+    	distanceBetweenNodes = (float) Math.sqrt(Math.pow((node.xCoordinate-xCoordinate),2) + Math.pow((node.yCoordinate-yCoordinate),2));
     	return distanceBetweenNodes;
     }
 
