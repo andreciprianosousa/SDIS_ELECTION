@@ -14,7 +14,7 @@ public class AckMessageHandler extends Thread{
 		this.ackMessage = ackMessage;
 	}
 	
-	// I think this should be the implementation to send an ACK Message, see where it fits ;) . .
+	// I think this should be the implementation to send an ACK Message, see where it fits ;)
 	public void sendAckMessage() {
 		new Handler(node, ackMessage).start();
 	}
