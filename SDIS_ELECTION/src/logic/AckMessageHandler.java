@@ -1,5 +1,7 @@
 package logic;
 
+import java.awt.TrayIcon.MessageType;
+
 public class AckMessageHandler extends Thread{
 
 	protected Node node;
@@ -14,12 +16,8 @@ public class AckMessageHandler extends Thread{
 		this.ackMessage = ackMessage;
 	}
 	
-	public void sendAckMessage() {
-		new Handler(this.node, MessageType.ACK).start();
-	}
-	
-	public void sendLeaderMessage() {
-		new Handler(this.node, MessageType.LEADER).start();
+	public void sendMessage(logic.MessageType messageType) {
+		new Handler(this.node, messageType).start();
 	}
 	
 	@Override
@@ -48,14 +46,14 @@ public class AckMessageHandler extends Thread{
 			if(node.getParentActive() != -1) {
 				node.setAckStatus(false);
 				// send ACK message to parent stored in node.getParentActive()
-				sendAckMessage();
+				sendMessage(logic.MessageType.ACK);
 			}
 			else {
 				node.setAckStatus(true); // may change
 				node.setElectionActive(false);
 				node.setLeaderID(node.getStoredId());
 				// send Leader message to all children, needs id and value of leader chosen (stored already)
-				sendLeaderMessage();
+				sendMessage(logic.MessageType.LEADER);
 			}
 		}
 		
