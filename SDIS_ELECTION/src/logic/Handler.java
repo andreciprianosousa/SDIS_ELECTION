@@ -79,5 +79,8 @@ public class Handler extends Thread {
 		
 		// Thread Sends and Dies - As we spoke in the class
 		// If you prefer and if it gives you more power, I can try to change it to a thread that just sleeps
+		// Cipriano's response - I think we will not need to have sleeping threads consuming space, since these messages
+		// will be quick and the partitions may not be that intense xD, also it's easier to just finish the socket
+		// on that note, you did not close the socket created, is it intended?
 	}
 }
