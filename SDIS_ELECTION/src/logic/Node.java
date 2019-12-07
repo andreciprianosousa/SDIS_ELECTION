@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
+import mobility.Mobility;
 import network.*;
 import simulation.Simulation;
 
@@ -35,6 +36,7 @@ public class Node implements Serializable{
 	protected int port;
 	protected String ipAddress;
 	protected Simulation simNode;
+	protected Mobility moves;
 	
 	public Node (int nodeID, int port, String ipAddress, int[] dimensions) throws InterruptedException {
 		this.nodeID = nodeID;
@@ -64,6 +66,7 @@ public class Node implements Serializable{
 		
 		new NodeListener(this).start();
 		new NodeTransmitter(this).start();
+		new Mobility(this, true).start();
 
 	}
 	
