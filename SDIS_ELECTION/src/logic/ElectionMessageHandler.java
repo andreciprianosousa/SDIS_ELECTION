@@ -1,5 +1,7 @@
 package logic;
 
+import java.awt.TrayIcon.MessageType;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import network.*;
@@ -16,6 +18,15 @@ public class ElectionMessageHandler extends Thread {
 		this.node = node;
 		this.electionMessage = em;
 	}
+	
+	public void sendMessage(logic.MessageType messageType, HashSet<Integer> mailingList) {
+		new Handler(this.node, messageType, mailingList).start();
+	}
+	
+	public void sendMessage(logic.MessageType messageType, int addresseId) {
+		new Handler(this.node, messageType, addresseId).start();
+	}
+
 
 	@Override
 	public synchronized void run() {
@@ -29,14 +40,15 @@ public class ElectionMessageHandler extends Thread {
 			
 			//If the election sent to me is the same as my current election
 			if((electionMessage.getComputationIndex().getNum() == node.getComputationIndex().getNum()) && (node.getComputationIndex().getValue()== electionMessage.getComputationIndex().getValue()) && (node.getComputationIndex().getId()==electionMessage.getComputationIndex().getId())) {
-			// send ACK Message using NodeListener to the same id of the message, also passing storedValue and storedId
-			// Using multicast will send to every neighbour! No issue unless it's parent, which it cannot be sent to
-			// Possible solution on my part: in message sent here also send the desired recipient(s) so the receiver knows if it is addressed directly		
+			// send ACK Message to the same id of the message, also passing storedValue and storedId
+			sendMessage(logic.MessageType.ACK, electionMessage.getNodeID());	
 			}
 			else{
 				// If I have priority in Computation Index, send to sender of message new Election in my terms
 				if( (electionMessage.getComputationIndex().getValue() < node.getComputationIndex().getValue() ) || ( (electionMessage.getComputationIndex().getValue() == node.getComputationIndex().getValue()) && (electionMessage.getComputationIndex().getId() < node.getComputationIndex().getId()) )) {
 					// send election message to sender with my stored id, value and CP stuff
+					electionMessage.setAGroup(false);
+					sendMessage(logic.MessageType.ELECTION, electionMessage.getNodeID());
 				}
 				else {
 					// If the sender has priority, I clean myself and propagate its message
@@ -50,6 +62,7 @@ public class ElectionMessageHandler extends Thread {
 					if(node.getNeighbors().isEmpty()) {
 						node.setAckStatus(false);
 						// send Ack message to sender/parent with my stored id and value
+						sendMessage(logic.MessageType.ACK, node.getParentActive());	
 					}
 					else {	
 						node.setAckStatus(true); // true means it has not sent ack to parent, in ack handler we will put this to false again
@@ -60,18 +73,20 @@ public class ElectionMessageHandler extends Thread {
 							int temp = i.next();
 							if(!(temp == node.getParentActive())) {
 								node.getWaitingAcks().add(temp);
-								// Send Election Message to current selected neighbour
+								// Send Election Message to current selected neighbour	
 							}
 						}
-					}
+						// Sends messages to all possible nodes 
+						electionMessage.setAGroup(true);
+						sendMessage(logic.MessageType.ELECTION_GROUP, node.getWaitingAcks());						
+					}	
 				}
 			}
-				
 		}
 		// If I'm not in an election, setup myself and send ACKs to neighbours
 		else {
 			node.setElectionActive(true);
-			node.setParentActive(electionMessage.getNodeID());
+			node.setParentActive(electionMessage.getNodeID()); 
 			
 			// IMPORTANT -> if this node starts an election after other elections in the past, 
 			// don't forget to update these values to a bigger num but with id equal to this node's
@@ -84,19 +99,22 @@ public class ElectionMessageHandler extends Thread {
 			if(node.getNeighbors().size() == 1) {
 				node.setAckStatus(false);
 				// send Ack message to sender/parent with my stored id and value
+				sendMessage(logic.MessageType.ACK, node.getParentActive());	
 			}
 			else {	
 				node.setAckStatus(true); // true means it has not sent ack to parent, in ack handler we will put this to false again
 				
 				// For every neighbour except parent, put them in waitingAck 
+				
 				Iterator<Integer> i=node.getNeighbors().iterator();
 				while(i.hasNext()) {
 					Integer temp = i.next();
 					if(!(temp == node.getParentActive())) {
 						node.getWaitingAcks().add(temp);
-						// Send Election Message to current selected neighbour
+						// Send Election Message to current selected neighbour	
 					}
 				}
+				sendMessage(logic.MessageType.LEADER, node.getWaitingAcks());
 			}
 		}
 	}

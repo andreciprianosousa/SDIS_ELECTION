@@ -6,9 +6,12 @@ public class Simulation {
 	
 	private static final float v = (float) 3.5;					// Urban microcells 
 	
+	boolean nodeKilled;
 	
+
 	public Simulation() {
 		System.out.println("Hello from simulation");
+		nodeKilled = false;
 	}
 	
 	public boolean dropPacket(float range, float distance) {
@@ -28,4 +31,26 @@ public class Simulation {
 		}
 	}
 	
+	public void nodeKill(int battery) {
+		Random decisionMaker = new Random();
+		int decisionN;
+		
+		// Random Kill
+		decisionN = decisionMaker.nextInt(100);					// Numbers between 0 and 99
+		if(decisionN < battery) {
+			setNodeKilled(true);							
+		}
+		else {
+			setNodeKilled(false);	
+		}
+			
+	}
+	
+	public boolean isNodeKilled() {
+		return nodeKilled;
+	}
+
+	public void setNodeKilled(boolean nodeKilled) {
+		this.nodeKilled = nodeKilled;
+	}
 }

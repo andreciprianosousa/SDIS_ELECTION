@@ -71,9 +71,15 @@ public class NodeTransmitter extends Thread{
 			try {
 				message = deserializeMessage (datagram.getData());
 			} catch (ClassNotFoundException | IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
+			
+			// ------------ Simulation: Drop Packets -----------------------
+			if (this.node.testPacket() == true) {
+				System.out.println("Packet Drop!");
+				
+			} else {			
+				
 			
 			//------------- Reception and logic starts here-----------------
 			
@@ -82,31 +88,39 @@ public class NodeTransmitter extends Thread{
 				//System.out.println(helloMessage.getNode().getNodeID());
 				this.node.updateNeighbors (helloMessage, datagram.getAddress(), timeOut);
 			}
-			else if(message instanceof ElectionMessage) {
-				electionMessage = (ElectionMessage) message;
-				new ElectionMessageHandler(this.node, electionMessage).start();
+				else if(message instanceof ElectionMessage) {
+					electionMessage = (ElectionMessage) message;
+					
+					// If Node is the message recipient, starts handling it
+					// Separates Group messages from Individual ones
+					
+					if (electionMessage.isAGroup() == true) {
+						if(electionMessage.getMailingList().contains(node.getNodeID())) {
+							new ElectionMessageHandler(this.node, electionMessage).start(); 
+						}
+					} 
+					else if (electionMessage.getAddresseeId() == node.getNodeID()) {
+						new ElectionMessageHandler(this.node, electionMessage).start();
+					}
+				}
+				
+				else if(message instanceof AckMessage) {
+					ackMessage = (AckMessage) message;
+					
+					if (ackMessage.getAddresseeId() == node.getNodeID()) {
+						new AckMessageHandler(this.node, ackMessage).start();
+					}
+				}
+				
+				else if(message instanceof LeaderMessage) {
+					leaderMessage = (LeaderMessage) message;
+					
+					if (leaderMessage.getMailingList().contains(node.getNodeID())) 		// Hope it works :D
+						new LeaderMessageHandler(this.node, leaderMessage).start();
+				}
 			}
-			else if(message instanceof AckMessage) {
-				ackMessage = (AckMessage) message;
-				new AckMessageHandler(this.node, ackMessage).start();
-			}
-			else if(message instanceof LeaderMessage) {
-				leaderMessage = (LeaderMessage) message;
-				new LeaderMessageHandler(this.node, leaderMessage).start();
-			}
 			
-			
-			//----------------------------------------------------------------
-
-			
-			// Test Packet
-//			if (this.node.testPacket() == true) {
-//				System.out.println("Packet Drop!");
-//				message = "Dropped";
-//			}
-			
-
-			
+			//---------------------------------------------------------------
 		}
 	}
 	
