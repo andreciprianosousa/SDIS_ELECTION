@@ -11,14 +11,16 @@ public class NodeListener extends Thread{
 	protected Node node;
 	protected int port;
 	protected String ipAddress;
+	protected int refreshRate;
 	protected HelloMessage helloMessage = null;
 	byte[] messageToSend = new byte[2048];
 	DatagramPacket datagram;
 	
-	public NodeListener(Node node) {
+	public NodeListener(Node node, int refreshRate) {
 		this.node = node;
 		this.port = node.getPort();
 		this.ipAddress = node.getIpAddress();
+		this.refreshRate = refreshRate;
 	}
 	
 	@Override
@@ -65,7 +67,7 @@ public class NodeListener extends Thread{
 			//System.out.println("Message sent by Node: " + node.getNodeID());
 			
 			try {
-				Thread.sleep(5000);
+				Thread.sleep(refreshRate);
 			} catch (InterruptedException e) {
 				System.out.println("Listener: Error putting thread to sleep (Node: " + node.getNodeID()+ ")");
 			}

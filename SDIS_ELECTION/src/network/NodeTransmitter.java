@@ -13,14 +13,16 @@ import logic.*;
 public class NodeTransmitter extends Thread{
 	protected Node node;
 	protected int port;
+	protected int timeOut;
 	protected String ipAddress;
 	
 	protected byte[] dataToReceive = new byte[2048];
 	
-	public NodeTransmitter(Node node) {
+	public NodeTransmitter(Node node, int timeOut) {
 		this.node = node;
 		this.ipAddress = node.getIpAddress();
 		this.port = node.getPort();
+		this.timeOut = timeOut;
 	}
 	
 	@Override
@@ -81,11 +83,11 @@ public class NodeTransmitter extends Thread{
 			
 			//------------- Reception and logic starts here-----------------
 			
-				if (message instanceof HelloMessage) {
-					helloMessage = (HelloMessage) message;
-					//System.out.println(helloMessage.getNode().getNodeID());
-					this.node.updateNeighbors (helloMessage, datagram.getAddress());
-				}
+			if (message instanceof HelloMessage) {
+				helloMessage = (HelloMessage) message;
+				//System.out.println(helloMessage.getNode().getNodeID());
+				this.node.updateNeighbors (helloMessage, datagram.getAddress(), timeOut);
+			}
 				else if(message instanceof ElectionMessage) {
 					electionMessage = (ElectionMessage) message;
 					
