@@ -1,6 +1,8 @@
 package logic;
 
-public class ComputationIndex {
+import java.io.Serializable;
+
+public class ComputationIndex implements Serializable{
 
 	protected int id;
 	protected int num;

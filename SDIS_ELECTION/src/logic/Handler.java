@@ -35,7 +35,6 @@ public class Handler extends Thread {
 	@Override
 	public void run() {
 
-		System.out.println("Handler");
 		MulticastSocket socket = null;
 		InetAddress group = null;
 		try {
@@ -65,6 +64,7 @@ public class Handler extends Thread {
 		} else if (messageType == MessageType.ELECTION) {
 			try {
 				electionMessage = new ElectionMessage(node.getNodeID(), node.getComputationIndex(), node.getxCoordinate(), node.getyCoordinate(), addresseeId);
+				electionMessage.setAGroup(false);
 				messageToSend = electionMessage.serializeElectionMessage();
 			} catch (IOException e2) {
 				e2.printStackTrace();
@@ -74,6 +74,7 @@ public class Handler extends Thread {
 		} else if (messageType == MessageType.ELECTION_GROUP) {
 			try {
 				electionMessage = new ElectionMessage(node.getNodeID(), node.getComputationIndex(), node.getxCoordinate(), node.getyCoordinate(), mailingList);
+				electionMessage.setAGroup(true);
 				messageToSend = electionMessage.serializeElectionMessage();
 			} catch (IOException e2) {
 				e2.printStackTrace();

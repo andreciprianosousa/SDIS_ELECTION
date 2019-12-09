@@ -66,10 +66,14 @@ public class Node implements Serializable{
 		
 		new NodeListener(this, refreshRate).start();
 		new NodeTransmitter(this, timeOut).start();
+		
+		if(this.nodeID == 1) {
+			new Test(this).start();		
+		}
 
 	}
 	
-	public void updateNeighbors(HelloMessage message, InetAddress ipaddress, int timeOut) {
+	public synchronized void updateNeighbors(HelloMessage message, InetAddress ipaddress, int timeOut) {
 		int nodeMessageID = message.getNodeID();
 		//if message node is not this node
 
@@ -88,10 +92,11 @@ public class Node implements Serializable{
 				neighbors.put(message.getNodeID(), Instant.now());
 			}
 			
-			for(int neighbor : neighbors.keySet()) {
+			for(int neighbor : neighbors.keySet()) { 
 				//System.out.println(Duration.between(neighbors.get(neighbor), Instant.now()).toSeconds());
-				if(Duration.between(neighbors.get(neighbor), Instant.now()).toSeconds()>timeOut) {
-					neighbors.remove(neighbor);
+				if(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut*1000)) {
+					int neighborToRemove=neighbor;
+					neighbors.remove(neighborToRemove);
 					System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
 				}		
 			}
@@ -101,7 +106,7 @@ public class Node implements Serializable{
 	
 
 	public boolean isInsideNeighborhood(int neighborID, int xNeighbor, int yNeighbor) {
-		int range;
+		
 		float distanceBetweenNodes;
 		
 		distanceBetweenNodes = (float) Math.sqrt(Math.pow((xNeighbor-xCoordinate),2) + Math.pow((yNeighbor-yCoordinate),2));

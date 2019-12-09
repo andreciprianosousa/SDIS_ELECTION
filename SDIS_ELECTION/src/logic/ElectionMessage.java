@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class ElectionMessage implements Serializable{
 	
@@ -13,8 +14,8 @@ public class ElectionMessage implements Serializable{
 		private int incomingId;
 		private int xCoordinate;
 		private int yCoordinate;
-		private int addresseeId;
-		private HashSet<Integer> mailingList;
+		private int addresseeId = 0;
+		private HashSet<Integer> mailingList = new HashSet<Integer>();
 		private boolean isAGroup;
 
 		public ElectionMessage(int incomingId, ComputationIndex cp, int xCoordinate, int yCoordinate, int addresseeId) {
@@ -31,6 +32,7 @@ public class ElectionMessage implements Serializable{
 			this.xCoordinate = xCoordinate;
 			this.yCoordinate = yCoordinate;
 			this.mailingList = mailingList;
+			
 		}
 		
 		public byte[] serializeElectionMessage () throws IOException {

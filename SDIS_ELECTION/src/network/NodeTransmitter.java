@@ -15,16 +15,16 @@ public class NodeTransmitter extends Thread{
 	protected int port;
 	protected int timeOut;
 	protected String ipAddress;
-	
+
 	protected byte[] dataToReceive = new byte[2048];
-	
+
 	public NodeTransmitter(Node node, int timeOut) {
 		this.node = node;
 		this.ipAddress = node.getIpAddress();
 		this.port = node.getPort();
 		this.timeOut = timeOut;
 	}
-	
+
 	@Override
 	public void run() {
 		MulticastSocket socket = null;
@@ -37,19 +37,19 @@ public class NodeTransmitter extends Thread{
 		LeaderMessage leaderMessage = null;
 
 		DatagramPacket datagram; 
-		
+
 		try {
 			group = InetAddress.getByName(ipAddress);
 		} catch (UnknownHostException e) {
 			System.out.println ("Transmitter: Error configuring InetAddress (Node: " + node.getNodeID()+ ")");
 		}
-	
+
 		try {
 			socket = new MulticastSocket(port);
 		} catch (IOException e) {
 			System.out.println("Transmitter: Error configuring MulticastSocket (Node: " + node.getNodeID()+ ")");
 		}
-		
+
 
 		try {
 			socket.joinGroup(group);
@@ -58,79 +58,73 @@ public class NodeTransmitter extends Thread{
 
 			System.out.println("Transmitter: Error configuring Group (Node: " + node.getNodeID()+ ")");
 		}
-		
+
 		while (true) {
 			datagram = new DatagramPacket (dataToReceive, dataToReceive.length);
 			//System.out.println(dataToReceive.length);
 			try {
-				socket.receive(datagram);
+				socket.receive(datagram);	
 			} catch (IOException e) {
 				System.out.println("Transmitter: Error receiving datagram (Node: " + node.getNodeID()+ ")");
 			}
-			
+
 			try {
 				message = deserializeMessage (datagram.getData());
 			} catch (ClassNotFoundException | IOException e) {
 				e.printStackTrace();
 			} 
-			
-			// ------------ Simulation: Drop Packets -----------------------
-			if (this.node.testPacket() == true) {
-				System.out.println("Packet Drop!");
-				
-			} else {			
-				
-			
+
+
+
 			//------------- Reception and logic starts here-----------------
-			
+
 			if (message instanceof HelloMessage) {
 				helloMessage = (HelloMessage) message;
 				//System.out.println(helloMessage.getNode().getNodeID());
 				this.node.updateNeighbors (helloMessage, datagram.getAddress(), timeOut);
 			}
-				else if(message instanceof ElectionMessage) {
-					electionMessage = (ElectionMessage) message;
-					
-					// If Node is the message recipient, starts handling it
-					// Separates Group messages from Individual ones
-					
-					if (electionMessage.isAGroup() == true) {
-						if(electionMessage.getMailingList().contains(node.getNodeID())) {
-							new ElectionMessageHandler(this.node, electionMessage).start(); 
-						}
-					} 
-					else if (electionMessage.getAddresseeId() == node.getNodeID()) {
-						new ElectionMessageHandler(this.node, electionMessage).start();
+			else if(message instanceof ElectionMessage) {
+				electionMessage = (ElectionMessage) message;
+
+				// If Node is the message recipient, starts handling it
+				// Separates Group messages from Individual ones
+				if (electionMessage.isAGroup() == true) {
+					if(electionMessage.getMailingList().contains(node.getNodeID())) {
+						new ElectionMessageHandler(this.node, electionMessage).start(); 
 					}
-				}
-				
-				else if(message instanceof AckMessage) {
-					ackMessage = (AckMessage) message;
-					
-					if (ackMessage.getAddresseeId() == node.getNodeID()) {
-						new AckMessageHandler(this.node, ackMessage).start();
-					}
-				}
-				
-				else if(message instanceof LeaderMessage) {
-					leaderMessage = (LeaderMessage) message;
-					
-					if (leaderMessage.getMailingList().contains(node.getNodeID())) 		// Hope it works :D
-						new LeaderMessageHandler(this.node, leaderMessage).start();
+				} 
+				else if (electionMessage.getAddresseeId() == node.getNodeID()) {
+					new ElectionMessageHandler(this.node, electionMessage).start();
 				}
 			}
-			
-			//---------------------------------------------------------------
+
+			else if(message instanceof AckMessage) {
+				ackMessage = (AckMessage) message;
+
+				if (ackMessage.getAddresseeId() == node.getNodeID()) {
+					new AckMessageHandler(this.node, ackMessage).start();
+				}
+			}
+
+			else if(message instanceof LeaderMessage) {
+				leaderMessage = (LeaderMessage) message;
+
+//				if (leaderMessage.getMailingList().contains(node.getNodeID())) 		// Hope it works :D
+					new LeaderMessageHandler(this.node, leaderMessage).start();
+			}
 		}
+
+		//---------------------------------------------------------------
 	}
-	
+
+
 	public Object deserializeMessage (byte[] bytes) throws IOException, ClassNotFoundException {
 		ByteArrayInputStream message = new ByteArrayInputStream(bytes);
-        ObjectInputStream object = new ObjectInputStream(message);
-        Object o = object.readObject();
-        object.close();
-        message.close();
-        return o;
+		ObjectInputStream object = new ObjectInputStream(message);
+		Object o = object.readObject();
+		object.close();
+		message.close();
+		return o;
 	}
 }
 

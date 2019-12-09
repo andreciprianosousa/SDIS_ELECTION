@@ -29,5 +29,6 @@ public class NodeLauncher {
 		ipAddress = "225.225.221.6"; //between 224.0.0.0 and 239.255.255.255
 		System.out.println("Starting Node " + nodeID);
 		new Node(nodeID, port, ipAddress, dimensions, refreshRate, timeOut);
+		
 	}
 }
