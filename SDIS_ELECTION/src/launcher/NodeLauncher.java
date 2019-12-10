@@ -10,7 +10,7 @@ public class NodeLauncher {
 	protected static int[] dimensions = new int[3];
 	
 	/*Network configurations*/
-	protected static int refreshRate = 2;			// Every refreshRate seconds, each node sends a HelloMessage
+	protected static int refreshRate = 1;			// Every refreshRate seconds, each node sends a HelloMessage
 	protected static int timeOut = 2 * refreshRate; // If a node does not react for timeOut seconds, it's dead
 	
 	public static void main(String[] args) throws InterruptedException {

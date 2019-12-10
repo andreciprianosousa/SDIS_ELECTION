@@ -26,11 +26,14 @@ public class LeaderMessageHandler extends Thread{
 		// If this node receives leader message, update parameters accordingly
 		node.setElectionActive(false);
 		node.setLeaderID(leaderMessage.getStoredID());
-		System.out.println("No = " + node.getNodeID() + " || Leader  = " + node.getLeaderID());
 		node.setParentActive(-1);
 		node.setAckStatus(true); // may change...
 		node.setStoredValue(leaderMessage.getStoredValue());
 		node.setStoredId(leaderMessage.getStoredID());
+		
+		System.out.println("Node " + node.getNodeID() + "'s leader is " + node.getLeaderID());
+		System.out.println("CP: " + node.getComputationIndex().getNum()+ " - " + node.getComputationIndex().getValue()+ " - " + node.getComputationIndex().getId());
+		System.out.println("-----------------------------");
 		
 //		// If my only neighbour is my parent, don't send message and just return
 //		if(node.getNeighbors().size() == 1) {

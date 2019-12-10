@@ -45,7 +45,7 @@ public class ElectionMessage implements Serializable{
 	        return message.toByteArray();
 		}
 		
-		public int getNodeID() {
+		public int getIncomingId() {
 			return this.incomingId;
 		}
 

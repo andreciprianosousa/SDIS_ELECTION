@@ -23,7 +23,7 @@ public class Node implements Serializable{
 	protected boolean ackSent;
 	protected int leaderID;
 	protected HashMap<Integer, Instant> neighbors;
-	protected HashSet<Integer> waitingACK;
+	protected HashSet<Integer> waitingAcks;
 	protected float nodeValue;
 	protected float storedValue;
 	protected int storedId;
@@ -55,7 +55,7 @@ public class Node implements Serializable{
 		this.electionActive = false;
 		this.leaderID = -1; // -1 is no leader set
 		this.ackSent = true; // true means no ack sent yet, which technically is correct here
-		this.waitingACK = new HashSet<Integer>();
+		this.waitingAcks = new HashSet<Integer>();
 
 		this.xMax=dimensions[0];
 		this.yMax=dimensions[1];
@@ -113,13 +113,50 @@ public class Node implements Serializable{
 		
 		// Actually remove the gone neighbours
 		for(int neighbor : toRemove) {
-			neighbors.remove(neighbor);
+			this.neighbors.remove(neighbor); // Remove from neighbours...
+			this.getWaitingAcks().remove(neighbor);// ... but also from waiting acks, this way a node doesn't wait for a node it may not even be connected anymore
+			// IMPORTANT FOR MOBILITY -> this solves the problem unless the last waiting ack is the one
+			// that gets lost. Because node only checks acks remaining when it receives one
+			// It will never check again on its own and will remain stuck
+			// Possible solution: check here if it is last ack, if so, copy the same logic here
+			// from the handler...very ugly and it doesn't work well...
+			// If this was the last acknowledge needed, then send to parent my own ack and update my parameters
+//			if(this.getWaitingAcks().isEmpty() && (this.getAckStatus() == true)) {
+//				if(this.getParentActive() != -1) {
+//					this.setAckStatus(false);
+//					// send ACK message to parent stored in node.getParentActive()
+//					new Handler(this, logic.MessageType.ACK, this.getParentActive()).start();
+//					System.out.println("Sending to my parent " + this.getParentActive() + " the Leader Id " + this.getStoredId());
+//				}
+//				// or prepare to send leader message if this node is the source of the election (if it has no parent)
+//				else {
+//					this.setAckStatus(true); // may change
+//					this.setElectionActive(false);
+//					this.setLeaderID(this.getStoredId());
+//					System.out.println("Leader agreed upon: " + this.getLeaderID());
+//					
+//					// send Leader message to all children, needs id and value of leader chosen (stored already)
+//					Iterator<Integer> i=this.getNeighbors().iterator();
+//					this.getWaitingAcks().clear(); // clear this first just in case
+//					HashSet<Integer> toSend = new HashSet<Integer>();
+//					
+//					while(i.hasNext()) {
+//						Integer temp = i.next();
+//						toSend.add(temp);
+//					}
+//					// Send Election Message to all neighbours, except parent
+//					System.out.println("Sending leader to all nodes.");
+//					new Handler(this, logic.MessageType.LEADER, toSend).start();
+//				}
+//			}
+			
 			System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
 			
 			printNeighbors();
 			
 			// If leader is no longer my neighbour, restart the election because no leader = bad
-			if(!(neighbors.containsKey(leaderID))) {
+			// Special case for the leader itself, it doesn't need to check itself 	
+			if(!neighbors.containsKey(leaderID) && !(nodeID == leaderID)) {
 				System.out.println("Leader is gone");
 				this.setStoredId(this.nodeID);
 				this.setStoredValue(this.nodeID);
@@ -221,7 +258,9 @@ public class Node implements Serializable{
 	public void setElectionActive(boolean electionActive) {
 		this.electionActive = electionActive;
 	}
-
+	public int getParentActive() {
+		return parentActive;
+	}
 	public void setParentActive(int parentActive) {
 		this.parentActive = parentActive;
 	}
@@ -236,12 +275,6 @@ public class Node implements Serializable{
 	}
 	public void setNeighbors(HashMap<Integer, Instant> neighbors) {
 		this.neighbors = neighbors;
-	}
-	public HashSet<Integer> getWaitingAcks() {
-		return this.waitingACK;
-	}
-	public void setWaitingAck(HashSet<Integer> waitingACK) {
-		this.waitingACK = waitingACK;
 	}
 	public int getPort() {
 		return port;
@@ -277,12 +310,12 @@ public class Node implements Serializable{
 		this.ackSent = ackSent;
 	}
 
-	public HashSet<Integer> getWaitingACK() {
-		return waitingACK;
+	public HashSet<Integer> getWaitingAcks() {
+		return this.waitingAcks;
 	}
 
-	public void setWaitingACK(HashSet<Integer> waitingACK) {
-		this.waitingACK = waitingACK;
+	public void setWaitingAcks(HashSet<Integer> waitingACK) {
+		this.waitingAcks = waitingACK;
 	}
 
 	public float getNodeValue() {
@@ -333,8 +366,6 @@ public class Node implements Serializable{
 		this.nodeRange = nodeRange;
 	}
 
-	public int getParentActive() {
-		return parentActive;
-	}
+
 	
 }

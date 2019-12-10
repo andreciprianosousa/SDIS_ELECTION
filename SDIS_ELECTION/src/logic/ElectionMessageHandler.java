@@ -42,14 +42,16 @@ public class ElectionMessageHandler extends Thread {
 			//If the election sent to me is the same as my current election
 			if((electionMessage.getComputationIndex().getNum() == node.getComputationIndex().getNum()) && (node.getComputationIndex().getValue()== electionMessage.getComputationIndex().getValue()) && (node.getComputationIndex().getId()==electionMessage.getComputationIndex().getId())) {
 				// send ACK Message to the same id of the message, also passing storedValue and storedId
-				sendMessage(logic.MessageType.ACK, electionMessage.getNodeID());	
+				System.out.println("Already in same election! Sending immediate ack to " + electionMessage.getIncomingId());
+				sendMessage(logic.MessageType.ACK, electionMessage.getIncomingId());	
 			}
 			else{
 				// If I have priority in Computation Index, send to sender of message new Election in my terms
 				if( (electionMessage.getComputationIndex().getValue() < node.getComputationIndex().getValue() ) || ( (electionMessage.getComputationIndex().getValue() == node.getComputationIndex().getValue()) && (electionMessage.getComputationIndex().getId() < node.getComputationIndex().getId()) )) {
 					// send election message to sender with my stored id, value and CP stuff
 					electionMessage.setAGroup(false);
-					sendMessage(logic.MessageType.ELECTION, electionMessage.getNodeID());
+					System.out.println("My CP is higher, sending my election to " + electionMessage.getIncomingId());
+					sendMessage(logic.MessageType.ELECTION, electionMessage.getIncomingId());
 				}
 				else {
 					// If the sender has priority, I clean myself and propagate its message
@@ -57,7 +59,7 @@ public class ElectionMessageHandler extends Thread {
 					node.getComputationIndex().setId(electionMessage.getComputationIndex().getId()); 
 					node.getComputationIndex().setValue(electionMessage.getComputationIndex().getValue());
 
-					node.setParentActive(electionMessage.getNodeID());
+					node.setParentActive(electionMessage.getIncomingId());
 
 					// If it this node has no neighbours, send ack to parent and set ackSent to false right away
 					if(node.getNeighbors().isEmpty()) {
@@ -86,7 +88,7 @@ public class ElectionMessageHandler extends Thread {
 		// If I'm not in an election, setup myself and send ACKs to neighbours, if I have any
 		else {	
 			node.setElectionActive(true);
-			node.setParentActive(electionMessage.getNodeID()); 
+			node.setParentActive(electionMessage.getIncomingId()); 
 
 			// IMPORTANT -> if this node starts an election after other elections in the past, 
 			// don't forget to update these values to a bigger num but with id equal to this node's
@@ -99,6 +101,7 @@ public class ElectionMessageHandler extends Thread {
 			if(node.getNeighbors().size() == 1) {
 				node.setAckStatus(false);
 				// send Ack message to sender/parent with my stored id and value
+				System.out.println("Sending immediate ack since I only have parent.");
 				sendMessage(logic.MessageType.ACK, node.getParentActive());	
 			}
 			else {	

@@ -90,10 +90,12 @@ public class NodeTransmitter extends Thread{
 				// Separates Group messages from Individual ones
 				if (electionMessage.isAGroup() == true) {
 					if(electionMessage.getMailingList().contains(node.getNodeID())) {
+						System.out.println("Node " + node.getNodeID() + " received election group message from " + electionMessage.getIncomingId());
 						new ElectionMessageHandler(this.node, electionMessage).start(); 
 					}
 				} 
 				else if (electionMessage.getAddresseeId() == node.getNodeID()) {
+					System.out.println("Node " + node.getNodeID() + " received election message from " + electionMessage.getIncomingId());
 					new ElectionMessageHandler(this.node, electionMessage).start();
 				}
 			}
@@ -102,15 +104,16 @@ public class NodeTransmitter extends Thread{
 				ackMessage = (AckMessage) message;
 
 				if (ackMessage.getAddresseeId() == node.getNodeID()) {
+					System.out.println("Node " + node.getNodeID() + " received ack message from "+ ackMessage.getIncomingId());
 					new AckMessageHandler(this.node, ackMessage).start();
 				}
 			}
 
 			else if(message instanceof LeaderMessage) {
+				// We may put here a mailing list check, because node that started election doesn't need leader message's information
 				leaderMessage = (LeaderMessage) message;
-
-//				if (leaderMessage.getMailingList().contains(node.getNodeID())) 		// Hope it works :D
-					new LeaderMessageHandler(this.node, leaderMessage).start();
+				System.out.println("Node " + node.getNodeID() + " received leader message from " + leaderMessage.getIncomingId());
+				new LeaderMessageHandler(this.node, leaderMessage).start();
 			}
 		}
 
