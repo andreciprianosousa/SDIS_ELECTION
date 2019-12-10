@@ -34,6 +34,7 @@ public class Node implements Serializable{
 	private int xCoordinate;
 	private int yCoordinate;
 	private int nodeRange;
+	private int timeOut;
 
 	protected int port;
 	protected String ipAddress;
@@ -52,13 +53,14 @@ public class Node implements Serializable{
 		this.parentActive = -1;
 		this.electionActive = false;
 		this.leaderID = -1; // -1 is no leader set
-		this.ackSent = true; // true means no ack sent yet, which technically is correct he
+		this.ackSent = true; // true means no ack sent yet, which technically is correct here
 		this.waitingACK = new HashSet<Integer>();
 
 		this.xMax=dimensions[0];
 		this.yMax=dimensions[1];
 		this.nodeRange = dimensions[2];
 		this.neighbors = new HashMap <Integer, Instant>();
+		this.timeOut = timeOut;
 		
 		//Initial coordinates 
 		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
@@ -68,13 +70,12 @@ public class Node implements Serializable{
 		new NodeListener(this, refreshRate).start();
 		new NodeTransmitter(this, timeOut).start();
 		
-		if(this.nodeID == 1) {
-			new Test(this).start();		
-		}
+	
+		new Bootstrap(this).start(); // New node, so set network and start election	
 
 	}
 	
-	public synchronized void updateNeighbors(HelloMessage message, InetAddress ipaddress, int timeOut) {
+	public synchronized void updateNeighbors(HelloMessage message, InetAddress ipaddress) {
 		int nodeMessageID = message.getNodeID();
 		//if message node is not this node
 
@@ -93,29 +94,37 @@ public class Node implements Serializable{
 				neighbors.put(message.getNodeID(), Instant.now());
 			}
 			
-			ArrayList<Integer> toRemove = new ArrayList<Integer>();
-			
-			for(int neighbor : neighbors.keySet()) { 
-				//System.out.println(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis());
-				if(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut*1000)) {
-					System.out.println("Entrou");
-					toRemove.add(neighbor);
-				}		
-			}
-			for(int neighbor : toRemove) {
-				neighbors.remove(neighbor);
-				System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
-				System.out.print("Node " + this.getNodeID() + " is neighbor of: [");
-				for(int neighbor2 : neighbors.keySet()) {
-					System.out.print(neighbor2+ " ");
-				}
-				System.out.println("]");
-			}
 			
 		}
 		
 	}
 	
+	public void updateRemovedNodes() {
+
+		ArrayList<Integer> toRemove = new ArrayList<Integer>();
+		
+		for(int neighbor : neighbors.keySet()) { 
+			//System.out.println(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis());
+			if(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut*1000)) {
+				toRemove.add(neighbor);
+			}		
+		}
+		for(int neighbor : toRemove) {
+			neighbors.remove(neighbor);
+			System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
+			
+			printNeighbors();
+		}
+	}
+	
+	public void printNeighbors() {
+		
+		System.out.print("Node " + this.getNodeID() + " is neighbor of: [");
+		for(int neighbor : neighbors.keySet()) {
+			System.out.print(neighbor+ " ");
+		}
+		System.out.println("]");
+	}
 
 	public boolean isInsideNeighborhood(int neighborID, int xNeighbor, int yNeighbor) {
 		

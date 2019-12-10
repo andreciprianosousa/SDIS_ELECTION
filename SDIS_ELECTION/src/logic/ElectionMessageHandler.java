@@ -83,8 +83,8 @@ public class ElectionMessageHandler extends Thread {
 				}
 			}
 		}
-		// If I'm not in an election, setup myself and send ACKs to neighbours
-		else {
+		// If I'm not in an election, setup myself and send ACKs to neighbours, if I have any
+		else {	
 			node.setElectionActive(true);
 			node.setParentActive(electionMessage.getNodeID()); 
 

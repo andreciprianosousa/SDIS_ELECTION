@@ -48,6 +48,9 @@ public class NodeListener extends Thread{
 		}
 		
 		while (true) {
+			
+			node.updateRemovedNodes();
+			
 			try {
 				helloMessage = new HelloMessage(node);
 				messageToSend = helloMessage.serializeHelloMessage();
@@ -67,7 +70,7 @@ public class NodeListener extends Thread{
 			//System.out.println("Message sent by Node: " + node.getNodeID());
 			
 			try {
-				Thread.sleep(refreshRate);
+				Thread.sleep(refreshRate*1000);
 			} catch (InterruptedException e) {
 				System.out.println("Listener: Error putting thread to sleep (Node: " + node.getNodeID()+ ")");
 			}

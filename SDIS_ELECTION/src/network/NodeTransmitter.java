@@ -81,7 +81,7 @@ public class NodeTransmitter extends Thread{
 			if (message instanceof HelloMessage) {
 				helloMessage = (HelloMessage) message;
 				//System.out.println(helloMessage.getNode().getNodeID());
-				this.node.updateNeighbors (helloMessage, datagram.getAddress(), timeOut);
+				this.node.updateNeighbors (helloMessage, datagram.getAddress());
 			}
 			else if(message instanceof ElectionMessage) {
 				electionMessage = (ElectionMessage) message;
