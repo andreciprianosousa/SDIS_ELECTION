@@ -121,6 +121,11 @@ public class Node implements Serializable{
 			// If leader is no longer my neighbour, restart the election because no leader = bad
 			if(!(neighbors.containsKey(leaderID))) {
 				System.out.println("Leader is gone");
+				this.setStoredId(this.nodeID);
+				this.setStoredValue(this.nodeID);
+				this.setLeaderID(-1);
+				this.setParentActive(-1);
+				//this.setComputationIndex(new ComputationIndex(this.getNodeID(), 0, this.getNodeValue()));
 				new Bootstrap(this).start();
 			}
 		}

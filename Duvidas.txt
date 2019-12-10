@@ -1,0 +1,9 @@
+
+- 1a : 
+	* Se o Leader election pode ser feito em Broadcast para todos os nos, mesmo fora do range?
+	
+- 2a :
+	* Um no de ligaçao com o lider falha, é necessario recriar a rede de imediato?           
+	
+- 3a :
+	* O que acontece quando uma msg é perdida? 
