@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -92,9 +93,7 @@ public class Node implements Serializable{
 					System.out.println("]");
 				}
 				neighbors.put(message.getNodeID(), Instant.now());
-			}
-			
-			
+			}		
 		}
 		
 	}
@@ -103,17 +102,27 @@ public class Node implements Serializable{
 
 		ArrayList<Integer> toRemove = new ArrayList<Integer>();
 		
+		
+		// Check if neighbors are connected, if not put them in a "blacklist"
 		for(int neighbor : neighbors.keySet()) { 
 			//System.out.println(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis());
 			if(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut*1000)) {
 				toRemove.add(neighbor);
 			}		
 		}
+		
+		// Actually remove the gone neighbours
 		for(int neighbor : toRemove) {
 			neighbors.remove(neighbor);
 			System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
 			
 			printNeighbors();
+			
+			// If leader is no longer my neighbour, restart the election because no leader = bad
+			if(!(neighbors.containsKey(leaderID))) {
+				System.out.println("Leader is gone");
+				new Bootstrap(this).start();
+			}
 		}
 	}
 	

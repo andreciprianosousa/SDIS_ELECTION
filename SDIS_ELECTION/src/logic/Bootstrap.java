@@ -24,7 +24,7 @@ public class Bootstrap extends Thread{
 		// If I have no neighbours, set myself as leader immediately and it's done
 		if(node.getNeighbors().isEmpty()) {
 			node.setLeaderID(node.getNodeID());
-			System.out.println("MY current Leader: " + node.getLeaderID());
+			System.out.println("My current Leader: " + node.getLeaderID());
 		}
 		else {
 			Iterator<Integer> i=node.getNeighbors().iterator();

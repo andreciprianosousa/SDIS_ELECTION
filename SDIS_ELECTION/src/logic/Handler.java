@@ -34,7 +34,6 @@ public class Handler extends Thread {
 	// Thread Method
 	@Override
 	public void run() {
-
 		MulticastSocket socket = null;
 		InetAddress group = null;
 		try {
