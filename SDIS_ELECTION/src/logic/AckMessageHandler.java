@@ -56,11 +56,14 @@ public class AckMessageHandler extends Thread{
 				node.setAckStatus(false);
 				// send ACK message to parent stored in node.getParentActive()
 				sendMessage(logic.MessageType.ACK, node.getParentActive());
+				System.out.println("Sending to my parent " + node.getParentActive() + " the Leader Id " + node.getStoredId());
 			}
 			else {
+				//System.out.println("Reached here due to "+ ackMessage.getIncomingId());
 				node.setAckStatus(true); // may change
 				node.setElectionActive(false);
 				node.setLeaderID(node.getStoredId());
+				System.out.println("Leader a enviar: " + node.getLeaderID());
 				// send Leader message to all children, needs id and value of leader chosen (stored already)
 				Iterator<Integer> i=node.getNeighbors().iterator();
 				while(i.hasNext()) {

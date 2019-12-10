@@ -114,7 +114,7 @@ public class ElectionMessageHandler extends Thread {
 						// Send Election Message to current selected neighbour	
 					}
 				}
-				sendMessage(logic.MessageType.LEADER, node.getWaitingAcks());
+				sendMessage(logic.MessageType.ELECTION_GROUP, node.getWaitingAcks());
 			}
 		}
 	}

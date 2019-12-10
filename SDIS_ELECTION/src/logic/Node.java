@@ -2,6 +2,7 @@ package logic;
 
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -92,14 +93,25 @@ public class Node implements Serializable{
 				neighbors.put(message.getNodeID(), Instant.now());
 			}
 			
+			ArrayList<Integer> toRemove = new ArrayList<Integer>();
+			
 			for(int neighbor : neighbors.keySet()) { 
-				//System.out.println(Duration.between(neighbors.get(neighbor), Instant.now()).toSeconds());
+				//System.out.println(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis());
 				if(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut*1000)) {
-					int neighborToRemove=neighbor;
-					neighbors.remove(neighborToRemove);
-					System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
+					System.out.println("Entrou");
+					toRemove.add(neighbor);
 				}		
 			}
+			for(int neighbor : toRemove) {
+				neighbors.remove(neighbor);
+				System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
+				System.out.print("Node " + this.getNodeID() + " is neighbor of: [");
+				for(int neighbor2 : neighbors.keySet()) {
+					System.out.print(neighbor2+ " ");
+				}
+				System.out.println("]");
+			}
+			
 		}
 		
 	}
