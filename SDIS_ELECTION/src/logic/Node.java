@@ -157,15 +157,31 @@ public class Node implements Serializable{
 			// If leader is no longer my neighbour, restart the election because no leader = bad
 			// Special case for the leader itself, it doesn't need to check itself 	
 			if(!neighbors.containsKey(leaderID) && !(nodeID == leaderID)) {
+				//System.out.println("NODE ID = " + this.nodeID);
 				System.out.println("Leader is gone");
 				this.setStoredId(this.nodeID);
 				this.setStoredValue(this.nodeID);
 				this.setLeaderID(-1);
 				this.setParentActive(-1);
+				this.waitingAcks.remove(neighbor);
 				//this.setComputationIndex(new ComputationIndex(this.getNodeID(), 0, this.getNodeValue()));
-				new Bootstrap(this).start();
+				if(this.nodeID > getMaximumIdNeighbors()) {
+					System.out.println("BootStrapping => " + this.nodeID);
+					new Bootstrap(this).start();
+				}
 			}
 		}
+	}
+	
+	public int getMaximumIdNeighbors() {
+		int max=0;
+		for(int neighbor : neighbors.keySet()) {
+			if(neighbor > max) {
+				max = neighbor;
+			}
+		}
+		//System.out.println("MAX ID = " + max);
+		return max;
 	}
 	
 	public void printNeighbors() {
@@ -365,7 +381,4 @@ public class Node implements Serializable{
 	public void setNodeRange(int nodeRange) {
 		this.nodeRange = nodeRange;
 	}
-
-
-	
 }

@@ -43,7 +43,7 @@ public class AckMessageHandler extends Thread{
 		if(ackMessage.getStoredValue() > node.getStoredValue()) {
 			node.setStoredValue(ackMessage.getStoredValue());
 			node.setStoredId(ackMessage.getStoredID());
-		}
+		} 
 
 		// If this was the last acknowledge needed, then send to parent my own ack and update my parameters
 		if(node.getWaitingAcks().isEmpty() && (node.getAckStatus() == true)) {
@@ -73,6 +73,6 @@ public class AckMessageHandler extends Thread{
 				System.out.println("Sending leader to all nodes.");
 				sendMessage(logic.MessageType.LEADER, toSend);
 			}
-		}		
+		}
 	}
 }

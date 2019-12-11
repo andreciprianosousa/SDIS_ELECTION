@@ -74,8 +74,6 @@ public class NodeTransmitter extends Thread{
 				e.printStackTrace();
 			} 
 
-
-
 			//------------- Reception and logic starts here-----------------
 
 			if (message instanceof HelloMessage) {
