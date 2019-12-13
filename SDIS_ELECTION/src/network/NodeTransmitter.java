@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 
 import logic.*;
 
@@ -73,33 +74,34 @@ public class NodeTransmitter extends Thread{
 			//System.out.println("Node " + node.getNodeID() + ". Message " + message);
 
 			//------------- Reception and logic starts here-----------------
+			String[] fields = message.split("/");
 			if(message.contains("hello")) {
-				String[] fields = message.split("/");
 				this.node.updateNeighbors(Integer.parseInt(fields[1]), Integer.parseInt(fields[2]), Integer.parseInt(fields[3]));
 			}
-			/*
-			if (message instanceof HelloMessage) {
-				helloMessage = (HelloMessage) message;
-				//System.out.println(helloMessage.getNode().getNodeID());
-				this.node.updateNeighbors (helloMessage, datagram.getAddress());
-			}
-			else if(message instanceof ElectionMessage) {
-				electionMessage = (ElectionMessage) message;
+			
+			else if(message.contains("elec")) {
+				for(int i=0; i<fields.length; i++) {
+					System.out.println(fields[i]);
+				}
 
 				// If Node is the message recipient, starts handling it
 				// Separates Group messages from Individual ones
-				if (electionMessage.isAGroup() == true) {
+				if (message.contains("elecG") == true) {
+					electionMessage = convertToElectionMessageGroup(message);
 					if(electionMessage.getMailingList().contains(node.getNodeID())) {
 						System.out.println("Node " + node.getNodeID() + " received election group message from " + electionMessage.getIncomingId());
 						new ElectionMessageHandler(this.node, electionMessage).start(); 
 					}
 				} 
-				else if (electionMessage.getAddresseeId() == node.getNodeID()) {
-					System.out.println("Node " + node.getNodeID() + " received election message from " + electionMessage.getIncomingId());
-					new ElectionMessageHandler(this.node, electionMessage).start();
+				else {
+					electionMessage = convertToElectionMessageIndividual(message);
+					else if (electionMessage.getAddresseeId() == node.getNodeID()) {
+						System.out.println("Node " + node.getNodeID() + " received election message from " + electionMessage.getIncomingId());
+						new ElectionMessageHandler(this.node, electionMessage).start();
+					}
 				}
 			}
-
+			/*
 			else if(message instanceof AckMessage) {
 				ackMessage = (AckMessage) message;
 
@@ -120,15 +122,42 @@ public class NodeTransmitter extends Thread{
 		//---------------------------------------------------------------
 		}
 	}
-	/*
-	public Object deserializeMessage (byte[] bytes) throws IOException, ClassNotFoundException {
-		ByteArrayInputStream message = new ByteArrayInputStream(bytes);
-		ObjectInputStream object = new ObjectInputStream(message);
-		Object o = object.readObject();
-		object.close();
-		message.close();
-		return o;
+
+	public ElectionMessage convertToElectionMessageGroup (String message) {
+		String[] fields = message.split("/");
+		int id = Integer.parseInt(fields[1]);
+		ComputationIndex cIndex = stringToCP(fields[2]);
+		int x = Integer.parseInt(fields[3]);
+		int y = Integer.parseInt(fields[4]);
+		HashSet <Integer> mList= stringToMalingList(fields[5]);
+		
+		return new ElectionMessage (id, cIndex, x, y, mList);
 	}
-	*/
+	 ver isto do messageGroup e individual 
+	public ElectionMessage convertToElectionMessageIndividual (String message) {
+		String[] fields = message.split("/");
+		int id = Integer.parseInt(fields[1]);
+		ComputationIndex cIndex = stringToCP(fields[2]);
+		int x = Integer.parseInt(fields[3]);
+		int y = Integer.parseInt(fields[4]);
+		HashSet <Integer> mList= stringToMalingList(fields[5]);
+		
+		return new ElectionMessage (id, cIndex, x, y, mList);
+	}
+	
+	public ComputationIndex stringToCP(String cpString) {
+		String[] fields = cpString.split(",");
+		return new ComputationIndex(Integer.parseInt(fields[0]), Integer.parseInt(fields[1]), Integer.parseInt(fields[2]));
+	}
+	
+	public HashSet<Integer> stringToMalingList (String mailingListString) {
+		String[] fields = mailingListString.split(",");
+		HashSet <Integer> mailingListConverted = new HashSet<Integer>();
+		for(String id : fields) {
+			mailingListConverted.add(Integer.parseInt(id));
+		}
+		
+		return mailingListConverted;
+	}
 }
 

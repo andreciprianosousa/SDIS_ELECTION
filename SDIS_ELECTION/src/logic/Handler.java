@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 
 public class Handler extends Thread { 
@@ -61,24 +62,14 @@ public class Handler extends Thread {
 			}		
 			
 		} else if (messageType == MessageType.ELECTION) {
-			try {
-				electionMessage = new ElectionMessage(node.getNodeID(), node.getComputationIndex(), node.getxCoordinate(), node.getyCoordinate(), addresseeId);
-				electionMessage.setAGroup(false);
-				messageToSend = electionMessage.serializeElectionMessage();
-			} catch (IOException e2) {
-				e2.printStackTrace();
-				System.out.println("Handler: Error Serializing ElectionMessage (Node: " + node.getNodeID()+ ")");
-			}
+			electionMessage = new ElectionMessage(node.getNodeID(), node.getComputationIndex(), node.getxCoordinate(), node.getyCoordinate(), addresseeId);
+			electionMessage.setAGroup(false);
+			messageToSend = electionMessage.toString().getBytes(StandardCharsets.UTF_8);
 			
 		} else if (messageType == MessageType.ELECTION_GROUP) {
-			try {
-				electionMessage = new ElectionMessage(node.getNodeID(), node.getComputationIndex(), node.getxCoordinate(), node.getyCoordinate(), mailingList);
-				electionMessage.setAGroup(true);
-				messageToSend = electionMessage.serializeElectionMessage();
-			} catch (IOException e2) {
-				e2.printStackTrace();
-				System.out.println("Handler: Error Serializing ElectionMessage (Node: " + node.getNodeID()+ ")");
-			}
+			electionMessage = new ElectionMessage(node.getNodeID(), node.getComputationIndex(), node.getxCoordinate(), node.getyCoordinate(), mailingList);
+			electionMessage.setAGroup(true);
+			messageToSend = electionMessage.toString().getBytes(StandardCharsets.UTF_8);
 		
 			
 		} else if (messageType == MessageType.LEADER) {

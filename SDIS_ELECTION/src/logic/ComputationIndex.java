@@ -17,6 +17,11 @@ public class ComputationIndex implements Serializable{
 		this.value = value;
 	}
 	
+	@Override
+    public String toString() { 
+        return String.format(id + "," + num + "," + value + ","); 
+    } 
+	
 	public int getId() {
 		return this.id;
 	}

@@ -72,7 +72,7 @@ public class Node implements Serializable{
 		new NodeTransmitter(this, timeOut).start();
 		
 	
-		//new Bootstrap(this).start(); // New node, so set network and start election	
+		new Bootstrap(this).start(); // New node, so set network and start election	
 
 	}
 	

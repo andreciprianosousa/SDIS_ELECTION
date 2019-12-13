@@ -6,6 +6,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ElectionMessage implements Serializable{
 	
@@ -17,8 +19,9 @@ public class ElectionMessage implements Serializable{
 		private int addresseeId = 0;
 		private HashSet<Integer> mailingList = new HashSet<Integer>();
 		private boolean isAGroup;
-
-		public ElectionMessage(int incomingId, ComputationIndex cp, int xCoordinate, int yCoordinate, int addresseeId) {
+		private String messageCode = "elect";
+		
+		public ElectionMessage(int incomingId, ComputationIndex cp, int xCoordinate, int yCoordinate, int addresseeId) {	
 			this.cp = cp;
 			this.incomingId = incomingId;
 			this.xCoordinate = xCoordinate;
@@ -35,15 +38,15 @@ public class ElectionMessage implements Serializable{
 			
 		}
 		
-		public byte[] serializeElectionMessage () throws IOException {
-			ByteArrayOutputStream message = new ByteArrayOutputStream();
-	        ObjectOutputStream object = new ObjectOutputStream(message);
-	        object.writeObject((Object)this);
-	        object.flush();
-	        object.close();
-	        message.close();
-	        return message.toByteArray();
-		}
+		
+		@Override
+	    public String toString() {
+			int[] mailingListInt = mailingList.stream().mapToInt(Integer::intValue).toArray();
+			
+			String mailingListString = IntStream.of(mailingListInt).mapToObj(Integer::toString).collect(Collectors.joining(","));
+			
+	        return String.format(messageCode + "/" + incomingId + "/" + cp.toString() + "/" + xCoordinate + "/" + yCoordinate + "/" + mailingListString + "/"); 
+	    } 
 		
 		public int getIncomingId() {
 			return this.incomingId;

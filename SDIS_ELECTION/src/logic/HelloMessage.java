@@ -25,18 +25,6 @@ public class HelloMessage implements Serializable{
         return String.format(messageCode + "/" + nodeID + "/" + xCoordinate + "/" + yCoordinate + "/"); 
     } 
 	
-	/*
-	public byte[] serializeHelloMessage () throws IOException {
-		ByteArrayOutputStream message = new ByteArrayOutputStream();
-        ObjectOutputStream object = new ObjectOutputStream(message);
-        object.writeObject((Object)this);
-        object.flush();
-        object.close();
-        message.close();
-        return message.toByteArray();
-	}
-	*/
-	
 	public int getNodeID() {
 		return nodeID;
 	}
