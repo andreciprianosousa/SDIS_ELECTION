@@ -72,17 +72,14 @@ public class Node implements Serializable{
 		new NodeTransmitter(this, timeOut).start();
 		
 	
-		new Bootstrap(this).start(); // New node, so set network and start election	
+		//new Bootstrap(this).start(); // New node, so set network and start election	
 
 	}
 	
-	public synchronized void updateNeighbors(HelloMessage message, InetAddress ipaddress) {
-		int nodeMessageID = message.getNodeID();
-		//if message node is not this node
-
+	public synchronized void updateNeighbors(int nodeMessageID, int xNeighbor, int yNeighbor) {
 		if(nodeMessageID != nodeID) {
 			//if message node is inside neighborhood
-			if(this.isInsideNeighborhood(nodeMessageID, message.getxCoordinate(), message.getyCoordinate())) {
+			if(this.isInsideNeighborhood(nodeMessageID, xNeighbor, yNeighbor)) {
 				//does node exist? update time, otherwise add it and update time
 				if(!neighbors.containsKey(nodeMessageID)) {
 					System.out.print("Node " + this.getNodeID() + " is neighbor of: [");
@@ -92,7 +89,7 @@ public class Node implements Serializable{
 					System.out.print(nodeMessageID+ " ");
 					System.out.println("]");
 				}
-				neighbors.put(message.getNodeID(), Instant.now());
+				neighbors.put(nodeMessageID, Instant.now());
 			}		
 		}
 		

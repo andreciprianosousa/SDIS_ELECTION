@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+
 import logic.*;
 
 public class NodeListener extends Thread{
@@ -12,7 +14,7 @@ public class NodeListener extends Thread{
 	protected int port;
 	protected String ipAddress;
 	protected int refreshRate;
-	protected HelloMessage helloMessage = null;
+	protected String helloMessage;
 	byte[] messageToSend = new byte[2048];
 	DatagramPacket datagram;
 	
@@ -51,13 +53,9 @@ public class NodeListener extends Thread{
 			
 			node.updateRemovedNodes();
 			
-			try {
-				helloMessage = new HelloMessage(node);
-				messageToSend = helloMessage.serializeHelloMessage();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-				System.out.println("Listener: Error Serializing HelloMessage (Node: " + node.getNodeID()+ ")");
-			}
+			helloMessage = new HelloMessage(node).toString();
+			//System.out.println(helloMessage);
+			messageToSend = helloMessage.getBytes(StandardCharsets.UTF_8);
 			
 			datagram = new DatagramPacket(messageToSend, messageToSend.length, group, port);
 			

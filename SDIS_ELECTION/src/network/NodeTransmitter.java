@@ -7,6 +7,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 
 import logic.*;
 
@@ -29,7 +30,7 @@ public class NodeTransmitter extends Thread{
 	public void run() {
 		MulticastSocket socket = null;
 		InetAddress group = null;
-		Object message = null;
+		String message = null;
 		HelloMessage helloMessage = null;
 
 		ElectionMessage electionMessage = null;
@@ -68,14 +69,15 @@ public class NodeTransmitter extends Thread{
 				System.out.println("Transmitter: Error receiving datagram (Node: " + node.getNodeID()+ ")");
 			}
 
-			try {
-				message = deserializeMessage (datagram.getData());
-			} catch (ClassNotFoundException | IOException e) {
-				e.printStackTrace();
-			} 
+			message = new String (datagram.getData(), 0,datagram.getData().length ,StandardCharsets.UTF_8);
+			//System.out.println("Node " + node.getNodeID() + ". Message " + message);
 
 			//------------- Reception and logic starts here-----------------
-
+			if(message.contains("hello")) {
+				String[] fields = message.split("/");
+				this.node.updateNeighbors(Integer.parseInt(fields[1]), Integer.parseInt(fields[2]), Integer.parseInt(fields[3]));
+			}
+			/*
 			if (message instanceof HelloMessage) {
 				helloMessage = (HelloMessage) message;
 				//System.out.println(helloMessage.getNode().getNodeID());
@@ -114,11 +116,11 @@ public class NodeTransmitter extends Thread{
 				new LeaderMessageHandler(this.node, leaderMessage).start();
 			}
 		}
-
+		*/
 		//---------------------------------------------------------------
+		}
 	}
-
-
+	/*
 	public Object deserializeMessage (byte[] bytes) throws IOException, ClassNotFoundException {
 		ByteArrayInputStream message = new ByteArrayInputStream(bytes);
 		ObjectInputStream object = new ObjectInputStream(message);
@@ -127,5 +129,6 @@ public class NodeTransmitter extends Thread{
 		message.close();
 		return o;
 	}
+	*/
 }
 

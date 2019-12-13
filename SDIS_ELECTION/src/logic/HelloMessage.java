@@ -12,13 +12,20 @@ public class HelloMessage implements Serializable{
 	private int nodeID;
 	private int xCoordinate;
 	private int yCoordinate;
-	
+	private String messageCode; //5 chars code
 	public HelloMessage(Node node) {
 		this.nodeID = node.getNodeID();
 		this.xCoordinate = node.getxCoordinate();
 		this.yCoordinate = node.getyCoordinate();
+		messageCode = "hello";
 	}
 	
+	@Override
+    public String toString() { 
+        return String.format(messageCode + "/" + nodeID + "/" + xCoordinate + "/" + yCoordinate + "/"); 
+    } 
+	
+	/*
 	public byte[] serializeHelloMessage () throws IOException {
 		ByteArrayOutputStream message = new ByteArrayOutputStream();
         ObjectOutputStream object = new ObjectOutputStream(message);
@@ -28,7 +35,8 @@ public class HelloMessage implements Serializable{
         message.close();
         return message.toByteArray();
 	}
-
+	*/
+	
 	public int getNodeID() {
 		return nodeID;
 	}
