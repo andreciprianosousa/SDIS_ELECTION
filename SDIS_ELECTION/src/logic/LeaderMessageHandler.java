@@ -32,6 +32,7 @@ public class LeaderMessageHandler extends Thread{
 			}
 			
 			if(leaderMessage.getStoredID() == node.getLeaderID()) {
+				System.out.println("Do nothing.");
 				return;
 			}
 			
