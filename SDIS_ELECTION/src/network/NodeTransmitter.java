@@ -106,9 +106,10 @@ public class NodeTransmitter extends Thread{
 			}
 			
 			else if(message.contains("leadr")) {
-				for(int i=0; i<fields.length; i++) {
-					System.out.println(fields[i]);
-				}
+//				System.out.println("leader has " + fields.length);
+//				for(int i=0; i<fields.length; i++) {
+//					System.out.println(fields[i]);
+//				}
 				// We may put here a mailing list check, because node that started election doesn't need leader message's information
 				leaderMessage = convertToLeaderMessage(message);
 				System.out.println("Node " + node.getNodeID() + " received leader message from " + leaderMessage.getIncomingId());
@@ -125,7 +126,6 @@ public class NodeTransmitter extends Thread{
 		int x = Integer.parseInt(fields[3]);
 		int y = Integer.parseInt(fields[4]);
 		HashSet <Integer> mList= stringToMalingList(fields[5]);
-		
 		return new ElectionMessage (id, cIndex, x, y, mList);
 	}
 	

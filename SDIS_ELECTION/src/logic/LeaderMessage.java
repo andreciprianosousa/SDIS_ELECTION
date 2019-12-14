@@ -27,7 +27,6 @@ public class LeaderMessage{
 	    public String toString() {
 			int[] mailingListInt = mailingList.stream().mapToInt(Integer::intValue).toArray();
 			String mailingListString = IntStream.of(mailingListInt).mapToObj(Integer::toString).collect(Collectors.joining(","));
-				
 			return String.format(messageCode + "/" + incomingId + "/" + storedID + "/" + storedValue+  "/" + xCoordinate + "/" + yCoordinate + "/" + mailingListString + "/"); 
 		}
 		public int getIncomingId() {
