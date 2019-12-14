@@ -32,9 +32,17 @@ public class Bootstrap extends Thread{
 			// Only biggest ID node should bootstrap election, should many nodes instantiate at once, given
 			// time to setup network beforehand
 			if(!(node.getNodeID() > node.getMaximumIdNeighbors())) {
-				System.out.println("Node is not strong enough to initiate election. Exchanging leader info with one neighbour.");
-				Iterator<Integer> i=node.getNeighbors().iterator();
-				new Handler(this.node, logic.MessageType.INFO, i.next()).start();
+				try {
+					Thread.sleep(2000); // Gives time to Higher Value node to finish the election, subject to change with network size
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				if(node.getLeaderID() == node.getNodeID()) { // Either I'm a new node (No interaction with Elections) or i'm leader
+					System.out.println("Node is not strong enough to initiate election. Exchanging leader info with one neighbour.");
+					Iterator<Integer> i=node.getNeighbors().iterator();
+					new Handler(this.node, logic.MessageType.INFO, i.next()).start();
+				}
 				
 			} else {
 			

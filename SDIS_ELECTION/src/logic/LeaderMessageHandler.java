@@ -31,8 +31,15 @@ public class LeaderMessageHandler extends Thread{
 				}
 			}
 			
+			if(leaderMessage.getStoredID() == node.getLeaderID()) {
+				return;
+			}
+			
+			node.setLeaderID(leaderMessage.getStoredID());
+			
 			// If this node receives leader message, update parameters accordingly if necessary
-			if(node.isElectionActive()) {
+			// And has a different leader, broadcasts the leader msgs
+			//if(node.isElectionActive()) {
 				node.setElectionActive(false);
 				node.setLeaderID(leaderMessage.getStoredID());
 				node.setParentActive(-1);
@@ -67,5 +74,5 @@ public class LeaderMessageHandler extends Thread{
 					sendMessage(MessageType.LEADER_SPECIAL, mailingList);
 				}
 			}
-	}
+	//}
 }
