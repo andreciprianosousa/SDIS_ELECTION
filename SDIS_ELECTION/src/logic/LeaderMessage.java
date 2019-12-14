@@ -1,12 +1,10 @@
 package logic;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.HashSet;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-public class LeaderMessage implements Serializable{
+public class LeaderMessage{
 	
 		private int incomingId;
 		private int storedID;
@@ -14,7 +12,8 @@ public class LeaderMessage implements Serializable{
 		private int xCoordinate;
 		private int yCoordinate;
 		private HashSet<Integer> mailingList;
-
+		private String messageCode = "leadr";
+		
 		public LeaderMessage(int incomingId, int leaderID, float leaderValue, int xCoordinate, int yCoordinate, HashSet<Integer> mailingList) {
 			this.incomingId = incomingId;
 			this.storedID = leaderID;
@@ -24,16 +23,13 @@ public class LeaderMessage implements Serializable{
 			this.mailingList = mailingList;
 		}
 		
-		public byte[] serializeLeaderMessage () throws IOException {
-			ByteArrayOutputStream message = new ByteArrayOutputStream();
-	        ObjectOutputStream object = new ObjectOutputStream(message);
-	        object.writeObject((Object)this);
-	        object.flush();
-	        object.close();
-	        message.close();
-	        return message.toByteArray();
+		@Override
+	    public String toString() {
+			int[] mailingListInt = mailingList.stream().mapToInt(Integer::intValue).toArray();
+			String mailingListString = IntStream.of(mailingListInt).mapToObj(Integer::toString).collect(Collectors.joining(","));
+				
+			return String.format(messageCode + "/" + incomingId + "/" + storedID + "/" + storedValue+  "/" + xCoordinate + "/" + yCoordinate + "/" + mailingListString + "/"); 
 		}
-
 		public int getIncomingId() {
 			return incomingId;
 		}

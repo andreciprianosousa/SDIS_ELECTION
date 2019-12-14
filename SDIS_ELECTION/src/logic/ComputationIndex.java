@@ -2,7 +2,7 @@ package logic;
 
 import java.io.Serializable;
 
-public class ComputationIndex implements Serializable{
+public class ComputationIndex{
 
 	protected int id;
 	protected int num;

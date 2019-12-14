@@ -52,14 +52,8 @@ public class Handler extends Thread {
 		// Selects Type of Message and Serializes it
 		// ACK and ELECTION are always sent to just one node. LEADER can be sent to several nodes.
 		if (messageType == MessageType.ACK) {
-			
-			try {
 				ackMessage = new AckMessage(node.getNodeID(), node.getStoredId(), node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), addresseeId);
-				messageToSend = ackMessage.serializeAckMessage();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-				System.out.println("Handler: Error Serializing AckMessage (Node: " + node.getNodeID()+ ")");
-			}		
+				messageToSend = ackMessage.toString().getBytes(StandardCharsets.UTF_8);
 			
 		} else if (messageType == MessageType.ELECTION) {
 			electionMessage = new ElectionMessage(node.getNodeID(), node.getComputationIndex(), node.getxCoordinate(), node.getyCoordinate(), addresseeId);
@@ -73,15 +67,9 @@ public class Handler extends Thread {
 		
 			
 		} else if (messageType == MessageType.LEADER) {
-			
 			// Leader Message sends always messages to a group (it can be a "group of 1"), so we can use just an HashSet
-			try {
-				leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), mailingList);
-				messageToSend = leaderMessage.serializeLeaderMessage();
-			} catch (IOException e3) {
-				e3.printStackTrace();
-				System.out.println("Handler: Error Serializing LeaderMessage (Node: " + node.getNodeID()+ ")");
-			}
+			leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), mailingList);
+			messageToSend = leaderMessage.toString().getBytes(StandardCharsets.UTF_8);
 		}
 		
 		// Datagram Packet

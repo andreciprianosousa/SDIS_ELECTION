@@ -1,12 +1,6 @@
 package logic;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.HashSet;
-
-public class AckMessage implements Serializable  {
+public class AckMessage {
 	
 	    //This message needs to be serializable to allow its representation as a sequence of bytes
 		private int incomingId;
@@ -16,7 +10,7 @@ public class AckMessage implements Serializable  {
 		private int xCoordinate;
 		private int yCoordinate;
 		private int addresseeId;
-		
+		private String messageCode = "ack00";
 		// ACK Message always sent to 1 node (Parent)
 		public AckMessage(int incomingId, int leaderID, float leaderValue, int xCoordinate, int yCoordinate, int addresseeId) {
 			this.incomingId = incomingId;
@@ -27,16 +21,11 @@ public class AckMessage implements Serializable  {
 			this.yCoordinate = yCoordinate;
 		}
 		
-		public byte[] serializeAckMessage () throws IOException {
-			ByteArrayOutputStream message = new ByteArrayOutputStream();
-	        ObjectOutputStream object = new ObjectOutputStream(message);
-	        object.writeObject((Object)this);
-	        object.flush();
-	        object.close();
-	        message.close();
-	        return message.toByteArray();
+		@Override
+	    public String toString() {
+			return String.format(messageCode + "/" + incomingId + "/" + storedID + "/" + storedValue + "/" + xCoordinate + "/" + yCoordinate + "/" + addresseeId +"/" ); 
 		}
-
+		
 		public int getIncomingId() {
 			return incomingId;
 		}
