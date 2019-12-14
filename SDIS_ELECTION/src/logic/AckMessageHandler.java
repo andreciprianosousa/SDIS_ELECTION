@@ -20,6 +20,10 @@ public class AckMessageHandler extends Thread{
 
 	// "Send Message" for type Leader - Needs HashSet to send to a group of Nodes
 	public void sendMessage(logic.MessageType messageType, HashSet <Integer> mailingList) {
+		if(mailingList.isEmpty()) {
+			System.out.println("Mailing List is Empty");
+			return;
+		}
 		new Handler(this.node, messageType, mailingList).start();
 	}
 

@@ -17,6 +17,10 @@ public class LeaderMessageHandler extends Thread{
 	}
 	
 	public void sendMessage(logic.MessageType messageType, HashSet<Integer> mailingList) {
+		if(mailingList.isEmpty()) {
+			System.out.println("Mailing List is Empty");
+			return;
+		}
 		new Handler(this.node, messageType, mailingList).start();
 	}
 	

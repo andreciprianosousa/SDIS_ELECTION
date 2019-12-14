@@ -2,10 +2,14 @@
 
 -> Tirar MailingList do algoritmo
 
--> Mandar mensagens por strings
-
 -> Bootstrap inicial pode ser diminuido ao nivel das mensagens (cuidado para que um no ao entrar sozinho com id menor, não fique abandonado)
 
 -> Ha um bug no algoritmo que ainda não se descodificou
 
 -> Não é pra fazer broadcast do lider => Provavelmente aplicar algoritmo do filho
+
+-> String Vazia
+
+-> Remover Nos
+
+-> 
