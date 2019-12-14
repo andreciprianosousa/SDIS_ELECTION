@@ -26,27 +26,36 @@ public class Bootstrap extends Thread{
 			System.out.println("I'm alone, my current Leader is me: " + node.getLeaderID());
 			System.out.println("-----------------------------");
 		}
-		// If not, start an election with neighbours
+		// If not, start an election with neighbours or join current network
 		else {
-			node.setAckStatus(true); // true means it has not sent ack to parent, in ack handler we will put this to false again
-
-			// For every neighbour except parent, put them in waitingAck 
-
-			Iterator<Integer> i=node.getNeighbors().iterator();
-			while(i.hasNext()) {
-				Integer temp = i.next();
-				if(!(temp == node.getParentActive())) {
-					node.getWaitingAcks().add(temp);
-					// Send Election Message to current selected neighbour	
+			
+			// Only biggest ID node should bootstrap election, should many nodes instantiate at once, given
+			// time to setup network beforehand
+			if(!(node.getNodeID() > node.getMaximumIdNeighbors())) {
+				System.out.println("Node is not strong enough to initiate election. Exchanging leader info with one neighbour.");
+				Iterator<Integer> i=node.getNeighbors().iterator();
+				new Handler(this.node, logic.MessageType.INFO, i.next()).start();
+				
+			} else {
+			
+				node.setAckStatus(true); // true means it has not sent ack to parent, in ack handler we will put this to false again
+	
+				// For every neighbour except parent, put them in waitingAck 
+				Iterator<Integer> i=node.getNeighbors().iterator();
+				while(i.hasNext()) {
+					Integer temp = i.next();
+					node.getWaitingAcks().add(temp);	
 				}
-			}		
-			System.out.println("Node " + node.getNodeID() + " bootstrapped election group message.");
-			// -----------CP Tests-----------
-			node.getComputationIndex().setNum(node.getComputationIndex().getNum()+1);
-			//------------------------------
-			new Handler(this.node, logic.MessageType.ELECTION_GROUP, node.getWaitingAcks()).start();
+				
+				System.out.println("Node " + node.getNodeID() + " bootstrapped election group message.");
+				// -----------CP Tests-----------
+				node.getComputationIndex().setNum(node.getComputationIndex().getNum()+1);
+				node.getComputationIndex().setId(node.getNodeID());
+				node.getComputationIndex().setValue(node.getNodeValue());
+				//------------------------------
+				new Handler(this.node, logic.MessageType.ELECTION_GROUP, node.getWaitingAcks()).start();
+			}	
 		}
-
-
 	}
 }
+

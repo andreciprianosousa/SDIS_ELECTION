@@ -35,6 +35,7 @@ public class NodeTransmitter extends Thread{
 		ElectionMessage electionMessage = null;
 		AckMessage ackMessage = null;
 		LeaderMessage leaderMessage = null;
+		InfoMessage infoMessage = null;
 
 		DatagramPacket datagram; 
 
@@ -112,11 +113,21 @@ public class NodeTransmitter extends Thread{
 //				}
 				// We may put here a mailing list check, because node that started election doesn't need leader message's information
 				leaderMessage = convertToLeaderMessage(message);
-				System.out.println("Node " + node.getNodeID() + " received leader message from " + leaderMessage.getIncomingId());
-				new LeaderMessageHandler(this.node, leaderMessage).start();
+				if(leaderMessage.getMailingList().contains(node.getNodeID())) {
+					System.out.println("Node " + node.getNodeID() + " received leader message from " + leaderMessage.getIncomingId());
+					new LeaderMessageHandler(this.node, leaderMessage).start();
+				}
+			}
+			
+			else if(message.contains("info")) {
+				infoMessage = convertToInfoMessage(message);
+				if(infoMessage.getAddresseeId() == node.getNodeID()) {
+					System.out.println("Node " + node.getNodeID() + " received info message from "+ infoMessage.getIncomingId());
+					new InfoMessageHandler(this.node, infoMessage).start();
+				}
+				
 			}
 		}
-
 	}
 
 	public ElectionMessage convertToElectionMessageGroup (String message) {
@@ -159,10 +170,23 @@ public class NodeTransmitter extends Thread{
 		float leaderValue = Float.valueOf(fields[3]);
 		int xCoordinate = Integer.parseInt(fields[4]);
 		int yCoordinate = Integer.parseInt(fields[5]);
-		HashSet <Integer> mList= stringToMalingList(fields[6]);
+		boolean special = Boolean.parseBoolean(fields[6]);
+		HashSet <Integer> mList= stringToMalingList(fields[7]);
+
 		
-		return new LeaderMessage(incomingId, leaderID, leaderValue, xCoordinate, yCoordinate, mList);
+		return new LeaderMessage(incomingId, leaderID, leaderValue, xCoordinate, yCoordinate, special, mList);
 	}
+	
+	public InfoMessage convertToInfoMessage(String message) {
+		String[] fields = message.split("/");
+		int incomingId = Integer.parseInt(fields[1]);
+		int leaderID = Integer.parseInt(fields[2]);
+		float leaderValue = Float.valueOf(fields[3]);
+		int addresseeId= Integer.parseInt(fields[4]);
+		
+		return new InfoMessage(incomingId, leaderID, leaderValue, addresseeId);
+	}
+	
 	
 	public ComputationIndex stringToCP(String cpString) {
 		String[] fields = cpString.split(",");

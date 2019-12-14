@@ -6,7 +6,6 @@ import java.util.stream.IntStream;
 
 public class ElectionMessage{
 	
-	//This message needs to be serializable to allow its representation as a sequence of bytes
 		private ComputationIndex cp;
 		private int incomingId;
 		private int xCoordinate;

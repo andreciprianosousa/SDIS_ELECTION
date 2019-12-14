@@ -11,23 +11,26 @@ public class LeaderMessage{
 		private float storedValue;
 		private int xCoordinate;
 		private int yCoordinate;
+		private boolean special;
+
 		private HashSet<Integer> mailingList;
 		private String messageCode = "leadr";
 		
-		public LeaderMessage(int incomingId, int leaderID, float leaderValue, int xCoordinate, int yCoordinate, HashSet<Integer> mailingList) {
+		public LeaderMessage(int incomingId, int leaderID, float leaderValue, int xCoordinate, int yCoordinate, boolean special, HashSet<Integer> mailingList) {
 			this.incomingId = incomingId;
 			this.storedID = leaderID;
 			this.storedValue = leaderValue;
 			this.xCoordinate = xCoordinate;
 			this.yCoordinate = yCoordinate;
 			this.mailingList = mailingList;
+			this.special = special;
 		}
 		
 		@Override
 	    public String toString() {
 			int[] mailingListInt = mailingList.stream().mapToInt(Integer::intValue).toArray();
 			String mailingListString = IntStream.of(mailingListInt).mapToObj(Integer::toString).collect(Collectors.joining(","));
-			return String.format(messageCode + "/" + incomingId + "/" + storedID + "/" + storedValue+  "/" + xCoordinate + "/" + yCoordinate + "/" + mailingListString + "/"); 
+			return String.format(messageCode + "/" + incomingId + "/" + storedID + "/" + storedValue+  "/" + xCoordinate + "/" + yCoordinate + "/" + special + "/" + mailingListString + "/"); 
 		}
 		public int getIncomingId() {
 			return incomingId;
@@ -51,6 +54,14 @@ public class LeaderMessage{
 
 		public void setStoredValue(float storedValue) {
 			this.storedValue = storedValue;
+		}
+		
+		public boolean isSpecial() {
+			return special;
+		}
+
+		public void setSpecial(boolean special) {
+			this.special = special;
 		}
 
 		public int getxCoordinate() {

@@ -16,6 +16,7 @@ public class Handler extends Thread {
 	protected AckMessage      ackMessage      = null;
 	protected ElectionMessage electionMessage = null;
 	protected LeaderMessage   leaderMessage   = null;
+	protected InfoMessage   infoMessage     = null;
 	byte[] messageToSend = new byte[2048];					// I would say that this can be much lower. I need confirmation!
 	DatagramPacket datagram;
 	
@@ -68,9 +69,18 @@ public class Handler extends Thread {
 			
 		} else if (messageType == MessageType.LEADER) {
 			// Leader Message sends always messages to a group (it can be a "group of 1"), so we can use just an HashSet
-			leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), mailingList);
+			leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), false, mailingList);
+			messageToSend = leaderMessage.toString().getBytes(StandardCharsets.UTF_8);
+		
+		} else if(messageType == MessageType.INFO) {
+			infoMessage = new InfoMessage(node.getNodeID(), node.getLeaderID(), node.getStoredValue(), addresseeId);
+			messageToSend = infoMessage.toString().getBytes(StandardCharsets.UTF_8);
+		
+		} else if(messageType == MessageType.LEADER_SPECIAL) {
+			leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), true, mailingList);
 			messageToSend = leaderMessage.toString().getBytes(StandardCharsets.UTF_8);
 		}
+		
 		
 		// Datagram Packet
 		datagram = new DatagramPacket(messageToSend, messageToSend.length, group, node.getPort());

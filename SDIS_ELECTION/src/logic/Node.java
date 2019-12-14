@@ -49,11 +49,11 @@ public class Node implements Serializable{
 
 		this.storedValue = this.nodeValue;
 		this.storedId = this.nodeID;
-		// don't forget to increase num when starting election
+
 		this.computationIndex = new ComputationIndex(this.getNodeID(), 0, this.getNodeValue()); 
 		this.parentActive = -1;
 		this.electionActive = false;
-		this.leaderID = -1; // -1 is no leader set
+		this.leaderID = this.nodeID; // leader is itself if nothing is said otherwise
 		this.ackSent = true; // true means no ack sent yet, which technically is correct here
 		this.waitingAcks = new HashSet<Integer>();
 
@@ -72,7 +72,7 @@ public class Node implements Serializable{
 		new NodeTransmitter(this, timeOut).start();
 		
 	
-		new Bootstrap(this).start(); // New node, so set network and start election	
+		new Bootstrap(this).start(); // New node, so set network and act accordingly
 
 	}
 	
@@ -154,16 +154,17 @@ public class Node implements Serializable{
 			// If leader is no longer my neighbour, restart the election because no leader = bad
 			// Special case for the leader itself, it doesn't need to check itself 	
 			if(!neighbors.containsKey(leaderID) && !(nodeID == leaderID)) {
-				//System.out.println("NODE ID = " + this.nodeID);
+				
 				System.out.println("Leader is gone");
 				this.setStoredId(this.nodeID);
 				this.setStoredValue(this.nodeID);
 				this.setLeaderID(-1);
 				this.setParentActive(-1);
 				this.waitingAcks.remove(neighbor);
-				//this.setComputationIndex(new ComputationIndex(this.getNodeID(), 0, this.getNodeValue()));
+	
+				// Only biggest Id node starts bootstrapping
 				if(this.nodeID > getMaximumIdNeighbors()) {
-					System.out.println("BootStrapping => " + this.nodeID);
+					System.out.println("BootStrapping won by => " + this.nodeID);
 					new Bootstrap(this).start();
 				}
 			}
