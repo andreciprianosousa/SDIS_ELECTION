@@ -81,15 +81,16 @@ public class Node implements Serializable{
 			//if message node is inside neighborhood
 			if(this.isInsideNeighborhood(nodeMessageID, xNeighbor, yNeighbor)) {
 				//does node exist? update time, otherwise add it and update time
-				if(!neighbors.containsKey(nodeMessageID)) {
-					System.out.print("Node " + this.getNodeID() + " is neighbor of: [");
-					for(int neighbor : neighbors.keySet()) {
-						System.out.print(neighbor+ " ");
-					}
-					System.out.print(nodeMessageID+ " ");
-					System.out.println("]");
-				}
+//				if(!neighbors.containsKey(nodeMessageID)) {
+//					System.out.print("Node " + this.getNodeID() + " is neighbor of: [");
+//					for(int neighbor : neighbors.keySet()) {
+//						System.out.print(neighbor+ " ");
+//					}
+//					System.out.print(nodeMessageID+ " ");
+//					System.out.println("]");
+//				}
 				neighbors.put(nodeMessageID, Instant.now());
+				//System.out.println("Updated to: " + Instant.now());
 			}		
 		}
 		
@@ -104,6 +105,7 @@ public class Node implements Serializable{
 		for(int neighbor : neighbors.keySet()) { 
 			//System.out.println(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis());
 			if(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut*1000)) {
+				System.out.println("Duration = " + Duration.between(neighbors.get(neighbor), Instant.now()).toMillis());
 				toRemove.add(neighbor);
 			}		
 		}

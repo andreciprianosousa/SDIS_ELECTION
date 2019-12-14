@@ -8,6 +8,8 @@ public class AckMessageHandler extends Thread{
 	protected Node node;
 	protected AckMessage ackMessage;
 
+	private static final boolean DEBUG = false; 
+
 
 	public AckMessageHandler(Node node, AckMessage ackMessage) {
 
@@ -54,7 +56,9 @@ public class AckMessageHandler extends Thread{
 				node.setAckStatus(false);
 				// send ACK message to parent stored in node.getParentActive()
 				sendMessage(logic.MessageType.ACK, node.getParentActive());
-				System.out.println("Sending to my parent " + node.getParentActive() + " the Leader Id " + node.getStoredId());
+				
+				if(DEBUG)
+					System.out.println("Sending to my parent " + node.getParentActive() + " the Leader Id " + node.getStoredId());
 			}
 			// or prepare to send leader message if this node is the source of the election (if it has no parent)
 			else {
@@ -73,7 +77,10 @@ public class AckMessageHandler extends Thread{
 					toSend.add(temp);
 				}
 				// Send Election Message to all neighbours, except myself
-				System.out.println("Sending leader to all nodes.\n-----------------------------");
+				
+				if(DEBUG)
+					System.out.println("Sending leader to all nodes.\n-----------------------------");
+				
 				sendMessage(logic.MessageType.LEADER, toSend);
 			}
 		}

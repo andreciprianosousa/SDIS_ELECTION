@@ -3,10 +3,14 @@ package logic;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import javax.swing.DebugGraphics;
+
 public class LeaderMessageHandler extends Thread{
 	
 	protected Node node;
 	protected LeaderMessage leaderMessage;
+
+	private static final boolean DEBUG = false; 
 	
 	public LeaderMessageHandler(Node node, LeaderMessage lm) {
 		
@@ -30,13 +34,19 @@ public class LeaderMessageHandler extends Thread{
 			// If leader is special, don't care about parent and child stuff
 			if(!leaderMessage.isSpecial()) {
 				if(!(leaderMessage.getIncomingId()==node.getParentActive())) {
-					System.out.println("Ignoring leader message from " + leaderMessage.getIncomingId()+ "\n-----------------------------");
+					
+					if(DEBUG)
+						System.out.println("Ignoring leader message from " + leaderMessage.getIncomingId()+ "\n-----------------------------");
+					
 					return;
 				}
 			}
 			
-			if(leaderMessage.getStoredID() == node.getLeaderID()) {
-				System.out.println("Do nothing.");
+			if(leaderMessage.getStoredID() <= node.getLeaderID()) {
+				
+				if(DEBUG)
+					System.out.println("Do nothing.");
+				
 				return;
 			}
 			
@@ -44,7 +54,7 @@ public class LeaderMessageHandler extends Thread{
 			
 			// If this node receives leader message, update parameters accordingly if necessary
 			// And has a different leader, broadcasts the leader msgs
-			//if(node.isElectionActive()) {
+			if(node.isElectionActive()) {
 				node.setElectionActive(false);
 				node.setLeaderID(leaderMessage.getStoredID());
 				node.setParentActive(-1);
@@ -79,5 +89,5 @@ public class LeaderMessageHandler extends Thread{
 					sendMessage(MessageType.LEADER_SPECIAL, mailingList);
 				}
 			}
-	//}
+	}
 }

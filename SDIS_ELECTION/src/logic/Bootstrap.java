@@ -6,7 +6,12 @@ import java.util.Iterator;
 public class Bootstrap extends Thread{
 
 	protected Node node;
+	
+	private static final int NetworkSet_Delay = 4000;
+	private static final int Election_Delay = 4000;
 
+	private static final boolean DEBUG = false; 
+	
 	public Bootstrap(Node node) {
 		this.node = node;
 	}
@@ -14,7 +19,7 @@ public class Bootstrap extends Thread{
 	@Override
 	public void run() {
 		try {
-			Thread.sleep(2000); // Gives time to node set himself in the network, subject to change with network size
+			Thread.sleep(NetworkSet_Delay); // Gives time to node set himself in the network, subject to change with network size
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -33,13 +38,16 @@ public class Bootstrap extends Thread{
 			// time to setup network beforehand
 			if(!(node.getNodeID() > node.getMaximumIdNeighbors())) {
 				try {
-					Thread.sleep(2000); // Gives time to Higher Value node to finish the election, subject to change with network size
+					Thread.sleep(NetworkSet_Delay+Election_Delay); // Gives time to Higher Value node to finish the election, subject to change with network size
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				if(node.getLeaderID() == node.getNodeID()) { // Either I'm a new node (No interaction with Elections) or i'm leader
-					System.out.println("Node is not strong enough to initiate election. Exchanging leader info with one neighbour.");
+					
+					if(DEBUG)
+						System.out.println("Node is not strong enough to initiate election. Exchanging leader info with one neighbour.");
+					
 					Iterator<Integer> i=node.getNeighbors().iterator();
 					new Handler(this.node, logic.MessageType.INFO, i.next()).start();
 				}
@@ -56,6 +64,7 @@ public class Bootstrap extends Thread{
 				}
 				
 				System.out.println("Node " + node.getNodeID() + " bootstrapped election group message.");
+				
 				// -----------CP Tests-----------
 				node.getComputationIndex().setNum(node.getComputationIndex().getNum()+1);
 				node.getComputationIndex().setId(node.getNodeID());

@@ -10,6 +10,8 @@ public class ElectionMessageHandler extends Thread {
 
 	protected Node node;
 	protected ElectionMessage electionMessage;
+	
+	private static final boolean DEBUG = false; 
 
 	public ElectionMessageHandler(Node node, ElectionMessage em) {
 
@@ -46,7 +48,10 @@ public class ElectionMessageHandler extends Thread {
 			//If the election sent to me is the same as my current election
 			if((electionMessage.getComputationIndex().getNum() == node.getComputationIndex().getNum()) && (node.getComputationIndex().getValue()== electionMessage.getComputationIndex().getValue()) && (node.getComputationIndex().getId()==electionMessage.getComputationIndex().getId())) {
 				// send ACK Message to the same id of the message, also passing storedValue and storedId
-				System.out.println("Already in same election! Sending immediate ack to " + electionMessage.getIncomingId());
+				
+				if(DEBUG)
+					System.out.println("Already in same election! Sending immediate ack to " + electionMessage.getIncomingId());
+				
 				sendMessage(logic.MessageType.ACK, electionMessage.getIncomingId());	
 			}
 			else{
@@ -54,11 +59,17 @@ public class ElectionMessageHandler extends Thread {
 				if( (electionMessage.getComputationIndex().getValue() < node.getComputationIndex().getValue() ) || ( (electionMessage.getComputationIndex().getValue() == node.getComputationIndex().getValue()) && (electionMessage.getComputationIndex().getId() < node.getComputationIndex().getId()) )) {
 					// send election message to sender with my stored id, value and CP stuff
 					electionMessage.setAGroup(false);
-					System.out.println("My CP is higher, sending my election to " + electionMessage.getIncomingId());
+					
+					if(DEBUG)
+						System.out.println("My CP is higher, sending my election to " + electionMessage.getIncomingId());
+					
 					sendMessage(logic.MessageType.ELECTION, electionMessage.getIncomingId());
 				}
 				else {
-					System.out.println("Incoming CP is higher, propagating that election instead...");
+					
+					if(DEBUG)
+						System.out.println("Incoming CP is higher, propagating that election instead...");
+					
 					// If the sender has priority, I clean myself and propagate its message
 					node.getComputationIndex().setNum(electionMessage.getComputationIndex().getNum());
 					node.getComputationIndex().setId(electionMessage.getComputationIndex().getId()); 
@@ -107,7 +118,10 @@ public class ElectionMessageHandler extends Thread {
 			if(node.getNeighbors().size() == 1) {
 				node.setAckStatus(false);
 				// send Ack message to sender/parent with my stored id and value
-				System.out.println("Sending immediate ack since I only have parent.");
+				
+				if(DEBUG)
+					System.out.println("Sending immediate ack since I only have parent.");
+				
 				sendMessage(logic.MessageType.ACK, node.getParentActive());	
 			}
 			else {	

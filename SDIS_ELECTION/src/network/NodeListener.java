@@ -17,6 +17,7 @@ public class NodeListener extends Thread{
 	protected String helloMessage;
 	byte[] messageToSend = new byte[2048];
 	DatagramPacket datagram;
+	private int print = 0;
 	
 	public NodeListener(Node node, int refreshRate) {
 		this.node = node;
@@ -52,6 +53,11 @@ public class NodeListener extends Thread{
 		while (true) {
 			
 			node.updateRemovedNodes();
+					
+			if(print % 5 == 0) {
+				node.printNeighbors();
+			}
+			print++;
 			
 			helloMessage = new HelloMessage(node).toString();
 			//System.out.println(helloMessage);

@@ -7,6 +7,8 @@ public class InfoMessageHandler extends Thread{
 
 	protected Node node;
 	protected InfoMessage infoMessage;
+
+	private static final boolean DEBUG = false; 
 	
 	public InfoMessageHandler(Node node, InfoMessage infoMessage) {
 		
@@ -35,7 +37,9 @@ public class InfoMessageHandler extends Thread{
 	public synchronized void run() {
 		
 		// If value of leader from exchanging messages is bigger, propagate that leader in "broadcast"
-		if((infoMessage.getStoredValue() > node.getStoredValue()) || ((infoMessage.getStoredValue()==node.getStoredValue()) && (infoMessage.getLeaderId()>node.getLeaderID()))) {
+		
+		// anterior: (infoMessage.getStoredValue() > node.getStoredValue()) || ((infoMessage.getStoredValue() == node.getStoredValue()) && (infoMessage.getLeaderId() > node.getLeaderID()))
+		if((infoMessage.getStoredValue() > node.getStoredValue()) || (infoMessage.getLeaderId() > node.getLeaderID())) {
 			node.setLeaderID(infoMessage.getLeaderId());
 			node.setStoredValue(infoMessage.getStoredValue());
 			node.setStoredId(node.getNodeID());
@@ -54,15 +58,21 @@ public class InfoMessageHandler extends Thread{
 			// Send Election Message to all neighbours, except myself
 			// If I have no neighbours except node I exchanged info messages with, no need to send leader messages
 			if(!toSend.isEmpty()) {
-				System.out.println("Sending special leader to all nodes.");
+				
+				if(DEBUG)
+					System.out.println("Sending special leader to all nodes.");
+				
 				sendMessage(logic.MessageType.LEADER_SPECIAL, toSend);
 			}
 
 		}
 		// If value is the same but their leader ID is bigger, also send message
 		// If not, send a message back saying that the other node should send the leader message instead with my leader
-		else{
-			System.out.println("Sending back stronger leader.\n-----------------------------");
+		else {
+			
+			if(DEBUG)
+				System.out.println("Sending back stronger leader.\n-----------------------------");
+			
 			sendMessage(logic.MessageType.INFO, infoMessage.getIncomingId());
 		}
 	}
