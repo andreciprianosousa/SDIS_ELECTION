@@ -77,7 +77,7 @@ public class Handler extends Thread {
 			messageToSend = infoMessage.toString().getBytes(StandardCharsets.UTF_8);
 		
 		} else if(messageType == MessageType.LEADER_SPECIAL) {
-			leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), true, mailingList);
+			leaderMessage = new LeaderMessage(node.getNodeID(), node.getLeaderID() , node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), true, mailingList);
 			messageToSend = leaderMessage.toString().getBytes(StandardCharsets.UTF_8);
 		}
 		

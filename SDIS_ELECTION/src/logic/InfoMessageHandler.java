@@ -48,13 +48,17 @@ public class InfoMessageHandler extends Thread{
 				}
 			}
 			// Send Election Message to all neighbours, except myself
-			System.out.println("Sending special leader to all nodes.");
-			sendMessage(logic.MessageType.LEADER_SPECIAL, toSend);
+			// If I have no neighbours except node I exchanged info messages with, no need to send leader messages
+			if(!toSend.isEmpty()) {
+				System.out.println("Sending special leader to all nodes.");
+				sendMessage(logic.MessageType.LEADER_SPECIAL, toSend);
+			}
+
 		}
 		// If value is the same but their leader ID is bigger, also send message
 		// If not, send a message back saying that the other node should send the leader message instead with my leader
 		else{
-			System.out.println("Sending back stronger leader.");
+			System.out.println("Sending back stronger leader.\n-----------------------------");
 			sendMessage(logic.MessageType.INFO, infoMessage.getIncomingId());
 		}
 	}
