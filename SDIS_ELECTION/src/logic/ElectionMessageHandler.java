@@ -80,7 +80,9 @@ public class ElectionMessageHandler extends Thread {
 							}
 						}
 						// Sends messages to all possible nodes 
-						sendMessage(logic.MessageType.ELECTION_GROUP, node.getWaitingAcks());						
+						if(!(node.getWaitingAcks().isEmpty())) {
+							sendMessage(logic.MessageType.ELECTION_GROUP, node.getWaitingAcks());	
+						}					
 					}	
 				}
 			}
@@ -116,7 +118,9 @@ public class ElectionMessageHandler extends Thread {
 						node.getWaitingAcks().add(temp);
 					}
 				}
-				sendMessage(logic.MessageType.ELECTION_GROUP, node.getWaitingAcks());
+				if(!(node.getWaitingAcks().isEmpty())) {
+					sendMessage(logic.MessageType.ELECTION_GROUP, node.getWaitingAcks());
+				}
 			}
 		}
 	}
