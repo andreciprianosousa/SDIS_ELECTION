@@ -54,11 +54,11 @@ public class NodeListener extends Thread{
 			
 			node.updateRemovedNodes();
 					
-			if(print % 5 == 0) {
+			if(print % 3 == 0) {
 				node.printNeighbors();
 			}
 			
-			if(print % 7 == 0) {
+			if(print % 2 == 0) {
 				node.printLeader();
 			}
 			print++;

@@ -43,7 +43,7 @@ public class InfoMessageHandler extends Thread{
 			node.setLeaderID(infoMessage.getLeaderId());
 			node.setStoredValue(infoMessage.getStoredValue());
 			node.setStoredId(node.getNodeID());
-			System.out.println("Leader changed to: " + node.getLeaderID() + " due to exchanging messages with " + infoMessage.getIncomingId());
+			System.out.println("Leader changed in Node " + node.getNodeID() + " to: " + node.getLeaderID() + " due to exchanging messages with " + infoMessage.getIncomingId());
 			
 			// send "special "Leader message to all neighbours
 			Iterator<Integer> i=node.getNeighbors().iterator();

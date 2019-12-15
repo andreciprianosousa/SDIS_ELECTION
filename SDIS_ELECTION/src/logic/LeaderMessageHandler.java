@@ -28,6 +28,26 @@ public class LeaderMessageHandler extends Thread{
 		new Handler(this.node, messageType, mailingList).start();
 	}
 	
+	
+	public void sendLeaderMessage() {
+		
+		HashSet<Integer> mailingList = new HashSet<Integer>();
+		Iterator<Integer> i=node.getNeighbors().iterator();
+		while(i.hasNext()) {
+			int temp = i.next();
+			if(!(temp == leaderMessage.getIncomingId())) {
+				mailingList.add(temp);
+			}
+		}
+		
+		if(!(leaderMessage.isSpecial())) {
+			sendMessage(MessageType.LEADER, mailingList);
+		}
+		else {
+			sendMessage(MessageType.LEADER_SPECIAL, mailingList);
+		}
+	}
+	
 	@Override
 	public synchronized void run() {
 		
@@ -42,85 +62,75 @@ public class LeaderMessageHandler extends Thread{
 				}
 			}
 			
-			if(leaderMessage.getStoredID() <= node.getLeaderID()) {
+			if(leaderMessage.getStoredID() == node.getLeaderID()) {
 				
 				if(DEBUG)
 					System.out.println("Do nothing.");
 				
 				return;
-			} else {
+			} else { // Either leaderMessage ID > node Leader Ou other way around
 				
-				node.setLeaderID(leaderMessage.getStoredID());
-				node.setStoredValue(leaderMessage.getStoredValue());
-			}
-
-			node.setParentActive(-1);
-			node.setAckStatus(false);
-			node.setStoredId(node.getNodeID());
 			
 			// If this node receives leader message, update parameters accordingly if necessary
 			// And has a different leader, broadcasts the leader msgs
-			if(node.isElectionActive()) {
+			if(node.isElectionActive() && (!(leaderMessage.isSpecial()))) {
+				
+				if(leaderMessage.getStoredID() < node.getLeaderID()) {
+					System.out.println("Hey! I think you're wrong! Maybe it's time to set a new election");
+					System.out.println("--------!!!!!!!!!!!---------!!!!!!!!!---------!!!!!!!!----------");
+					
+					//sendLeaderMessage();
+
+					return;
+				}
+			
 				node.setElectionActive(false);
-//				node.setLeaderID(leaderMessage.getStoredID());
-//				node.setParentActive(-1);
-				//node.setAckStatus(true);
-//				node.setAckStatus(false);
-//				node.setStoredValue(leaderMessage.getStoredValue());
-//				node.setStoredId(node.getNodeID());
+				node.setLeaderID(leaderMessage.getStoredID());
+				node.setStoredValue(leaderMessage.getStoredValue());
+				node.setParentActive(-1);
+				node.setAckStatus(true);
+				node.setStoredId(node.getNodeID());
+
 				
 				System.out.println("Node " + node.getNodeID() + "'s leader is " + node.getLeaderID());
 				System.out.println("CP(num/value/id): " + node.getComputationIndex().getNum()+ " - " + node.getComputationIndex().getValue()+ " - " + node.getComputationIndex().getId());
 				System.out.println("-----------------------------");
 				
+			
 				// If my only neighbour is my parent, don't propagate leader message and just return
 				if(node.getNeighbors().size() == 1) {
 					return;
 				}
 				
 				// If not, send leader messages to neighbours except to the message sender's id
-				HashSet<Integer> mailingList = new HashSet<Integer>();
-				Iterator<Integer> i=node.getNeighbors().iterator();
-				while(i.hasNext()) {
-					int temp = i.next();
-					if(!(temp == leaderMessage.getIncomingId())) {
-						mailingList.add(temp);
-					}
-				}
-				
 				// If leader message is special, send leader special message instead of normal
-				if(!(leaderMessage.isSpecial())) {
-					sendMessage(MessageType.LEADER, mailingList);
-				}
-				else {
-					sendMessage(MessageType.LEADER_SPECIAL, mailingList);
-				}
+				sendLeaderMessage();
 			}
 			else {
 				
+				if(leaderMessage.getStoredID() <= node.getLeaderID()) {
+					System.out.println("Men, that guy is weak. Do nothing!");
+					
+					return;
+				}
+				
+				//node.setElectionActive(false);
+				node.setLeaderID(leaderMessage.getStoredID());
+				node.setStoredValue(leaderMessage.getStoredValue());
+				//node.setParentActive(-1);
+				//node.setAckStatus(false);
+				node.setStoredId(node.getNodeID());
+				
+				
 				// If my only neighbour is my parent, don't propagate leader message and just return 
 				if(node.getNeighbors().size() == 1) {
+					
 					return;
 				}
 				
 				// If not, send leader messages to neighbours except to the message sender's id
-				HashSet<Integer> mailingList = new HashSet<Integer>();
-				Iterator<Integer> i=node.getNeighbors().iterator();
-				while(i.hasNext()) {
-					int temp = i.next();
-					if(!(temp == leaderMessage.getIncomingId())) {
-						mailingList.add(temp);
-					}
-				}				
-				
-				// If leader message is special, send leader special message instead of normal
-				if(!(leaderMessage.isSpecial())) {
-					sendMessage(MessageType.LEADER, mailingList);
-				}
-				else {
-					sendMessage(MessageType.LEADER_SPECIAL, mailingList);
-				}
-			
+				sendLeaderMessage();
+			}
 		}
 	}
 }

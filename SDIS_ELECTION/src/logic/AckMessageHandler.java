@@ -40,17 +40,22 @@ public class AckMessageHandler extends Thread{
 
 		// Assuming this Ack was intended for me in the first place
 		// When this node receives an Ack Message, updates waiting Acks first
-		if((!(node.getWaitingAcks().isEmpty())) && (node.getWaitingAcks().contains(ackMessage.getIncomingId()))) {
+		if((node.getWaitingAcks().contains(ackMessage.getIncomingId()))) {
 			node.getWaitingAcks().remove(ackMessage.getIncomingId());
+			
+			System.out.println("ACKS " + node.getNodeID() + ": " + node.getWaitingAcks().size() );
 
 			// Then, update this node stored value and stored id if value is bigger
 			if(ackMessage.getStoredValue() > node.getStoredValue()) {
 				node.setStoredValue(ackMessage.getStoredValue());
 				node.setStoredId(ackMessage.getStoredID());
-			} 
+			} 			
+		} else {
+			return;
 		}
 		
 		// If this was the last acknowledge needed, then send to parent my own ack and update my parameters
+		// 	if(node.getWaitingAcks().isEmpty() && (node.getAckStatus() == true)) {
 		if(node.getWaitingAcks().isEmpty() && (node.getAckStatus() == true)) {
 			if(node.getParentActive() != -1) {
 				node.setAckStatus(false);
@@ -62,10 +67,15 @@ public class AckMessageHandler extends Thread{
 			}
 			// or prepare to send leader message if this node is the source of the election (if it has no parent)
 			else {
+				if(node.getStoredValue() < node.getLeaderID()) {
+					node.setStoredValue(node.getNodeValue());
+					node.setStoredId(node.getLeaderID());
+				}
+				
 				node.setAckStatus(true);
 				node.setElectionActive(false);
 				node.setLeaderID(node.getStoredId());
-				System.out.println("Leader agreed upon: " + node.getLeaderID());
+				System.out.println("========================>   Leader agreed upon: " + node.getLeaderID());
 				
 				// send Leader message to all children
 				Iterator<Integer> i=node.getNeighbors().iterator();

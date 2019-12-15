@@ -106,6 +106,7 @@ public class ElectionMessageHandler extends Thread {
 		else {	
 			node.setElectionActive(true);
 			node.setParentActive(electionMessage.getIncomingId()); 
+			System.out.println("Starting new Election");
 
 			// IMPORTANT -> if this node starts an election after other elections in the past, 
 			// don't forget to update these values to a bigger num but with id equal to this node's
