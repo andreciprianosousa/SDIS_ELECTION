@@ -160,7 +160,7 @@ public class Node implements Serializable{
 				System.out.println("Leader is gone");
 				this.setStoredId(this.nodeID);
 				this.setStoredValue(this.nodeID);
-				this.setLeaderID(-1);
+				this.setLeaderID(this.nodeID);
 				this.setParentActive(-1);
 				this.waitingAcks.remove(neighbor);
 	

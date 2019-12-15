@@ -48,14 +48,14 @@ public class LeaderMessageHandler extends Thread{
 					System.out.println("Do nothing.");
 				
 				return;
+			} else {
+				
+				node.setLeaderID(leaderMessage.getStoredID());
+				node.setStoredValue(leaderMessage.getStoredValue());
 			}
-			
-			// Update Leader Configurations
-			
-			node.setLeaderID(leaderMessage.getStoredID());
+
 			node.setParentActive(-1);
 			node.setAckStatus(false);
-			node.setStoredValue(leaderMessage.getStoredValue());
 			node.setStoredId(node.getNodeID());
 			
 			// If this node receives leader message, update parameters accordingly if necessary
@@ -87,16 +87,14 @@ public class LeaderMessageHandler extends Thread{
 						mailingList.add(temp);
 					}
 				}
-
-				sendMessage(MessageType.LEADER, mailingList);
 				
 				// If leader message is special, send leader special message instead of normal
-//				if(!(leaderMessage.isSpecial())) {
-//					sendMessage(MessageType.LEADER, mailingList);
-//				}
-//				else {
-//					sendMessage(MessageType.LEADER_SPECIAL, mailingList);
-//				}
+				if(!(leaderMessage.isSpecial())) {
+					sendMessage(MessageType.LEADER, mailingList);
+				}
+				else {
+					sendMessage(MessageType.LEADER_SPECIAL, mailingList);
+				}
 			}
 			else {
 				
@@ -115,7 +113,13 @@ public class LeaderMessageHandler extends Thread{
 					}
 				}				
 				
-				sendMessage(MessageType.LEADER_SPECIAL, mailingList);
+				// If leader message is special, send leader special message instead of normal
+				if(!(leaderMessage.isSpecial())) {
+					sendMessage(MessageType.LEADER, mailingList);
+				}
+				else {
+					sendMessage(MessageType.LEADER_SPECIAL, mailingList);
+				}
 			
 		}
 	}
