@@ -8,7 +8,7 @@ public class InfoMessageHandler extends Thread{
 	protected Node node;
 	protected InfoMessage infoMessage;
 
-	private static final boolean DEBUG = false; 
+	private static final boolean DEBUG = true; 
 	
 	public InfoMessageHandler(Node node, InfoMessage infoMessage) {
 		
@@ -57,14 +57,19 @@ public class InfoMessageHandler extends Thread{
 			}
 			// Send Election Message to all neighbours, except myself
 			// If I have no neighbours except node I exchanged info messages with, no need to send leader messages
-			if(!toSend.isEmpty()) {
+			if(!(toSend.isEmpty())) {
 				
 				if(DEBUG)
 					System.out.println("Sending special leader to all nodes.");
 				
 				sendMessage(logic.MessageType.LEADER_SPECIAL, toSend);
 			}
+			return;
 
+		} else if((infoMessage.getStoredValue() == node.getStoredValue()) && (infoMessage.getLeaderId() == node.getLeaderID())) {
+			if(DEBUG)
+				System.out.println("Same Leader! Now We can Rest in Peace!");
+			return;
 		}
 		// If value is the same but their leader ID is bigger, also send message
 		// If not, send a message back saying that the other node should send the leader message instead with my leader

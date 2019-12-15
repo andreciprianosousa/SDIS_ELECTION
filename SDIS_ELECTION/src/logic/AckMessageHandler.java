@@ -40,7 +40,7 @@ public class AckMessageHandler extends Thread{
 
 		// Assuming this Ack was intended for me in the first place
 		// When this node receives an Ack Message, updates waiting Acks first
-		if(!(node.getWaitingAcks().isEmpty()) && (node.getWaitingAcks().contains(ackMessage.getIncomingId()))) {
+		if((!(node.getWaitingAcks().isEmpty())) && (node.getWaitingAcks().contains(ackMessage.getIncomingId()))) {
 			node.getWaitingAcks().remove(ackMessage.getIncomingId());
 
 			// Then, update this node stored value and stored id if value is bigger

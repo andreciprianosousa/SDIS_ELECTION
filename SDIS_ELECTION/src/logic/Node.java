@@ -381,4 +381,10 @@ public class Node implements Serializable{
 	public void setNodeRange(int nodeRange) {
 		this.nodeRange = nodeRange;
 	}
+
+	public void printLeader() {
+		System.out.println("Node: " + nodeID + " || Leader: " + leaderID);
+		System.out.println("............................................");
+		
+	}
 }

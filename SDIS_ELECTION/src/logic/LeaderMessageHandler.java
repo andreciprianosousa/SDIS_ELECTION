@@ -10,7 +10,7 @@ public class LeaderMessageHandler extends Thread{
 	protected Node node;
 	protected LeaderMessage leaderMessage;
 
-	private static final boolean DEBUG = false; 
+	private static final boolean DEBUG = true; 
 	
 	public LeaderMessageHandler(Node node, LeaderMessage lm) {
 		
@@ -32,8 +32,8 @@ public class LeaderMessageHandler extends Thread{
 	public synchronized void run() {
 		
 			// If leader is special, don't care about parent and child stuff
-			if(!leaderMessage.isSpecial()) {
-				if(!(leaderMessage.getIncomingId()==node.getParentActive())) {
+			if(!(leaderMessage.isSpecial())) {
+				if(!(leaderMessage.getIncomingId() == node.getParentActive())) {
 					
 					if(DEBUG)
 						System.out.println("Ignoring leader message from " + leaderMessage.getIncomingId()+ "\n-----------------------------");
@@ -50,17 +50,24 @@ public class LeaderMessageHandler extends Thread{
 				return;
 			}
 			
+			// Update Leader Configurations
+			
 			node.setLeaderID(leaderMessage.getStoredID());
+			node.setParentActive(-1);
+			node.setAckStatus(false);
+			node.setStoredValue(leaderMessage.getStoredValue());
+			node.setStoredId(node.getNodeID());
 			
 			// If this node receives leader message, update parameters accordingly if necessary
 			// And has a different leader, broadcasts the leader msgs
 			if(node.isElectionActive()) {
 				node.setElectionActive(false);
-				node.setLeaderID(leaderMessage.getStoredID());
-				node.setParentActive(-1);
-				node.setAckStatus(true);
-				node.setStoredValue(leaderMessage.getStoredValue());
-				node.setStoredId(node.getNodeID());
+//				node.setLeaderID(leaderMessage.getStoredID());
+//				node.setParentActive(-1);
+				//node.setAckStatus(true);
+//				node.setAckStatus(false);
+//				node.setStoredValue(leaderMessage.getStoredValue());
+//				node.setStoredId(node.getNodeID());
 				
 				System.out.println("Node " + node.getNodeID() + "'s leader is " + node.getLeaderID());
 				System.out.println("CP(num/value/id): " + node.getComputationIndex().getNum()+ " - " + node.getComputationIndex().getValue()+ " - " + node.getComputationIndex().getId());
@@ -80,14 +87,36 @@ public class LeaderMessageHandler extends Thread{
 						mailingList.add(temp);
 					}
 				}
+
+				sendMessage(MessageType.LEADER, mailingList);
 				
 				// If leader message is special, send leader special message instead of normal
-				if(!leaderMessage.isSpecial()) {
-					sendMessage(MessageType.LEADER, mailingList);
-				}
-				else {
-					sendMessage(MessageType.LEADER_SPECIAL, mailingList);
-				}
+//				if(!(leaderMessage.isSpecial())) {
+//					sendMessage(MessageType.LEADER, mailingList);
+//				}
+//				else {
+//					sendMessage(MessageType.LEADER_SPECIAL, mailingList);
+//				}
 			}
+			else {
+				
+				// If my only neighbour is my parent, don't propagate leader message and just return 
+				if(node.getNeighbors().size() == 1) {
+					return;
+				}
+				
+				// If not, send leader messages to neighbours except to the message sender's id
+				HashSet<Integer> mailingList = new HashSet<Integer>();
+				Iterator<Integer> i=node.getNeighbors().iterator();
+				while(i.hasNext()) {
+					int temp = i.next();
+					if(!(temp == leaderMessage.getIncomingId())) {
+						mailingList.add(temp);
+					}
+				}				
+				
+				sendMessage(MessageType.LEADER_SPECIAL, mailingList);
+			
+		}
 	}
 }

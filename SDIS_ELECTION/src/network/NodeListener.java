@@ -57,6 +57,10 @@ public class NodeListener extends Thread{
 			if(print % 5 == 0) {
 				node.printNeighbors();
 			}
+			
+			if(print % 7 == 0) {
+				node.printLeader();
+			}
 			print++;
 			
 			helloMessage = new HelloMessage(node).toString();

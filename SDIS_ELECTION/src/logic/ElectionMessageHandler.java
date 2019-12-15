@@ -11,7 +11,7 @@ public class ElectionMessageHandler extends Thread {
 	protected Node node;
 	protected ElectionMessage electionMessage;
 	
-	private static final boolean DEBUG = false; 
+	private static final boolean DEBUG = true; 
 
 	public ElectionMessageHandler(Node node, ElectionMessage em) {
 
@@ -46,7 +46,7 @@ public class ElectionMessageHandler extends Thread {
 		if(node.isElectionActive()) { //true means node is in an ongoing election
 
 			//If the election sent to me is the same as my current election
-			if((electionMessage.getComputationIndex().getNum() == node.getComputationIndex().getNum()) && (node.getComputationIndex().getValue()== electionMessage.getComputationIndex().getValue()) && (node.getComputationIndex().getId()==electionMessage.getComputationIndex().getId())) {
+			if((electionMessage.getComputationIndex().getNum() == node.getComputationIndex().getNum()) && (node.getComputationIndex().getValue() == electionMessage.getComputationIndex().getValue()) && (node.getComputationIndex().getId()==electionMessage.getComputationIndex().getId())) {
 				// send ACK Message to the same id of the message, also passing storedValue and storedId
 				
 				if(DEBUG)
@@ -54,7 +54,7 @@ public class ElectionMessageHandler extends Thread {
 				
 				sendMessage(logic.MessageType.ACK, electionMessage.getIncomingId());	
 			}
-			else{
+			else {
 				// If I have priority in Computation Index, send to sender of message new Election in my terms
 				if( (electionMessage.getComputationIndex().getValue() < node.getComputationIndex().getValue() ) || ( (electionMessage.getComputationIndex().getValue() == node.getComputationIndex().getValue()) && (electionMessage.getComputationIndex().getId() < node.getComputationIndex().getId()) )) {
 					// send election message to sender with my stored id, value and CP stuff
