@@ -3,6 +3,8 @@ package logic;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import org.w3c.dom.traversal.NodeIterator;
+
 public class AckMessageHandler extends Thread{
 
 	protected Node node;
@@ -43,7 +45,8 @@ public class AckMessageHandler extends Thread{
 		if((node.getWaitingAcks().contains(ackMessage.getIncomingId()))) {
 			node.getWaitingAcks().remove(ackMessage.getIncomingId());
 			
-			System.out.println("ACKS " + node.getNodeID() + ": " + node.getWaitingAcks().size() );
+			//System.out.println("Node: " + node.getNodeID() + " // => " + node.getWaitingAcks().toString());
+			//System.out.println("ACKS " + node.getNodeID() + ": " + node.getWaitingAcks().size() + " || Retirado = " + ackMessage.getIncomingId());
 
 			// Then, update this node stored value and stored id if value is bigger
 			if(ackMessage.getStoredValue() > node.getStoredValue()) {
@@ -56,7 +59,7 @@ public class AckMessageHandler extends Thread{
 		
 		// If this was the last acknowledge needed, then send to parent my own ack and update my parameters
 		// 	if(node.getWaitingAcks().isEmpty() && (node.getAckStatus() == true)) {
-		if(node.getWaitingAcks().isEmpty() && (node.getAckStatus() == true)) {
+		if((node.getWaitingAcks().isEmpty()) && (node.getAckStatus() == true)) {
 			if(node.getParentActive() != -1) {
 				node.setAckStatus(false);
 				// send ACK message to parent stored in node.getParentActive()

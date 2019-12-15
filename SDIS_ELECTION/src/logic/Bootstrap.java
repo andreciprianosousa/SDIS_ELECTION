@@ -7,10 +7,10 @@ public class Bootstrap extends Thread{
 
 	protected Node node;
 	
-	private static final int NetworkSet_Delay = 2000;
+	private static final int NetworkSet_Delay = 3000;
 	private static final int Election_Delay = 4000;
 
-	private static final boolean DEBUG = true; 
+	private static final boolean DEBUG = false; 
 	
 	public Bootstrap(Node node) {
 		this.node = node;
@@ -57,12 +57,17 @@ public class Bootstrap extends Thread{
 				node.setAckStatus(true); // true means it has not sent ack to parent, in ack handler we will put this to false again
 	
 				// For every neighbour except parent, put them in waitingAck 
-				Iterator<Integer> i=node.getNeighbors().iterator();
-				while(i.hasNext()) {
-					Integer temp = i.next();
-					node.getWaitingAcks().add(temp);	
+				synchronized (this) {
+					Iterator<Integer> i=node.getNeighbors().iterator();
+					while(i.hasNext()) {
+						Integer temp = i.next();
+						if((!(node.getWaitingAcks().contains(temp))) && (!(temp.toString().equals("")))) {
+							node.getWaitingAcks().add(temp);
+							//System.out.println("ADD " + temp);
+						}	
+					}
 				}
-				
+								
 				System.out.println("Node " + node.getNodeID() + " bootstrapped election group message.");
 				
 				// -----------CP Tests-----------

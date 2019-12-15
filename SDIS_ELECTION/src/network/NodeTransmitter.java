@@ -85,14 +85,14 @@ public class NodeTransmitter extends Thread{
 				if (message.contains("elecG") == true) {
 					electionMessage = convertToElectionMessageGroup(message);
 					if(electionMessage.getMailingList().contains(node.getNodeID())) {
-						System.out.println("Node " + node.getNodeID() + " received election group message from " + electionMessage.getIncomingId());
+						//System.out.println("Node " + node.getNodeID() + " received election group message from " + electionMessage.getIncomingId());
 						new ElectionMessageHandler(this.node, electionMessage).start(); 
 					}
 				} 
 				else {
 					electionMessage = convertToElectionMessageIndividual(message);
 					if (electionMessage.getAddresseeId() == node.getNodeID()) {
-						System.out.println("Node " + node.getNodeID() + " received election message from " + electionMessage.getIncomingId());
+						//System.out.println("Node " + node.getNodeID() + " received election message from " + electionMessage.getIncomingId());
 						new ElectionMessageHandler(this.node, electionMessage).start();
 					}
 				}
@@ -101,7 +101,7 @@ public class NodeTransmitter extends Thread{
 				ackMessage = convertToAckMessage(message);
 
 				if (ackMessage.getAddresseeId() == node.getNodeID()) {
-					System.out.println("Node " + node.getNodeID() + " received ack message from "+ ackMessage.getIncomingId());
+					//System.out.println("Node " + node.getNodeID() + " received ack message from "+ ackMessage.getIncomingId());
 					new AckMessageHandler(this.node, ackMessage).start();
 				}
 			}
@@ -114,7 +114,7 @@ public class NodeTransmitter extends Thread{
 				// We may put here a mailing list check, because node that started election doesn't need leader message's information
 				leaderMessage = convertToLeaderMessage(message);
 				if(leaderMessage.getMailingList().contains(node.getNodeID())) {
-					System.out.println("Node " + node.getNodeID() + " received leader message from " + leaderMessage.getIncomingId());
+					//System.out.println("Node " + node.getNodeID() + " received leader message from " + leaderMessage.getIncomingId());
 					new LeaderMessageHandler(this.node, leaderMessage).start();
 				}
 			}
@@ -122,7 +122,7 @@ public class NodeTransmitter extends Thread{
 			else if(message.contains("info")) {
 				infoMessage = convertToInfoMessage(message);
 				if(infoMessage.getAddresseeId() == node.getNodeID()) {
-					System.out.println("Node " + node.getNodeID() + " received info message from "+ infoMessage.getIncomingId());
+					//System.out.println("Node " + node.getNodeID() + " received info message from "+ infoMessage.getIncomingId());
 					new InfoMessageHandler(this.node, infoMessage).start();
 				}
 				

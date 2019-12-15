@@ -11,7 +11,7 @@ public class ElectionMessageHandler extends Thread {
 	protected Node node;
 	protected ElectionMessage electionMessage;
 	
-	private static final boolean DEBUG = true; 
+	private static final boolean DEBUG = false; 
 
 	public ElectionMessageHandler(Node node, ElectionMessage em) {
 
@@ -89,9 +89,12 @@ public class ElectionMessageHandler extends Thread {
 						// For every neighbour except parent, put them in waitingAck 
 						Iterator<Integer> i=node.getNeighbors().iterator();
 						while(i.hasNext()) {
-							int temp = i.next();
+							Integer temp = i.next();
 							if(!(temp == node.getParentActive())) {
-								node.getWaitingAcks().add(temp);
+								if((!(node.getWaitingAcks().contains(temp))) && (!(temp.toString().equals("")))) {
+									node.getWaitingAcks().add(temp);
+									//System.out.println("ADD " + temp);
+								}
 							}
 						}
 						// Sends messages to all possible nodes 
@@ -106,7 +109,7 @@ public class ElectionMessageHandler extends Thread {
 		else {	
 			node.setElectionActive(true);
 			node.setParentActive(electionMessage.getIncomingId()); 
-			System.out.println("Starting new Election");
+			//System.out.println("Starting new Election");
 
 			// IMPORTANT -> if this node starts an election after other elections in the past, 
 			// don't forget to update these values to a bigger num but with id equal to this node's
@@ -129,14 +132,17 @@ public class ElectionMessageHandler extends Thread {
 				node.setAckStatus(true); // true means it has not sent ack to parent, in ack handler we will put this to false again
 
 				// For every neighbour except parent, put them in waitingAck 
-
 				Iterator<Integer> i=node.getNeighbors().iterator();
 				while(i.hasNext()) {
 					Integer temp = i.next();
 					if(!(temp == node.getParentActive())) {
-						node.getWaitingAcks().add(temp);
-					}
+						if(!(node.getWaitingAcks().contains(temp)) && (!(temp.toString().equals("")))) {
+							node.getWaitingAcks().add(temp);
+							//System.out.println("ADD " + temp);
+						}
+					}				
 				}
+				
 				if(!(node.getWaitingAcks().isEmpty())) {
 					sendMessage(logic.MessageType.ELECTION_GROUP, node.getWaitingAcks());
 				}
