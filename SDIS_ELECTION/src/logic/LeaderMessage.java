@@ -1,6 +1,7 @@
 package logic;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -13,10 +14,10 @@ public class LeaderMessage{
 		private int yCoordinate;
 		private boolean special;
 
-		private HashSet<Integer> mailingList;
+		private Set<Integer> mailingList;
 		private String messageCode = "leadr";
 		
-		public LeaderMessage(int incomingId, int leaderID, float leaderValue, int xCoordinate, int yCoordinate, boolean special, HashSet<Integer> mailingList) {
+		public LeaderMessage(int incomingId, int leaderID, float leaderValue, int xCoordinate, int yCoordinate, boolean special, Set<Integer> mailingList) {
 			this.incomingId = incomingId;
 			this.storedID = leaderID;
 			this.storedValue = leaderValue;
@@ -80,7 +81,7 @@ public class LeaderMessage{
 			this.yCoordinate = yCoordinate;
 		}
 
-		public HashSet<Integer> getMailingList() {
+		public Set<Integer> getMailingList() {
 			return mailingList;
 		}
 		public void setMailingList(HashSet<Integer> mailingList) {

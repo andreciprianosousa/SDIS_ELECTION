@@ -51,17 +51,17 @@ public class NodeListener extends Thread{
 		}
 		
 		while (true) {
-			
-			node.updateRemovedNodes();
-					
-			if(print % 2 == 0) {
-				node.printLeader();
-				System.out.println("From Node Listener, NODE " + node.getNodeID() + " , Size WA: " + node.getWaitingAcks().size());
-				System.out.println("WA_NODE" + node.getNodeID() + "_: " + node.getWaitingAcks().toString() + " ==> Empty - " + node.getWaitingAcks().isEmpty());
-			}
-			if(print % 3 == 0) {
-				//node.printNeighbors();
-			}
+//			
+//			node.updateRemovedNodes();
+//					
+//			if(print % 2 == 0) {
+//				node.printLeader();
+//				System.out.println("From Node Listener, NODE " + node.getNodeID() + " , Size WA: " + node.getWaitingAcks().size());
+//				//System.out.println("WA_NODE" + node.getNodeID() + "_: " + node.getWaitingAcks().toString() + " ==> Empty - " + node.getWaitingAcks().isEmpty());
+//			}
+//			if(print % 3 == 0) {
+//				node.printNeighbors();
+//			}
 			print++;
 						
 			helloMessage = new HelloMessage(node).toString();
@@ -80,6 +80,7 @@ public class NodeListener extends Thread{
 			
 			try {
 				Thread.sleep(refreshRate*1000);
+				//Thread.sleep(refreshRate*1);
 			} catch (InterruptedException e) {
 				System.out.println("Listener: Error putting thread to sleep (Node: " + node.getNodeID()+ ")");
 			}

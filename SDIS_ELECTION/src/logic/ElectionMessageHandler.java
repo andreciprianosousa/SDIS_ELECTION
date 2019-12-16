@@ -3,6 +3,7 @@ package logic;
 import java.awt.TrayIcon.MessageType;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import network.*;
 
@@ -21,7 +22,7 @@ public class ElectionMessageHandler extends Thread {
 		this.electionMessage = em;
 	}
 
-	public void sendMessage(logic.MessageType messageType, HashSet<Integer> mailingList) {
+	public void sendMessage(logic.MessageType messageType, Set<Integer> mailingList) {
 		if(mailingList.isEmpty()) {
 			System.out.println("Mailing List is Empty");
 			return;
@@ -93,7 +94,6 @@ public class ElectionMessageHandler extends Thread {
 							if(!(temp == node.getParentActive())) {
 								if((!(node.getWaitingAcks().contains(temp))) && (!(temp.toString().equals("")))) {
 									node.getWaitingAcks().add(temp);
-									//System.out.println("ADD " + temp);
 								}
 							}
 						}
@@ -138,11 +138,9 @@ public class ElectionMessageHandler extends Thread {
 					if(!(temp == node.getParentActive())) {
 						if(!(node.getWaitingAcks().contains(temp)) && (!(temp.toString().equals("")))) {
 							node.getWaitingAcks().add(temp);
-							//System.out.println("ADD " + temp);
 						}
 					}				
 				}
-				
 				if(!(node.getWaitingAcks().isEmpty())) {
 					sendMessage(logic.MessageType.ELECTION_GROUP, node.getWaitingAcks());
 				}

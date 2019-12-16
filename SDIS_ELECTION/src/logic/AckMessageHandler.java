@@ -1,7 +1,9 @@
 package logic;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.w3c.dom.traversal.NodeIterator;
 
@@ -23,7 +25,7 @@ public class AckMessageHandler extends Thread{
 
 
 	// "Send Message" for type Leader - Needs HashSet to send to a group of Nodes
-	public void sendMessage(logic.MessageType messageType, HashSet <Integer> mailingList) {
+	public void sendMessage(logic.MessageType messageType, Set<Integer> mailingList) {
 		if(mailingList.isEmpty()) {
 			System.out.println("Mailing List is Empty");
 			return;
@@ -43,11 +45,9 @@ public class AckMessageHandler extends Thread{
 		// Assuming this Ack was intended for me in the first place
 		// When this node receives an Ack Message, updates waiting Acks first
 		if((node.getWaitingAcks().contains(ackMessage.getIncomingId()))) {
+			
 			node.getWaitingAcks().remove(ackMessage.getIncomingId());
 			
-			//System.out.println("Node: " + node.getNodeID() + " // => " + node.getWaitingAcks().toString());
-			//System.out.println("ACKS " + node.getNodeID() + ": " + node.getWaitingAcks().size() + " || Retirado = " + ackMessage.getIncomingId());
-
 			// Then, update this node stored value and stored id if value is bigger
 			if(ackMessage.getStoredValue() > node.getStoredValue()) {
 				node.setStoredValue(ackMessage.getStoredValue());
@@ -80,11 +80,14 @@ public class AckMessageHandler extends Thread{
 				node.setLeaderID(node.getStoredId());
 				System.out.println("========================>   Leader agreed upon: " + node.getLeaderID());
 				
+				node.simNode.setEnd();
+				node.simNode.getTimer();
+				
 				// send Leader message to all children
 				Iterator<Integer> i=node.getNeighbors().iterator();
 				node.getWaitingAcks().clear(); // clear this first just in case
 				
-				HashSet<Integer> toSend = new HashSet<Integer>();
+				Set<Integer> toSend = Collections.synchronizedSet(new HashSet<Integer>());
 				while(i.hasNext()) { 
 					Integer temp = i.next();
 					toSend.add(temp);

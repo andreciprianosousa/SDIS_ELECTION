@@ -1,7 +1,9 @@
 package logic;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.swing.DebugGraphics;
 
@@ -20,7 +22,7 @@ public class LeaderMessageHandler extends Thread{
 		this.leaderMessage = lm;
 	}
 	
-	public void sendMessage(logic.MessageType messageType, HashSet<Integer> mailingList) {
+	public void sendMessage(logic.MessageType messageType, Set<Integer> mailingList) {
 		if(mailingList.isEmpty()) {
 			System.out.println("Mailing List is Empty");
 			return;
@@ -31,7 +33,7 @@ public class LeaderMessageHandler extends Thread{
 	
 	public void sendLeaderMessage() {
 		
-		HashSet<Integer> mailingList = new HashSet<Integer>();
+		Set<Integer> mailingList = Collections.synchronizedSet(new HashSet<Integer>());
 		Iterator<Integer> i=node.getNeighbors().iterator();
 		while(i.hasNext()) {
 			int temp = i.next();

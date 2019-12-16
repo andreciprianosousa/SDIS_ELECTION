@@ -3,10 +3,12 @@ package logic;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import network.*;
@@ -22,8 +24,9 @@ public class Node implements Serializable{
 	protected int parentActive;
 	protected boolean ackSent;
 	protected int leaderID;
-	protected HashMap<Integer, Instant> neighbors;
-	protected HashSet<Integer> waitingAcks;
+	protected ConcurrentHashMap<Integer, Instant> neighbors;
+	protected Set<Integer> waitingAcks;
+	//protected HashSet<Integer> waitingAcks;
 	protected float nodeValue;
 	protected float storedValue;
 	protected int storedId;
@@ -55,13 +58,15 @@ public class Node implements Serializable{
 		this.electionActive = false;
 		this.leaderID = this.nodeID; // leader is itself if nothing is said otherwise
 		this.ackSent = true; // true means no ack sent yet, which technically is correct here
-		this.waitingAcks = new HashSet<Integer>();
-
+		//this.waitingAcks = new HashSet<Integer>();
+		this.waitingAcks = Collections.synchronizedSet(new HashSet<Integer>());
+			
 		this.xMax=dimensions[0];
 		this.yMax=dimensions[1];
 		this.nodeRange = dimensions[2];
-		this.neighbors = new HashMap <Integer, Instant>();
+		this.neighbors = new ConcurrentHashMap<Integer, Instant>();
 		this.timeOut = timeOut;
+		this.simNode = new Simulation();
 		
 		//Initial coordinates 
 		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
@@ -289,7 +294,7 @@ public class Node implements Serializable{
 	public Set<Integer> getNeighbors() {
 		return neighbors.keySet();
 	}
-	public void setNeighbors(HashMap<Integer, Instant> neighbors) {
+	public void setNeighbors(ConcurrentHashMap<Integer, Instant> neighbors) {
 		this.neighbors = neighbors;
 	}
 	public int getPort() {
@@ -326,8 +331,12 @@ public class Node implements Serializable{
 		this.ackSent = ackSent;
 	}
 
-	public HashSet<Integer> getWaitingAcks() {
+	public Set<Integer> getWaitingAcks() {
 		return this.waitingAcks;
+	}
+
+	public void setWaitingAcks(Set<Integer> waitingAcks) {
+		this.waitingAcks = waitingAcks;
 	}
 
 	public void setWaitingAcks(HashSet<Integer> waitingACK) {

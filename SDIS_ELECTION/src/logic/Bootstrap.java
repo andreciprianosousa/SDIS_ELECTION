@@ -63,12 +63,12 @@ public class Bootstrap extends Thread{
 						Integer temp = i.next();
 						if((!(node.getWaitingAcks().contains(temp))) && (!(temp.toString().equals("")))) {
 							node.getWaitingAcks().add(temp);
-							//System.out.println("ADD " + temp);
 						}	
 					}
 				}
 								
 				System.out.println("Node " + node.getNodeID() + " bootstrapped election group message.");
+				node.simNode.setStart();
 				
 				// -----------CP Tests-----------
 				node.getComputationIndex().setNum(node.getComputationIndex().getNum()+1);

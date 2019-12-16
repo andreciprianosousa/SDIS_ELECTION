@@ -7,11 +7,12 @@ import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.Set;
 
 public class Handler extends Thread { 
 	protected Node node;	
 	protected MessageType messageType;
-	protected HashSet<Integer> mailingList;							   // message recipient
+	protected Set<Integer> mailingList;   							   // message recipient
 	protected int addresseeId;							  			   // message recipient
 	protected AckMessage      ackMessage      = null;
 	protected ElectionMessage electionMessage = null;
@@ -21,7 +22,7 @@ public class Handler extends Thread {
 	DatagramPacket datagram;
 	
 	// Constructor
-	public Handler(Node node, MessageType messageType, HashSet<Integer> mailingList) {
+	public Handler(Node node, MessageType messageType, Set<Integer> mailingList) {
 		this.node = node;
 		this.messageType = messageType;
 		this.mailingList = mailingList;

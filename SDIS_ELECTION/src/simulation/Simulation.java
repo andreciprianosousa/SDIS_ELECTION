@@ -1,5 +1,7 @@
 package simulation;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Random;
 
 public class Simulation {
@@ -8,10 +10,27 @@ public class Simulation {
 	
 	boolean nodeKilled;
 	
+	protected Instant start;
+	protected Instant end;
+	protected Duration timeElapsed;
+	
 
 	public Simulation() {
 		System.out.println("Hello from simulation");
 		nodeKilled = false;
+	}
+	
+	public void setStart() {
+		this.start = Instant.now();
+	}
+	
+	public void setEnd() {
+		this.end = Instant.now();
+	}
+	
+	public void getTimer() {
+		this.timeElapsed = Duration.between(start, end);
+		System.out.println("Time taken: "+ timeElapsed.toMillis() +" milliseconds");
 	}
 	
 	public boolean dropPacket(float range, float distance) {

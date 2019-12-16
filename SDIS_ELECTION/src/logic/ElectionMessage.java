@@ -1,6 +1,7 @@
 package logic;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -11,7 +12,7 @@ public class ElectionMessage{
 		private int xCoordinate;
 		private int yCoordinate;
 		private int addresseeId = 0;
-		private HashSet<Integer> mailingList = new HashSet<Integer>();
+		private Set<Integer> mailingList;
 		private boolean isAGroup;
 		private String messageCode = "elec";
 		
@@ -23,7 +24,7 @@ public class ElectionMessage{
 			this.addresseeId = addresseeId;
 		}
 		
-		public ElectionMessage(int incomingId, ComputationIndex cp, int xCoordinate, int yCoordinate, HashSet<Integer> mailingList) {
+		public ElectionMessage(int incomingId, ComputationIndex cp, int xCoordinate, int yCoordinate, Set<Integer> mailingList) {
 			this.cp = cp;
 			this.incomingId = incomingId;
 			this.xCoordinate = xCoordinate;
@@ -91,7 +92,7 @@ public class ElectionMessage{
 			this.addresseeId = addresseeId;
 		}
 
-		public HashSet<Integer> getMailingList() {
+		public Set<Integer> getMailingList() {
 			return mailingList;
 		}
 
