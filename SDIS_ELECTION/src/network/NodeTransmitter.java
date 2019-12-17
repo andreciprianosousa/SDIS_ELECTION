@@ -77,7 +77,7 @@ public class NodeTransmitter extends Thread{
 			if(message.contains("hello")) {
 				this.node.updateNeighbors(Integer.parseInt(fields[1]), Integer.parseInt(fields[2]), Integer.parseInt(fields[3]));
 			}
-			
+
 			else if(message.contains("elec")) {
 
 				// If Node is the message recipient, starts handling it
@@ -105,12 +105,12 @@ public class NodeTransmitter extends Thread{
 					new AckMessageHandler(this.node, ackMessage).start();
 				}
 			}
-			
+
 			else if(message.contains("leadr")) {
-//				System.out.println("leader has " + fields.length);
-//				for(int i=0; i<fields.length; i++) {
-//					System.out.println(fields[i]);
-//				}
+				//				System.out.println("leader has " + fields.length);
+				//				for(int i=0; i<fields.length; i++) {
+				//					System.out.println(fields[i]);
+				//				}
 				// We may put here a mailing list check, because node that started election doesn't need leader message's information
 				leaderMessage = convertToLeaderMessage(message);
 				if(leaderMessage.getMailingList().contains(node.getNodeID())) {
@@ -118,14 +118,14 @@ public class NodeTransmitter extends Thread{
 					new LeaderMessageHandler(this.node, leaderMessage).start();
 				}
 			}
-			
+
 			else if(message.contains("info")) {
 				infoMessage = convertToInfoMessage(message);
 				if(infoMessage.getAddresseeId() == node.getNodeID()) {
 					//System.out.println("Node " + node.getNodeID() + " received info message from "+ infoMessage.getIncomingId());
 					new InfoMessageHandler(this.node, infoMessage).start();
 				}
-				
+
 			}
 		}
 	}
@@ -139,7 +139,7 @@ public class NodeTransmitter extends Thread{
 		HashSet <Integer> mList= stringToMalingList(fields[5]);
 		return new ElectionMessage (id, cIndex, x, y, mList);
 	}
-	
+
 	public ElectionMessage convertToElectionMessageIndividual (String message) {
 		String[] fields = message.split("/");
 		int id = Integer.parseInt(fields[1]);
@@ -147,10 +147,10 @@ public class NodeTransmitter extends Thread{
 		int x = Integer.parseInt(fields[3]);
 		int y = Integer.parseInt(fields[4]);
 		int addresseeId = Integer.parseInt(fields[5]);
-		
+
 		return new ElectionMessage (id, cIndex, x, y, addresseeId);
 	}
-	
+
 	public AckMessage convertToAckMessage(String message) {
 		String[] fields = message.split("/");
 		int incomingId = Integer.parseInt(fields[1]);
@@ -159,10 +159,10 @@ public class NodeTransmitter extends Thread{
 		int xCoordinate = Integer.parseInt(fields[4]);
 		int yCoordinate = Integer.parseInt(fields[5]);
 		int addresseeId= Integer.parseInt(fields[6]);
-		
+
 		return new AckMessage(incomingId, leaderID, leaderValue, xCoordinate, yCoordinate, addresseeId);
 	}
-	
+
 	public LeaderMessage convertToLeaderMessage (String message) {
 		String[] fields = message.split("/");
 		int incomingId = Integer.parseInt(fields[1]);
@@ -173,33 +173,33 @@ public class NodeTransmitter extends Thread{
 		boolean special = Boolean.parseBoolean(fields[6]);
 		HashSet <Integer> mList= stringToMalingList(fields[7]);
 
-		
+
 		return new LeaderMessage(incomingId, leaderID, leaderValue, xCoordinate, yCoordinate, special, mList);
 	}
-	
+
 	public InfoMessage convertToInfoMessage(String message) {
 		String[] fields = message.split("/");
 		int incomingId = Integer.parseInt(fields[1]);
 		int leaderID = Integer.parseInt(fields[2]);
 		float leaderValue = Float.valueOf(fields[3]);
 		int addresseeId= Integer.parseInt(fields[4]);
-		
+
 		return new InfoMessage(incomingId, leaderID, leaderValue, addresseeId);
 	}
-	
-	
+
+
 	public ComputationIndex stringToCP(String cpString) {
 		String[] fields = cpString.split(",");
 		return new ComputationIndex(Integer.parseInt(fields[0]), Integer.parseInt(fields[1]), Float.valueOf((fields[2])));
 	}
-	
+
 	public HashSet<Integer> stringToMalingList (String mailingListString) {
 		String[] fields = mailingListString.split(",");
 		HashSet <Integer> mailingListConverted = new HashSet<Integer>();
 		for(String id : fields) {
 			mailingListConverted.add(Integer.parseInt(id));
 		}
-		
+
 		return mailingListConverted;
 	}
 }

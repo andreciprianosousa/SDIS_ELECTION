@@ -6,12 +6,12 @@ import java.util.Iterator;
 public class Bootstrap extends Thread{
 
 	protected Node node;
-	
+
 	private static final int NetworkSet_Delay = 3000;
 	private static final int Election_Delay = 4000;
 
 	private static final boolean DEBUG = false; 
-	
+
 	public Bootstrap(Node node) {
 		this.node = node;
 	}
@@ -33,7 +33,7 @@ public class Bootstrap extends Thread{
 		}
 		// If not, start an election with neighbours or join current network
 		else {
-			
+
 			// Only biggest ID node should bootstrap election, should many nodes instantiate at once, given
 			// time to setup network beforehand
 			if(!(node.getNodeID() > node.getMaximumIdNeighbors())) {
@@ -44,18 +44,18 @@ public class Bootstrap extends Thread{
 					e1.printStackTrace();
 				}
 				if(node.getLeaderID() == node.getNodeID()) { // Either I'm a new node (No interaction with Elections) or i'm leader
-					
+
 					if(DEBUG)
 						System.out.println("Node is not strong enough to initiate election. Exchanging leader info with one neighbour.");
-					
+
 					Iterator<Integer> i=node.getNeighbors().iterator();
 					new Handler(this.node, logic.MessageType.INFO, i.next()).start();
 				}
-				
+
 			} else {
-			
+
 				node.setAckStatus(true); // true means it has not sent ack to parent, in ack handler we will put this to false again
-	
+
 				// For every neighbour except parent, put them in waitingAck 
 				synchronized (this) {
 					Iterator<Integer> i=node.getNeighbors().iterator();
@@ -66,10 +66,10 @@ public class Bootstrap extends Thread{
 						}	
 					}
 				}
-								
+
 				System.out.println("Node " + node.getNodeID() + " bootstrapped election group message.");
 				node.simNode.setStart();
-				
+
 				// -----------CP Tests-----------
 				node.getComputationIndex().setNum(node.getComputationIndex().getNum()+1);
 				node.getComputationIndex().setId(node.getNodeID());

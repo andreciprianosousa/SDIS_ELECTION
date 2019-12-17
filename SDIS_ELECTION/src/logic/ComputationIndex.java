@@ -7,7 +7,7 @@ public class ComputationIndex{
 	protected int id;
 	protected int num;
 	protected float value;
-	
+
 	public ComputationIndex(int id, int num, float value) {
 		this.id = id;
 		// Assuming it will be value of node and id (in paper they use a pair, 
@@ -16,12 +16,12 @@ public class ComputationIndex{
 		this.num = num;
 		this.value = value;
 	}
-	
+
 	@Override
-    public String toString() { 
-        return String.format(id + "," + num + "," + value + ","); 
-    } 
-	
+	public String toString() { 
+		return String.format(id + "," + num + "," + value + ","); 
+	} 
+
 	public int getId() {
 		return this.id;
 	}

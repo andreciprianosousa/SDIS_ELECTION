@@ -45,9 +45,9 @@ public class AckMessageHandler extends Thread{
 		// Assuming this Ack was intended for me in the first place
 		// When this node receives an Ack Message, updates waiting Acks first
 		if((node.getWaitingAcks().contains(ackMessage.getIncomingId()))) {
-			
+
 			node.getWaitingAcks().remove(ackMessage.getIncomingId());
-			
+
 			// Then, update this node stored value and stored id if value is bigger
 			if(ackMessage.getStoredValue() > node.getStoredValue()) {
 				node.setStoredValue(ackMessage.getStoredValue());
@@ -56,7 +56,7 @@ public class AckMessageHandler extends Thread{
 		} else {
 			return;
 		}
-		
+
 		// If this was the last acknowledge needed, then send to parent my own ack and update my parameters
 		// 	if(node.getWaitingAcks().isEmpty() && (node.getAckStatus() == true)) {
 		if((node.getWaitingAcks().isEmpty()) && (node.getAckStatus() == true)) {
@@ -64,7 +64,7 @@ public class AckMessageHandler extends Thread{
 				node.setAckStatus(false);
 				// send ACK message to parent stored in node.getParentActive()
 				sendMessage(logic.MessageType.ACK, node.getParentActive());
-				
+
 				if(DEBUG)
 					System.out.println("Sending to my parent " + node.getParentActive() + " the Leader Id " + node.getStoredId());
 			}
@@ -74,29 +74,29 @@ public class AckMessageHandler extends Thread{
 					node.setStoredValue(node.getNodeValue());
 					node.setStoredId(node.getLeaderID());
 				}
-				
+
 				node.setAckStatus(true);
 				node.setElectionActive(false);
 				node.setLeaderID(node.getStoredId());
 				System.out.println("========================>   Leader agreed upon: " + node.getLeaderID());
-				
+
 				node.simNode.setEnd();
 				node.simNode.getTimer();
-				
+
 				// send Leader message to all children
 				Iterator<Integer> i=node.getNeighbors().iterator();
 				node.getWaitingAcks().clear(); // clear this first just in case
-				
+
 				Set<Integer> toSend = Collections.synchronizedSet(new HashSet<Integer>());
 				while(i.hasNext()) { 
 					Integer temp = i.next();
 					toSend.add(temp);
 				}
 				// Send Election Message to all neighbours, except myself
-				
+
 				if(DEBUG)
 					System.out.println("Sending leader to all nodes.\n-----------------------------");
-				
+
 				sendMessage(logic.MessageType.LEADER, toSend);
 			}
 		}

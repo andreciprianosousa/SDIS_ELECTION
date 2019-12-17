@@ -17,7 +17,7 @@ import java.time.Instant;
 import java.time.Duration;
 
 public class Node implements Serializable{
-	
+
 	protected int nodeID;
 	protected ComputationIndex computationIndex;
 	protected boolean electionActive;
@@ -30,7 +30,7 @@ public class Node implements Serializable{
 	protected float nodeValue;
 	protected float storedValue;
 	protected int storedId;
-	
+
 	// Used in mobile implementation
 	private float xMax;
 	private float yMax;
@@ -43,7 +43,7 @@ public class Node implements Serializable{
 	protected int port;
 	protected String ipAddress;
 	protected Simulation simNode;
-	
+
 	public Node (int nodeID, int port, String ipAddress, int[] dimensions, int refreshRate, int timeOut) throws InterruptedException {
 		this.nodeID = nodeID;
 		this.port = port;
@@ -58,63 +58,53 @@ public class Node implements Serializable{
 		this.electionActive = false;
 		this.leaderID = this.nodeID; // leader is itself if nothing is said otherwise
 		this.ackSent = true; // true means no ack sent yet, which technically is correct here
-		//this.waitingAcks = new HashSet<Integer>();
 		this.waitingAcks = Collections.synchronizedSet(new HashSet<Integer>());
-			
+
 		this.xMax=dimensions[0];
 		this.yMax=dimensions[1];
 		this.nodeRange = dimensions[2];
 		this.neighbors = new ConcurrentHashMap<Integer, Instant>();
 		this.timeOut = timeOut;
 		this.simNode = new Simulation();
-		
+
 		//Initial coordinates 
 		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
 		yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
 
-		
+
 		new NodeListener(this, refreshRate).start();
 		new NodeTransmitter(this, timeOut).start();
-		
-	
+
+
 		new Bootstrap(this).start(); // New node, so set network and act accordingly
 
 	}
-	
+
 	public synchronized void updateNeighbors(int nodeMessageID, int xNeighbor, int yNeighbor) {
 		if(nodeMessageID != nodeID) {
 			//if message node is inside neighborhood
 			if(this.isInsideNeighborhood(nodeMessageID, xNeighbor, yNeighbor)) {
-				//does node exist? update time, otherwise add it and update time
-//				if(!neighbors.containsKey(nodeMessageID)) {
-//					System.out.print("Node " + this.getNodeID() + " is neighbor of: [");
-//					for(int neighbor : neighbors.keySet()) {
-//						System.out.print(neighbor+ " ");
-//					}
-//					System.out.print(nodeMessageID+ " ");
-//					System.out.println("]");
-//				}
 				neighbors.put(nodeMessageID, Instant.now());
 				//System.out.println("Updated to: " + Instant.now());
 			}		
 		}
-		
+
 	}
-	
+
 	public void updateRemovedNodes() {
 
 		ArrayList<Integer> toRemove = new ArrayList<Integer>();
-		
-		
+
+
 		// Check if neighbors are connected, if not put them in a "blacklist"
 		for(int neighbor : neighbors.keySet()) { 
 			//System.out.println(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis());
-			if(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut*1000000*1000)) {
-				System.out.println("Duration = " + Duration.between(neighbors.get(neighbor), Instant.now()).toMillis());
+			if(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut*1000)) {
+				System.out.println("Duration = " + Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() + "ms.");
 				toRemove.add(neighbor);
 			}		
 		}
-		
+
 		// Actually remove the gone neighbours
 		for(int neighbor : toRemove) {
 			this.neighbors.remove(neighbor); // Remove from neighbours...
@@ -125,50 +115,50 @@ public class Node implements Serializable{
 			// Possible solution: check here if it is last ack, if so, copy the same logic here
 			// from the handler...very ugly and it doesn't work well...
 			// If this was the last acknowledge needed, then send to parent my own ack and update my parameters
-//			if(this.getWaitingAcks().isEmpty() && (this.getAckStatus() == true)) {
-//				if(this.getParentActive() != -1) {
-//					this.setAckStatus(false);
-//					// send ACK message to parent stored in node.getParentActive()
-//					new Handler(this, logic.MessageType.ACK, this.getParentActive()).start();
-//					System.out.println("Sending to my parent " + this.getParentActive() + " the Leader Id " + this.getStoredId());
-//				}
-//				// or prepare to send leader message if this node is the source of the election (if it has no parent)
-//				else {
-//					this.setAckStatus(true); // may change
-//					this.setElectionActive(false);
-//					this.setLeaderID(this.getStoredId());
-//					System.out.println("Leader agreed upon: " + this.getLeaderID());
-//					
-//					// send Leader message to all children, needs id and value of leader chosen (stored already)
-//					Iterator<Integer> i=this.getNeighbors().iterator();
-//					this.getWaitingAcks().clear(); // clear this first just in case
-//					HashSet<Integer> toSend = new HashSet<Integer>();
-//					
-//					while(i.hasNext()) {
-//						Integer temp = i.next();
-//						toSend.add(temp);
-//					}
-//					// Send Election Message to all neighbours, except parent
-//					System.out.println("Sending leader to all nodes.");
-//					new Handler(this, logic.MessageType.LEADER, toSend).start();
-//				}
-//			}
-			
+			//			if(this.getWaitingAcks().isEmpty() && (this.getAckStatus() == true)) {
+			//				if(this.getParentActive() != -1) {
+			//					this.setAckStatus(false);
+			//					// send ACK message to parent stored in node.getParentActive()
+			//					new Handler(this, logic.MessageType.ACK, this.getParentActive()).start();
+			//					System.out.println("Sending to my parent " + this.getParentActive() + " the Leader Id " + this.getStoredId());
+			//				}
+			//				// or prepare to send leader message if this node is the source of the election (if it has no parent)
+			//				else {
+			//					this.setAckStatus(true); // may change
+			//					this.setElectionActive(false);
+			//					this.setLeaderID(this.getStoredId());
+			//					System.out.println("Leader agreed upon: " + this.getLeaderID());
+			//					
+			//					// send Leader message to all children, needs id and value of leader chosen (stored already)
+			//					Iterator<Integer> i=this.getNeighbors().iterator();
+			//					this.getWaitingAcks().clear(); // clear this first just in case
+			//					HashSet<Integer> toSend = new HashSet<Integer>();
+			//					
+			//					while(i.hasNext()) {
+			//						Integer temp = i.next();
+			//						toSend.add(temp);
+			//					}
+			//					// Send Election Message to all neighbours, except parent
+			//					System.out.println("Sending leader to all nodes.");
+			//					new Handler(this, logic.MessageType.LEADER, toSend).start();
+			//				}
+			//			}
+
 			System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
-			
+
 			printNeighbors();
-			
+
 			// If leader is no longer my neighbour, restart the election because no leader = bad
 			// Special case for the leader itself, it doesn't need to check itself 	
 			if(!neighbors.containsKey(leaderID) && !(nodeID == leaderID)) {
-				
+
 				System.out.println("Leader is gone");
 				this.setStoredId(this.nodeID);
 				this.setStoredValue(this.nodeID);
 				this.setLeaderID(this.nodeID);
 				this.setParentActive(-1);
 				this.waitingAcks.remove(neighbor);
-	
+
 				// Only biggest Id node starts bootstrapping
 				if(this.nodeID > getMaximumIdNeighbors()) {
 					System.out.println("BootStrapping won by => " + this.nodeID);
@@ -177,7 +167,7 @@ public class Node implements Serializable{
 			}
 		}
 	}
-	
+
 	public int getMaximumIdNeighbors() {
 		int max=0;
 		for(int neighbor : neighbors.keySet()) {
@@ -188,9 +178,9 @@ public class Node implements Serializable{
 		//System.out.println("MAX ID = " + max);
 		return max;
 	}
-	
+
 	public void printNeighbors() {
-		
+
 		System.out.print("Node " + this.getNodeID() + " is neighbor of: [");
 		for(int neighbor : neighbors.keySet()) {
 			System.out.print(neighbor+ " ");
@@ -199,11 +189,11 @@ public class Node implements Serializable{
 	}
 
 	public boolean isInsideNeighborhood(int neighborID, int xNeighbor, int yNeighbor) {
-		
+
 		float distanceBetweenNodes;
-		
+
 		distanceBetweenNodes = (float) Math.sqrt(Math.pow((xNeighbor-xCoordinate),2) + Math.pow((yNeighbor-yCoordinate),2));
-		
+
 		if(distanceBetweenNodes <= this.nodeRange) {
 			return true;
 		}
@@ -211,13 +201,13 @@ public class Node implements Serializable{
 			return false;
 		}
 	}
-	
+
 	public boolean testPacket () {
 		boolean isPacketDropped;
 		float distanceBetweenNodes = 0;
-		
+
 		//distanceBetweenNodes = distanceBetweenNodes();
-		
+
 		if ((isPacketDropped = simNode.dropPacket(this.nodeRange, distanceBetweenNodes)) == true)
 			return true;
 		else 
@@ -225,35 +215,35 @@ public class Node implements Serializable{
 	}
 
 
-	
+
 	@Override
-    public String toString() {
-        return Integer.toString(nodeID);
-    }
+	public String toString() {
+		return Integer.toString(nodeID);
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        Node node = (Node) obj;
-        if(node.getNodeID()==this.getNodeID()) {
-        	return true;
-        }
-        else {
-        	return false;
-        }
+	@Override
+	public boolean equals(Object obj) {
+		Node node = (Node) obj;
+		if(node.getNodeID()==this.getNodeID()) {
+			return true;
+		}
+		else {
+			return false;
+		}
 
-    }
-   
-    public float distanceBetweenNodes(Node node) {
-    	float distanceBetweenNodes;
-    	
-    	distanceBetweenNodes = (float) Math.sqrt(Math.pow((node.xCoordinate-xCoordinate),2) + Math.pow((node.yCoordinate-yCoordinate),2));
-    	return distanceBetweenNodes;
-    }
+	}
 
-    public int hashCode() {
-        return toString().hashCode();
-    }
-    
+	public float distanceBetweenNodes(Node node) {
+		float distanceBetweenNodes;
+
+		distanceBetweenNodes = (float) Math.sqrt(Math.pow((node.xCoordinate-xCoordinate),2) + Math.pow((node.yCoordinate-yCoordinate),2));
+		return distanceBetweenNodes;
+	}
+
+	public int hashCode() {
+		return toString().hashCode();
+	}
+
 	public int getNodeID() {
 		return nodeID;
 	}
@@ -394,6 +384,6 @@ public class Node implements Serializable{
 	public void printLeader() {
 		System.out.println("Node: " + nodeID + " || Leader: " + leaderID);
 		System.out.println("............................................");
-		
+
 	}
 }

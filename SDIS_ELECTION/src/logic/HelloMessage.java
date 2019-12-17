@@ -19,12 +19,12 @@ public class HelloMessage implements Serializable{
 		this.yCoordinate = node.getyCoordinate();
 		messageCode = "hello";
 	}
-	
+
 	@Override
-    public String toString() { 
-        return String.format(messageCode + "/" + nodeID + "/" + xCoordinate + "/" + yCoordinate + "/"); 
-    } 
-	
+	public String toString() { 
+		return String.format(messageCode + "/" + nodeID + "/" + xCoordinate + "/" + yCoordinate + "/"); 
+	} 
+
 	public int getNodeID() {
 		return nodeID;
 	}
@@ -49,6 +49,6 @@ public class HelloMessage implements Serializable{
 		this.yCoordinate = yCoordinate;
 	}
 
-	
+
 
 }
