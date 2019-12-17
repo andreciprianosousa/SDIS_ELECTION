@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.swing.DebugGraphics;
-
 public class LeaderMessageHandler extends Thread{
 
 	protected Node node;

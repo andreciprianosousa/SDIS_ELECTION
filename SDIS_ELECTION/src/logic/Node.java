@@ -1,15 +1,11 @@
 package logic;
 
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import network.*;
 import simulation.Simulation;
@@ -26,7 +22,6 @@ public class Node implements Serializable{
 	protected int leaderID;
 	protected ConcurrentHashMap<Integer, Instant> neighbors;
 	protected Set<Integer> waitingAcks;
-	//protected HashSet<Integer> waitingAcks;
 	protected float nodeValue;
 	protected float storedValue;
 	protected int storedId;

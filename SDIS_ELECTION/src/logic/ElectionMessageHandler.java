@@ -1,11 +1,7 @@
 package logic;
 
-import java.awt.TrayIcon.MessageType;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import network.*;
 
 public class ElectionMessageHandler extends Thread {
 

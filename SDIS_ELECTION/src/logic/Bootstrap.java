@@ -1,6 +1,5 @@
 package logic;
 
-import java.util.HashSet;
 import java.util.Iterator;
 
 public class Bootstrap extends Thread{
