@@ -18,7 +18,7 @@ public class Handler extends Thread {
 	protected ElectionMessage electionMessage = null;
 	protected LeaderMessage   leaderMessage   = null;
 	protected InfoMessage   infoMessage     = null;
-	byte[] messageToSend;
+	byte[] messageToSend; //= new byte[2048];	// This value does nothing, I could pu a 0 here and it would work
 	DatagramPacket datagram;
 
 	// Constructor
@@ -26,14 +26,12 @@ public class Handler extends Thread {
 		this.node = node;
 		this.messageType = messageType;
 		this.mailingList = mailingList;
-		messageToSend = new byte[mailingList.size()*4];//new byte[2048]; int is 4 bytes	
 	}
 
 	public Handler(Node node, MessageType messageType, int addresseeId) {
 		this.node = node;
 		this.messageType = messageType;
 		this.addresseeId = addresseeId;
-		messageToSend = new byte[4]; //int is 4 bytes	
 	}
 
 	// Thread Method
