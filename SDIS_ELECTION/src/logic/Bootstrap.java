@@ -25,7 +25,7 @@ public class Bootstrap extends Thread{
 			e1.printStackTrace();
 		}
 
-		// If I have no neighbours, set myself as leader immediately and it's done
+		// If I have no neighbours, set myself as leader of my local network immediately and it's done
 		if(node.getNeighbors().isEmpty()) {
 			node.setLeaderID(node.getNodeID());
 			System.out.println("I'm alone, my current Leader is me: " + node.getLeaderID());

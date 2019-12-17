@@ -56,15 +56,12 @@ public class NodeListener extends Thread{
 
 			node.updateRemovedNodes();
 
-			if(print % 2 == 0) {
+			if(print % 4 == 0) {
 				node.printLeader();
 				System.out.println("From Node Listener, NODE " + node.getNodeID());
-				//System.out.println("WA_NODE" + node.getNodeID() + "_: " + node.getWaitingAcks().toString() + " ==> Empty - " + node.getWaitingAcks().isEmpty());
-			}
-
-			if(print % 3 == 0) {
 				node.printNeighbors();
 			}
+
 			print++;
 
 			helloMessage = new HelloMessage(node).toString();
