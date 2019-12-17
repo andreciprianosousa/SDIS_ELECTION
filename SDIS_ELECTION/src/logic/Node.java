@@ -109,7 +109,7 @@ public class Node implements Serializable{
 		// Check if neighbors are connected, if not put them in a "blacklist"
 		for(int neighbor : neighbors.keySet()) { 
 			//System.out.println(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis());
-			if(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut*1000)) {
+			if(Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut*1000000*1000)) {
 				System.out.println("Duration = " + Duration.between(neighbors.get(neighbor), Instant.now()).toMillis());
 				toRemove.add(neighbor);
 			}		
