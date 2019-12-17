@@ -68,8 +68,8 @@ public class Node implements Serializable{
 		this.simNode = new Simulation();
 
 		//Initial coordinates 
-		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
-		yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
+		xCoordinate = (int)xMax;//(int) ((Math.random() * ((xMax - 0) + 1)) + 0);
+		yCoordinate = (int)yMax;//(int) ((Math.random() * ((yMax - 0) + 1)) + 0);
 
 
 		new NodeListener(this, refreshRate).start();

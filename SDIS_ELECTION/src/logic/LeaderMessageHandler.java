@@ -12,7 +12,7 @@ public class LeaderMessageHandler extends Thread{
 	protected Node node;
 	protected LeaderMessage leaderMessage;
 
-	private static final boolean DEBUG = false; 
+	private static final boolean DEBUG = true; 
 
 	public LeaderMessageHandler(Node node, LeaderMessage lm) {
 
@@ -67,10 +67,10 @@ public class LeaderMessageHandler extends Thread{
 		if(leaderMessage.getStoredID() == node.getLeaderID()) {
 
 			if(DEBUG)
-				System.out.println("Do nothing.");
+				System.out.println("My Leader is " + node.getLeaderID() + " and the leader message says " + leaderMessage.getStoredID() +". Do nothing.");
 
 			return;
-		} else { // Either leaderMessage ID > node Leader Ou other way around
+		} else { // Either leaderMessage ID > node Leader or other way around...
 
 
 			// If this node receives leader message, update parameters accordingly if necessary
@@ -80,8 +80,6 @@ public class LeaderMessageHandler extends Thread{
 				if(leaderMessage.getStoredID() < node.getLeaderID()) {
 					System.out.println("Hey! I think you're wrong! Maybe it's time to set a new election");
 					System.out.println("--------!!!!!!!!!!!---------!!!!!!!!!---------!!!!!!!!----------");
-
-					//sendLeaderMessage();
 
 					return;
 				}
@@ -104,8 +102,6 @@ public class LeaderMessageHandler extends Thread{
 					return;
 				}
 
-				// If not, send leader messages to neighbours except to the message sender's id
-				// If leader message is special, send leader special message instead of normal
 				sendLeaderMessage();
 			}
 			else {

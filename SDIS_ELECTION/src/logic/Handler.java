@@ -70,7 +70,7 @@ public class Handler extends Thread {
 
 		} else if (messageType == MessageType.LEADER) {
 			// Leader Message sends always messages to a group (it can be a "group of 1"), so we can use just an HashSet
-			leaderMessage = new LeaderMessage(node.getNodeID(), node.getStoredId() , node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), false, mailingList);
+			leaderMessage = new LeaderMessage(node.getNodeID(), node.getLeaderID() , node.getStoredValue(), node.getxCoordinate(), node.getyCoordinate(), false, mailingList);
 			messageToSend = leaderMessage.toString().getBytes(StandardCharsets.UTF_8);
 
 		} else if(messageType == MessageType.INFO) {
