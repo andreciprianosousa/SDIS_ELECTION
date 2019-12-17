@@ -22,7 +22,7 @@ public class AckMessageHandler extends Thread{
 	}
 
 
-	// "Send Message" for type Leader - Needs HashSet to send to a group of Nodes
+	// "Send Message" for type Leader
 	public void sendMessage(logic.MessageType messageType, Set<Integer> mailingList) {
 		if(mailingList.isEmpty()) {
 			System.out.println("Mailing List is Empty");
@@ -56,7 +56,6 @@ public class AckMessageHandler extends Thread{
 		}
 
 		// If this was the last acknowledge needed, then send to parent my own ack and update my parameters
-		// 	if(node.getWaitingAcks().isEmpty() && (node.getAckStatus() == true)) {
 		if((node.getWaitingAcks().isEmpty()) && (node.getAckStatus() == true)) {
 			if(node.getParentActive() != -1) {
 				node.setAckStatus(false);
@@ -68,10 +67,6 @@ public class AckMessageHandler extends Thread{
 			}
 			// or prepare to send leader message if this node is the source of the election (if it has no parent)
 			else {
-				if(node.getStoredValue() < node.getLeaderID()) {
-					node.setStoredValue(node.getNodeValue());
-					node.setStoredId(node.getLeaderID());
-				}
 
 				node.setAckStatus(true);
 				node.setElectionActive(false);
@@ -90,8 +85,7 @@ public class AckMessageHandler extends Thread{
 					Integer temp = i.next();
 					toSend.add(temp);
 				}
-				// Send Election Message to all neighbours, except myself
-
+				// Send Election Message to all neighbours
 				if(DEBUG)
 					System.out.println("Sending leader to all nodes.\n-----------------------------");
 

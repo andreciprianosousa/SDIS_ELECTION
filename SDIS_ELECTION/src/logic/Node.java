@@ -170,7 +170,6 @@ public class Node implements Serializable{
 				max = neighbor;
 			}
 		}
-		//System.out.println("MAX ID = " + max);
 		return max;
 	}
 
@@ -200,8 +199,6 @@ public class Node implements Serializable{
 	public boolean testPacket () {
 		boolean isPacketDropped;
 		float distanceBetweenNodes = 0;
-
-		//distanceBetweenNodes = distanceBetweenNodes();
 
 		if ((isPacketDropped = simNode.dropPacket(this.nodeRange, distanceBetweenNodes)) == true)
 			return true;

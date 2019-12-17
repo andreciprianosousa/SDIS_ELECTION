@@ -10,7 +10,7 @@ public class LeaderMessageHandler extends Thread{
 	protected Node node;
 	protected LeaderMessage leaderMessage;
 
-	private static final boolean DEBUG = true; 
+	private static final boolean DEBUG = false; 
 
 	public LeaderMessageHandler(Node node, LeaderMessage lm) {
 
@@ -87,8 +87,7 @@ public class LeaderMessageHandler extends Thread{
 				node.setStoredValue(leaderMessage.getStoredValue());
 				node.setParentActive(-1);
 				node.setAckStatus(true);
-				node.setStoredId(node.getNodeID());
-
+				node.setStoredId(node.getNodeID()); //Ready for new election
 
 				System.out.println("Node " + node.getNodeID() + "'s leader is " + node.getLeaderID());
 				System.out.println("CP(num/value/id): " + node.getComputationIndex().getNum()+ " - " + node.getComputationIndex().getValue()+ " - " + node.getComputationIndex().getId());
@@ -117,7 +116,6 @@ public class LeaderMessageHandler extends Thread{
 
 				// If my only neighbour is my parent, don't propagate leader message and just return 
 				if(node.getNeighbors().size() == 1) {
-
 					return;
 				}
 

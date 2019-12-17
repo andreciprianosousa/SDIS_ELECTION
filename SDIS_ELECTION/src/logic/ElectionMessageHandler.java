@@ -37,9 +37,7 @@ public class ElectionMessageHandler extends Thread {
 
 		// If I'm already in the process of electing:
 		// If it's the same election we're talking about, send immediate ack to the sender id of the message
-		// If not, check computation index and act accordingly 
-		// Need id of message sender
-
+		// If not, check computation index and act accordingly
 		if(node.isElectionActive()) { //true means node is in an ongoing election
 
 			//If the election sent to me is the same as my current election
@@ -105,11 +103,7 @@ public class ElectionMessageHandler extends Thread {
 		else {	
 			node.setElectionActive(true);
 			node.setParentActive(electionMessage.getIncomingId()); 
-			//System.out.println("Starting new Election");
-
-			// IMPORTANT -> if this node starts an election after other elections in the past, 
-			// don't forget to update these values to a bigger num but with id equal to this node's
-			// because id is just a tie breaker
+			
 			node.getComputationIndex().setNum(electionMessage.getComputationIndex().getNum());
 			node.getComputationIndex().setId(electionMessage.getComputationIndex().getId()); 
 			node.getComputationIndex().setValue(electionMessage.getComputationIndex().getValue());
@@ -117,7 +111,6 @@ public class ElectionMessageHandler extends Thread {
 			// If this node has no neighbours except parent, send ack to parent and set ackSent to false right away
 			if(node.getNeighbors().size() == 1) {
 				node.setAckStatus(false);
-				// send Ack message to sender/parent with my stored id and value
 				
 				if(DEBUG)
 					System.out.println("Sending immediate ack since I only have parent.");
