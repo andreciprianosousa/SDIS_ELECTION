@@ -38,7 +38,14 @@ public class AckMessageHandler extends Thread {
 	public synchronized void run() { // Needs synchronization because 2+ acks may arrive at same time and alter
 										// hashset simultaneously, other handlers also have this
 
-		// Assuming this Ack was intended for me in the first place
+		// Assuming this Ack was intended for me in the first place and I'm in the same
+		// Computation Index
+		if (!(ackMessage.getCp().getNum() == node.getComputationIndex().getNum()
+				&& ackMessage.getCp().getValue() == node.getComputationIndex().getValue()
+				&& ackMessage.getCp().getId() == node.getComputationIndex().getId())) {
+			return; // Ignore ack from other CP that no longer matters
+		}
+
 		// When this node receives an Ack Message, updates waiting Acks first
 		if ((node.getWaitingAcks().contains(ackMessage.getIncomingId()))) {
 

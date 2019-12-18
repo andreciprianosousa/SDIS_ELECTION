@@ -57,7 +57,7 @@ public class Handler extends Thread {
 		// several nodes.
 		if (messageType == MessageType.ACK) {
 			ackMessage = new AckMessage(node.getNodeID(), node.getStoredId(), node.getStoredValue(),
-					node.getxCoordinate(), node.getyCoordinate(), addresseeId);
+					node.getComputationIndex(), node.getxCoordinate(), node.getyCoordinate(), addresseeId);
 			messageToSend = ackMessage.toString().getBytes(StandardCharsets.UTF_8);
 
 		} else if (messageType == MessageType.ELECTION) {
