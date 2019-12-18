@@ -5,12 +5,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public class LeaderMessageHandler extends Thread{
+public class LeaderMessageHandler extends Thread {
 
 	protected Node node;
 	protected LeaderMessage leaderMessage;
 
-	private static final boolean DEBUG = false; 
+	private static final boolean DEBUG = false;
 
 	public LeaderMessageHandler(Node node, LeaderMessage lm) {
 
@@ -21,29 +21,27 @@ public class LeaderMessageHandler extends Thread{
 	}
 
 	public void sendMessage(logic.MessageType messageType, Set<Integer> mailingList) {
-		if(mailingList.isEmpty()) {
+		if (mailingList.isEmpty()) {
 			System.out.println("Mailing List is Empty");
 			return;
 		}
 		new Handler(this.node, messageType, mailingList).start();
 	}
 
-
 	public void sendLeaderMessage() {
 
 		Set<Integer> mailingList = Collections.synchronizedSet(new HashSet<Integer>());
-		Iterator<Integer> i=node.getNeighbors().iterator();
-		while(i.hasNext()) {
+		Iterator<Integer> i = node.getNeighbors().iterator();
+		while (i.hasNext()) {
 			int temp = i.next();
-			if(!(temp == leaderMessage.getIncomingId())) {
+			if (!(temp == leaderMessage.getIncomingId())) {
 				mailingList.add(temp);
 			}
 		}
 
-		if(!(leaderMessage.isSpecial())) {
+		if (!(leaderMessage.isSpecial())) {
 			sendMessage(MessageType.LEADER, mailingList);
-		}
-		else {
+		} else {
 			sendMessage(MessageType.LEADER_SPECIAL, mailingList);
 		}
 	}
@@ -52,70 +50,68 @@ public class LeaderMessageHandler extends Thread{
 	public synchronized void run() {
 
 		// If leader is special, don't care about parent and child stuff
-		if(!(leaderMessage.isSpecial())) {
-			if(!(leaderMessage.getIncomingId() == node.getParentActive())) {
+		if (!(leaderMessage.isSpecial())) {
+			if (!(leaderMessage.getIncomingId() == node.getParentActive())) {
 
-				if(DEBUG)
-					System.out.println("Ignoring leader message from " + leaderMessage.getIncomingId()+ "\n-----------------------------");
+				if (DEBUG)
+					System.out.println("Ignoring leader message from " + leaderMessage.getIncomingId()
+							+ "\n-----------------------------");
 
 				return;
 			}
 		}
 
-		if(leaderMessage.getStoredID() == node.getLeaderID()) {
+		if (leaderMessage.getStoredID() == node.getLeaderID()) {
 
-			if(DEBUG)
-				System.out.println("My Leader is " + node.getLeaderID() + " and the leader message says " + leaderMessage.getStoredID() +". Do nothing.");
+			if (DEBUG)
+				System.out.println("My Leader is " + node.getLeaderID() + " and the leader message says "
+						+ leaderMessage.getStoredID() + ". Do nothing.");
 
 			return;
 		} else { // Either leaderMessage ID > node Leader or other way around...
 
-
-			// If this node receives leader message, update parameters accordingly if necessary
-			// And has a different leader, broadcasts the leader msgs
-			if(node.isElectionActive() && (!(leaderMessage.isSpecial()))) {
-
-				if(leaderMessage.getStoredID() < node.getLeaderID()) {
-					System.out.println("Hey! I think you're wrong! Maybe it's time to set a new election");
-					System.out.println("--------!!!!!!!!!!!---------!!!!!!!!!---------!!!!!!!!----------");
-
-					return;
-				}
+			// If this node receives leader message, update parameters accordingly if
+			// necessary
+			// And if has a different leader, broadcasts the leader msgs
+			if (node.isElectionActive() && (!(leaderMessage.isSpecial()))) {
 
 				node.setElectionActive(false);
 				node.setLeaderID(leaderMessage.getStoredID());
-				node.setStoredValue(leaderMessage.getStoredValue());
+				node.setLeaderValue(leaderMessage.getStoredValue());
 				node.setParentActive(-1);
 				node.setAckStatus(true);
-				node.setStoredId(node.getNodeID()); //Ready for new election
+				// Ready for new election
+				node.setStoredId(node.getNodeID());
+				node.setStoredValue(node.getNodeValue());
 
 				System.out.println("Node " + node.getNodeID() + "'s leader is " + node.getLeaderID());
-				System.out.println("CP(num/value/id): " + node.getComputationIndex().getNum()+ " - " + node.getComputationIndex().getValue()+ " - " + node.getComputationIndex().getId());
+				System.out.println("CP(num/value/id): " + node.getComputationIndex().getNum() + " - "
+						+ node.getComputationIndex().getValue() + " - " + node.getComputationIndex().getId());
 				System.out.println("-----------------------------");
 
-
-				// If my only neighbour is my parent, don't propagate leader message and just return
-				if(node.getNeighbors().size() == 1) {
+				// If my only neighbour is my parent, don't propagate leader message and just
+				// return
+				if (node.getNeighbors().size() == 1) {
 					return;
 				}
 
 				sendLeaderMessage();
-			}
-			else {
+			} else {
 
-				if(leaderMessage.getStoredID() <= node.getLeaderID()) {
+				if (leaderMessage.getStoredID() <= node.getLeaderID()) {
 					System.out.println("Men, that guy is weak. Do nothing!");
 
 					return;
 				}
 
 				node.setLeaderID(leaderMessage.getStoredID());
-				node.setStoredValue(leaderMessage.getStoredValue());
+				node.setLeaderValue(leaderMessage.getStoredValue());
 				node.setStoredId(node.getNodeID());
+				node.setStoredValue(node.getNodeValue());
 
-
-				// If my only neighbour is my parent, don't propagate leader message and just return 
-				if(node.getNeighbors().size() == 1) {
+				// If my only neighbour is my parent, don't propagate leader message and just
+				// return
+				if (node.getNeighbors().size() == 1) {
 					return;
 				}
 

@@ -56,12 +56,11 @@ public class Bootstrap extends Thread {
 					new Handler(this.node, logic.MessageType.INFO, node.getMaximumIdNeighbors()).start();
 				}
 
-			} else {
+			} else { // If we're the biggest node of the network
 
-				node.setAckStatus(true); // true means it has not sent ack to parent, in ack handler we will put this to
-											// false again
+				node.setElectionActive(true);
 
-				// For every neighbour except parent, put them in waitingAck
+				// For every neighbour put them in waitingAck
 				synchronized (this) {
 					Iterator<Integer> i = node.getNeighbors().iterator();
 					while (i.hasNext()) {

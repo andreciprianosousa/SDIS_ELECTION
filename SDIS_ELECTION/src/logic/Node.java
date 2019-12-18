@@ -21,6 +21,7 @@ public class Node implements Serializable {
 	protected int parentActive;
 	protected boolean ackSent;
 	protected int leaderID;
+	protected float leaderValue;
 	protected ConcurrentHashMap<Integer, Instant> neighbors;
 	protected Set<Integer> waitingAcks;
 	protected float nodeValue;
@@ -46,7 +47,7 @@ public class Node implements Serializable {
 		this.port = port;
 		this.ipAddress = ipAddress;
 		this.nodeValue = nodeID;
-
+		this.leaderValue = this.nodeValue;
 		this.storedValue = this.nodeValue;
 		this.storedId = this.nodeID;
 
@@ -239,6 +240,14 @@ public class Node implements Serializable {
 		return distanceBetweenNodes;
 	}
 
+	public float getLeaderValue() {
+		return leaderValue;
+	}
+
+	public void setLeaderValue(float leaderValue) {
+		this.leaderValue = leaderValue;
+	}
+
 	public int hashCode() {
 		return toString().hashCode();
 	}
@@ -401,7 +410,8 @@ public class Node implements Serializable {
 	}
 
 	public void printLeader() {
-		System.out.println("Node: " + nodeID + " || Leader: " + leaderID);
+		System.out.println("Node: " + nodeID + " || Leader: " + leaderID + " || LeaderValue: " + leaderValue
+				+ " || Stored Id: " + storedId + " || Stored Value: " + storedValue);
 		System.out.println("............................................");
 
 	}
