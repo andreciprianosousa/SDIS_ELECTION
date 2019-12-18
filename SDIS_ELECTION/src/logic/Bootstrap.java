@@ -29,6 +29,7 @@ public class Bootstrap extends Thread {
 		// and it's done
 		if (node.getNeighbors().isEmpty()) {
 			node.setLeaderID(node.getNodeID());
+			node.setLeaderValue(node.getNodeValue());
 			System.out.println("I'm alone, my current Leader is me: " + node.getLeaderID());
 			System.out.println("-----------------------------");
 		}
