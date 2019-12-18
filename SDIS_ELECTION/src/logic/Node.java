@@ -16,6 +16,8 @@ import simulation.Simulation;
 
 public class Node implements Serializable {
 
+	private static final boolean DEBUG = true;
+
 	protected int nodeID;
 	protected ComputationIndex computationIndex;
 	protected boolean electionActive;
@@ -97,8 +99,9 @@ public class Node implements Serializable {
 			// System.out.println(Duration.between(neighbors.get(neighbor),
 			// Instant.now()).toMillis());
 			if (Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut * 1000)) {
-				System.out.println(
-						"Duration = " + Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() + "ms.");
+				if (DEBUG)
+					System.out.println("Duration = "
+							+ Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() + "ms.");
 				toRemove.add(neighbor);
 			}
 		}
@@ -149,7 +152,8 @@ public class Node implements Serializable {
 			// }
 			// }
 
-			System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
+			if (DEBUG)
+				System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
 
 			printNeighbors();
 
@@ -157,8 +161,6 @@ public class Node implements Serializable {
 			// bad
 			// Special case for the leader itself, it doesn't need to check itself
 			if (!neighbors.containsKey(leaderID) && !(nodeID == leaderID)) {
-
-				System.out.println("Leader is gone");
 				this.setStoredId(this.nodeID);
 				this.setStoredValue(this.nodeValue);
 				this.setLeaderID(this.nodeID);
@@ -166,12 +168,10 @@ public class Node implements Serializable {
 				this.setParentActive(-1);
 				this.waitingAcks.remove(neighbor);
 
-				// Only biggest Id node starts bootstrapping on leader loss
-				// If is not the biggest, start election fresh just in case
-				if (this.nodeID > getMaximumIdNeighbors()) {
-					System.out.println("BootStrapping won by => " + this.nodeID);
+				if (this.getNodeID() > this.getMaximumIdNeighbors()) {
 					new Bootstrap(this).start();
 				} else {
+					// Start election fresh just in case
 					synchronized (this) {
 						Iterator<Integer> i = this.getNeighbors().iterator();
 						while (i.hasNext()) {
@@ -182,8 +182,9 @@ public class Node implements Serializable {
 						}
 					}
 
-					System.out
-							.println("Node " + this.getNodeID() + " bootstrapped election group message just in case!");
+					if (DEBUG)
+						System.out.println("Node " + this.getNodeID() + " bootstrapped election on leader removal.");
+
 					this.simNode.setStart();
 
 					// -----------CP Tests-----------
@@ -195,6 +196,7 @@ public class Node implements Serializable {
 				}
 			}
 		}
+
 	}
 
 	public int getMaximumIdNeighbors() {
