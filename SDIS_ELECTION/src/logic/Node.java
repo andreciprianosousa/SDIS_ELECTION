@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -159,15 +160,38 @@ public class Node implements Serializable {
 
 				System.out.println("Leader is gone");
 				this.setStoredId(this.nodeID);
-				this.setStoredValue(this.nodeID);
+				this.setStoredValue(this.nodeValue);
 				this.setLeaderID(this.nodeID);
+				this.setLeaderValue(this.nodeValue);
 				this.setParentActive(-1);
 				this.waitingAcks.remove(neighbor);
 
-				// Only biggest Id node starts bootstrapping
+				// Only biggest Id node starts bootstrapping on leader loss
+				// If is not the biggest, start election fresh just in case
 				if (this.nodeID > getMaximumIdNeighbors()) {
 					System.out.println("BootStrapping won by => " + this.nodeID);
 					new Bootstrap(this).start();
+				} else {
+					synchronized (this) {
+						Iterator<Integer> i = this.getNeighbors().iterator();
+						while (i.hasNext()) {
+							Integer temp = i.next();
+							if ((!(this.getWaitingAcks().contains(temp))) && (!(temp.toString().equals("")))) {
+								this.getWaitingAcks().add(temp);
+							}
+						}
+					}
+
+					System.out
+							.println("Node " + this.getNodeID() + " bootstrapped election group message just in case!");
+					this.simNode.setStart();
+
+					// -----------CP Tests-----------
+					this.getComputationIndex().setNum(this.getComputationIndex().getNum() + 1);
+					this.getComputationIndex().setId(this.getNodeID());
+					this.getComputationIndex().setValue(this.getNodeValue());
+					// ------------------------------
+					new Handler(this, logic.MessageType.ELECTION_GROUP, this.getWaitingAcks()).start();
 				}
 			}
 		}
