@@ -5,106 +5,109 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ElectionMessage{
-	
-		private ComputationIndex cp;
-		private int incomingId;
-		private int xCoordinate;
-		private int yCoordinate;
-		private int addresseeId = 0;
-		private Set<Integer> mailingList;
-		private boolean isAGroup;
-		private String messageCode = "elec";
-		
-		public ElectionMessage(int incomingId, ComputationIndex cp, int xCoordinate, int yCoordinate, int addresseeId) {	
-			this.cp = cp;
-			this.incomingId = incomingId;
-			this.xCoordinate = xCoordinate;
-			this.yCoordinate = yCoordinate;
-			this.addresseeId = addresseeId;
-		}
-		
-		public ElectionMessage(int incomingId, ComputationIndex cp, int xCoordinate, int yCoordinate, Set<Integer> mailingList) {
-			this.cp = cp;
-			this.incomingId = incomingId;
-			this.xCoordinate = xCoordinate;
-			this.yCoordinate = yCoordinate;
-			this.mailingList = mailingList;
-			
-		}
-		
-		
-		@Override
-	    public String toString() {
-			if(this.isAGroup) {
-				int[] mailingListInt = mailingList.stream().mapToInt(Integer::intValue).toArray();
-				
-				String mailingListString = IntStream.of(mailingListInt).mapToObj(Integer::toString).collect(Collectors.joining(","));
-				
-		        return String.format(messageCode + "G/" + incomingId + "/" + cp.toString() + "/" + xCoordinate + "/" + yCoordinate + "/" + mailingListString + "/"); 
-			}
-			else {
-				return String.format(messageCode + "I/" + incomingId + "/" + cp.toString() + "/" + xCoordinate + "/" + yCoordinate + "/" + addresseeId + "/"); 
-			}
-			
-	    } 
-		
-		public int getIncomingId() {
-			return this.incomingId;
+public class ElectionMessage {
+
+	private ComputationIndex cp;
+	private int incomingId;
+	private int xCoordinate;
+	private int yCoordinate;
+	private int addresseeId = 0;
+	private Set<Integer> mailingList;
+	private boolean isAGroup;
+	private String messageCode = "elec";
+
+	public ElectionMessage(int incomingId, ComputationIndex cp, int xCoordinate, int yCoordinate, int addresseeId) {
+		this.cp = cp;
+		this.incomingId = incomingId;
+		this.xCoordinate = xCoordinate;
+		this.yCoordinate = yCoordinate;
+		this.addresseeId = addresseeId;
+	}
+
+	public ElectionMessage(int incomingId, ComputationIndex cp, int xCoordinate, int yCoordinate,
+			Set<Integer> mailingList) {
+		this.cp = cp;
+		this.incomingId = incomingId;
+		this.xCoordinate = xCoordinate;
+		this.yCoordinate = yCoordinate;
+		this.mailingList = mailingList;
+
+	}
+
+	@Override
+	public String toString() {
+		if (this.isAGroup) {
+			int[] mailingListInt = mailingList.stream().mapToInt(Integer::intValue).toArray();
+
+			String mailingListString = IntStream.of(mailingListInt).mapToObj(Integer::toString)
+					.collect(Collectors.joining(","));
+
+			return String.format(messageCode + "G/" + incomingId + "/" + cp.toString() + "/" + xCoordinate + "/"
+					+ yCoordinate + "/" + mailingListString + "/");
+		} else {
+			return String.format(messageCode + "I/" + incomingId + "/" + cp.toString() + "/" + xCoordinate + "/"
+					+ yCoordinate + "/" + addresseeId + "/");
 		}
 
-		public void setincomingId(int incomingId) {
-			this.incomingId = incomingId;
-		}
-		public ComputationIndex getComputationIndex() {
-			return this.cp;
-		}
+	}
 
-		public ComputationIndex getCp() {
-			return cp;
-		}
+	public int getIncomingId() {
+		return this.incomingId;
+	}
 
-		public void setCp(ComputationIndex cp) {
-			this.cp = cp;
-		}
+	public void setincomingId(int incomingId) {
+		this.incomingId = incomingId;
+	}
 
-		public int getxCoordinate() {
-			return xCoordinate;
-		}
+	public ComputationIndex getComputationIndex() {
+		return this.cp;
+	}
 
-		public void setxCoordinate(int xCoordinate) {
-			this.xCoordinate = xCoordinate;
-		}
+	public ComputationIndex getCp() {
+		return cp;
+	}
 
-		public int getyCoordinate() {
-			return yCoordinate;
-		}
+	public void setCp(ComputationIndex cp) {
+		this.cp = cp;
+	}
 
-		public void setyCoordinate(int yCoordinate) {
-			this.yCoordinate = yCoordinate;
-		}
+	public int getxCoordinate() {
+		return xCoordinate;
+	}
 
-		public int getAddresseeId() {
-			return addresseeId;
-		}
+	public void setxCoordinate(int xCoordinate) {
+		this.xCoordinate = xCoordinate;
+	}
 
-		public void setAddresseeId(int addresseeId) {
-			this.addresseeId = addresseeId;
-		}
+	public int getyCoordinate() {
+		return yCoordinate;
+	}
 
-		public Set<Integer> getMailingList() {
-			return mailingList;
-		}
+	public void setyCoordinate(int yCoordinate) {
+		this.yCoordinate = yCoordinate;
+	}
 
-		public void setMailingList(HashSet<Integer> mailingList) {
-			this.mailingList = mailingList;
-		}
+	public int getAddresseeId() {
+		return addresseeId;
+	}
 
-		public boolean isAGroup() {
-			return isAGroup;
-		}
+	public void setAddresseeId(int addresseeId) {
+		this.addresseeId = addresseeId;
+	}
 
-		public void setAGroup(boolean isAGroup) {
-			this.isAGroup = isAGroup;
-		}
+	public Set<Integer> getMailingList() {
+		return mailingList;
+	}
+
+	public void setMailingList(HashSet<Integer> mailingList) {
+		this.mailingList = mailingList;
+	}
+
+	public boolean isAGroup() {
+		return isAGroup;
+	}
+
+	public void setAGroup(boolean isAGroup) {
+		this.isAGroup = isAGroup;
+	}
 }

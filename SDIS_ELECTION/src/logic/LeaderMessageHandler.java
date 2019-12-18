@@ -61,6 +61,7 @@ public class LeaderMessageHandler extends Thread {
 			}
 		}
 
+		// This if prevents infinite leader messages
 		if (leaderMessage.getStoredID() == node.getLeaderID()) {
 
 			if (DEBUG)
