@@ -29,11 +29,9 @@ public class ElectionMessage{
 			this.incomingId = incomingId;
 			this.xCoordinate = xCoordinate;
 			this.yCoordinate = yCoordinate;
-			this.mailingList = mailingList;
-			
+			this.mailingList = mailingList;	
 		}
-		
-		
+
 		@Override
 	    public String toString() {
 			if(this.isAGroup) {

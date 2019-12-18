@@ -8,6 +8,7 @@ public class NodeLauncher {
 	protected static int port;
 	protected static String ipAddress;
 	protected static int[] dimensions = new int[3];
+	protected static int dropPacketProbability;
 
 	/*Network configurations*/
 	protected static int refreshRate = 1;			// Every refreshRate seconds, each node sends a HelloMessage
@@ -17,18 +18,19 @@ public class NodeLauncher {
 
 		if(args.length!=4) {
 			System.out.println("Incorrect usage! To run the program use:");
-			System.out.println("Java -jar <nodeID> <xDimension> <yDimension> <nodeRange>");
+			System.out.println("Java -jar <nodeID> <xDimension> <yDimension> <nodeRange> <dropPacketProbability>");
 		}
 
 		nodeID = Integer.parseInt(args[0]);
 		dimensions[0] = Integer.parseInt(args[1]);
 		dimensions[1] = Integer.parseInt(args[2]);
 		dimensions[2] = Integer.parseInt(args[3]);
+		dropPacketProbability = Integer.parseInt(args[4]);
 
 		port = 5000;
 		ipAddress = "225.225.221.6"; //between 224.0.0.0 and 239.255.255.255
 		System.out.println("Starting Node " + nodeID);
-		new Node(nodeID, port, ipAddress, dimensions, refreshRate, timeOut);
+		new Node(nodeID, port, ipAddress, dimensions, refreshRate, timeOut, dropPacketProbability);
 
 	}
 }

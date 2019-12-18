@@ -56,36 +56,37 @@ public class NodeListener extends Thread{
 
 			node.updateRemovedNodes();
 
-			if(print % 4 == 0) {
+			if(print % 4 == 0 && (node.isKilled()==false)) {
 				node.printLeader();
 				System.out.println("From Node Listener, NODE " + node.getNodeID());
 				node.printNeighbors();
 			}
 
 			print++;
+			
+			if(!(node.isKilled())) {
+				
+				helloMessage = new HelloMessage(node).toString();
+				//System.out.println(helloMessage);
+				messageToSend = helloMessage.getBytes(StandardCharsets.UTF_8);
 
-			helloMessage = new HelloMessage(node).toString();
-			//System.out.println(helloMessage);
-			messageToSend = helloMessage.getBytes(StandardCharsets.UTF_8);
+				datagram = new DatagramPacket(messageToSend, messageToSend.length, group, port);
 
-			datagram = new DatagramPacket(messageToSend, messageToSend.length, group, port);
+				try {
+					socket.send(datagram);
+				} catch (IOException e) {
+					System.out.println("Listener: Error sending datagram (Node: " + node.getNodeID()+ ")");
+				}
 
-			try {
-				socket.send(datagram);
-			} catch (IOException e) {
-				System.out.println("Listener: Error sending datagram (Node: " + node.getNodeID()+ ")");
-			}
+				//System.out.println("Message sent by Node: " + node.getNodeID());
 
-			//System.out.println("Message sent by Node: " + node.getNodeID());
-
-			try {
-				Thread.sleep(refreshRate*1000);
-				//Thread.sleep(refreshRate*1);
-			} catch (InterruptedException e) {
-				System.out.println("Listener: Error putting thread to sleep (Node: " + node.getNodeID()+ ")");
-			}
+				try {
+					Thread.sleep(refreshRate*1000);
+				} catch (InterruptedException e) {
+					System.out.println("Listener: Error putting thread to sleep (Node: " + node.getNodeID()+ ")");
+				}
+				
+			}	
 		}
 	}
-
-
 }

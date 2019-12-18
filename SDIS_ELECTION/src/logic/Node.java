@@ -34,12 +34,14 @@ public class Node implements Serializable{
 	private int yCoordinate;
 	private int nodeRange;
 	private int timeOut;
+	private int dropPacketProbability;
+	private boolean isKilled;
 
 	protected int port;
 	protected String ipAddress;
 	protected Simulation simNode;
 
-	public Node (int nodeID, int port, String ipAddress, int[] dimensions, int refreshRate, int timeOut) throws InterruptedException {
+	public Node (int nodeID, int port, String ipAddress, int[] dimensions, int refreshRate, int timeOut, int dropPacketProbability) throws InterruptedException {
 		this.nodeID = nodeID;
 		this.port = port;
 		this.ipAddress = ipAddress;
@@ -60,11 +62,19 @@ public class Node implements Serializable{
 		this.nodeRange = dimensions[2];
 		this.neighbors = new ConcurrentHashMap<Integer, Instant>();
 		this.timeOut = timeOut;
-		this.simNode = new Simulation();
+		this.dropPacketProbability = dropPacketProbability;
+		this.isKilled = false;
+		
+		// 0 in dropPacketProbability means no Drop Packets & no node Kills
+		if(this.dropPacketProbability == 0) {
+			this.simNode = new Simulation();
+		} else {
+			this.simNode = new Simulation(dropPacketProbability);
+		}
 
 		//Initial coordinates 
-		xCoordinate = (int)xMax;//(int) ((Math.random() * ((xMax - 0) + 1)) + 0);
-		yCoordinate = (int)yMax;//(int) ((Math.random() * ((yMax - 0) + 1)) + 0);
+		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0); //(int)xMax;
+		yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0); //(int)yMax;
 
 
 		new NodeListener(this, refreshRate).start();
@@ -195,15 +205,30 @@ public class Node implements Serializable{
 			return false;
 		}
 	}
+	
+	public boolean testLiveliness(boolean isToTest) {
 
-	public boolean testPacket () {
-		boolean isPacketDropped;
+		if (!isToTest)
+			return false;
+		
+		simNode.testNodeKill();
+		
+		if((simNode.isNodeKilled())) {
+			return true;
+		}
+		return false;		
+	}
+
+	public boolean testPacket(boolean isToTest) {
 		float distanceBetweenNodes = 0;
 
-		if ((isPacketDropped = simNode.dropPacket(this.nodeRange, distanceBetweenNodes)) == true)
-			return true;
-		else 
+		if (!isToTest)
 			return false;
+		
+		if(((simNode.dropPacketRange(this.nodeRange, distanceBetweenNodes)) || (simNode.dropPacketRandom())) == true) {
+			return true;
+		}
+		return false;		
 	}
 
 
@@ -231,7 +256,7 @@ public class Node implements Serializable{
 		distanceBetweenNodes = (float) Math.sqrt(Math.pow((node.xCoordinate-xCoordinate),2) + Math.pow((node.yCoordinate-yCoordinate),2));
 		return distanceBetweenNodes;
 	}
-
+	
 	public int hashCode() {
 		return toString().hashCode();
 	}
@@ -376,6 +401,29 @@ public class Node implements Serializable{
 	public void printLeader() {
 		System.out.println("Node: " + nodeID + " || Leader: " + leaderID);
 		System.out.println("............................................");
+	}
 
+	public int getDropPacketProbability() {
+		return dropPacketProbability;
+	}
+
+	public void setDropPacketProbability(int dropPacketProbability) {
+		this.dropPacketProbability = dropPacketProbability;
+	}
+
+	public boolean isKilled() {
+		return isKilled;
+	}
+
+	public void setKilled(boolean isKilled) {
+		this.isKilled = isKilled;
+	}
+
+	public Simulation getSimNode() {
+		return simNode;
+	}
+
+	public void setSimNode(Simulation simNode) {
+		this.simNode = simNode;
 	}
 }
