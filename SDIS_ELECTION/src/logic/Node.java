@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import mobility.Mobility;
 import network.*;
 import simulation.Simulation;
 import java.time.Instant; 
@@ -36,10 +37,16 @@ public class Node implements Serializable{
 	private int timeOut;
 	private int dropPacketProbability;
 	private boolean isKilled;
+	private boolean networkSet;
+	private static final int nodeTimeout    = 2;
+	private static final int networkTimeout = 10;
+	protected Mobility moves;
 
 	protected int port;
 	protected String ipAddress;
 	protected Simulation simNode;
+	
+	protected Instant init;
 
 	public Node (int nodeID, int port, String ipAddress, int[] dimensions, int refreshRate, int timeOut, int dropPacketProbability) throws InterruptedException {
 		this.nodeID = nodeID;
@@ -64,6 +71,8 @@ public class Node implements Serializable{
 		this.timeOut = timeOut;
 		this.dropPacketProbability = dropPacketProbability;
 		this.isKilled = false;
+		this.networkSet = false;
+		this.init = Instant.now();
 		
 		// 0 in dropPacketProbability means no Drop Packets & no node Kills
 		if(this.dropPacketProbability == 0) {
@@ -82,7 +91,8 @@ public class Node implements Serializable{
 
 
 		new Bootstrap(this).start(); // New node, so set network and act accordingly
-
+		
+		new Mobility(this, false).start();
 	}
 
 	public synchronized void updateNeighbors(int nodeMessageID, int xNeighbor, int yNeighbor) {
@@ -93,7 +103,7 @@ public class Node implements Serializable{
 				//System.out.println("Updated to: " + Instant.now());
 			}		
 		}
-
+		updateNetworkSet();
 	}
 
 	public void updateRemovedNodes() {
@@ -181,6 +191,14 @@ public class Node implements Serializable{
 			}
 		}
 		return max;
+	}
+	
+	private void updateNetworkSet() {
+		if(Duration.between(init, Instant.now()).toMillis() > (timeOut*1000)) {
+			timeOut = nodeTimeout;
+		} else {
+			timeOut = networkTimeout;
+		}
 	}
 
 	public void printNeighbors() {

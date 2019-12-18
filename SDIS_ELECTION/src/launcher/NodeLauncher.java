@@ -16,7 +16,7 @@ public class NodeLauncher {
 
 	public static void main(String[] args) throws InterruptedException {
 
-		if(args.length!=4) {
+		if(args.length!=5) {
 			System.out.println("Incorrect usage! To run the program use:");
 			System.out.println("Java -jar <nodeID> <xDimension> <yDimension> <nodeRange> <dropPacketProbability>");
 		}
