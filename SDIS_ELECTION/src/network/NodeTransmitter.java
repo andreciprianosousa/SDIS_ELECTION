@@ -12,7 +12,7 @@ import java.util.HashSet;
 
 import logic.*;
 
-public class NodeTransmitter extends Thread{
+public class NodeTransmitter extends Thread {
 	protected Node node;
 	protected int port;
 	protected int timeOut;
@@ -44,41 +44,41 @@ public class NodeTransmitter extends Thread{
 		LeaderMessage leaderMessage = null;
 		InfoMessage infoMessage = null;
 
-		DatagramPacket datagram; 
+		DatagramPacket datagram;
 
 		try {
 			group = InetAddress.getByName(ipAddress);
 		} catch (UnknownHostException e) {
-			System.out.println ("Transmitter: Error configuring InetAddress (Node: " + node.getNodeID()+ ")");
+			System.out.println("Transmitter: Error configuring InetAddress (Node: " + node.getNodeID() + ")");
 		}
 
 		try {
 			socket = new MulticastSocket(port);
 		} catch (IOException e) {
-			System.out.println("Transmitter: Error configuring MulticastSocket (Node: " + node.getNodeID()+ ")");
+			System.out.println("Transmitter: Error configuring MulticastSocket (Node: " + node.getNodeID() + ")");
 		}
-
 
 		try {
 			socket.joinGroup(group);
-			socket.setTimeToLive(1); //each datagram only does one hop 
+			socket.setTimeToLive(1); // each datagram only does one hop
 		} catch (IOException e) {
 
-			System.out.println("Transmitter: Error configuring Group (Node: " + node.getNodeID()+ ")");
+			System.out.println("Transmitter: Error configuring Group (Node: " + node.getNodeID() + ")");
 		}
 
 		while (true) {
-			datagram = new DatagramPacket (dataToReceive, dataToReceive.length);
-			//System.out.println(dataToReceive.length);
+			datagram = new DatagramPacket(dataToReceive, dataToReceive.length);
+			// System.out.println(dataToReceive.length);
 			try {
-				socket.receive(datagram);	
+				socket.receive(datagram);
 			} catch (IOException e) {
-				System.out.println("Transmitter: Error receiving datagram (Node: " + node.getNodeID()+ ")");
+				System.out.println("Transmitter: Error receiving datagram (Node: " + node.getNodeID() + ")");
 			}
 
-			message = new String (datagram.getData(), 0,datagram.getData().length ,StandardCharsets.UTF_8);
-			//System.out.println("Node " + node.getNodeID() + ". Message " + message);
+			message = new String(datagram.getData(), 0, datagram.getData().length, StandardCharsets.UTF_8);
+			// System.out.println("Node " + node.getNodeID() + ". Message " + message);
 
+      
 			if((Duration.between(deathNode, Instant.now()).toMillis()) > refreshTestLiveliness) {
 				// test node up/down
 				if(node.testLiveliness(true) == true) {
@@ -161,21 +161,54 @@ public class NodeTransmitter extends Thread{
 				} else {
 					System.out.println("> Packet Drop! In node " + node.getNodeID() + ".");
 				}
-			} 
+			} else if (message.contains("ack")) {
+				ackMessage = convertToAckMessage(message);
+
+				if (ackMessage.getAddresseeId() == node.getNodeID()) {
+					// System.out.println("Node " + node.getNodeID() + " received ack message from
+					// "+ ackMessage.getIncomingId());
+					new AckMessageHandler(this.node, ackMessage).start();
+				}
+			}
+
+			else if (message.contains("leadr")) {
+				// System.out.println("leader has " + fields.length);
+				// for(int i=0; i<fields.length; i++) {
+				// System.out.println(fields[i]);
+				// }
+				// We may put here a mailing list check, because node that started election
+				// doesn't need leader message's information
+				leaderMessage = convertToLeaderMessage(message);
+				if (leaderMessage.getMailingList().contains(node.getNodeID())) {
+					// System.out.println("Node " + node.getNodeID() + " received leader message
+					// from " + leaderMessage.getIncomingId());
+					new LeaderMessageHandler(this.node, leaderMessage).start();
+				}
+			}
+
+			else if (message.contains("info")) {
+				infoMessage = convertToInfoMessage(message);
+				if (infoMessage.getAddresseeId() == node.getNodeID()) {
+					// System.out.println("Node " + node.getNodeID() + " received info message from
+					// "+ infoMessage.getIncomingId());
+					new InfoMessageHandler(this.node, infoMessage).start();
+				}
+
+			}
 		}
 	}
 
-	public ElectionMessage convertToElectionMessageGroup (String message) {
+	public ElectionMessage convertToElectionMessageGroup(String message) {
 		String[] fields = message.split("/");
 		int id = Integer.parseInt(fields[1]);
 		ComputationIndex cIndex = stringToCP(fields[2]);
 		int x = Integer.parseInt(fields[3]);
 		int y = Integer.parseInt(fields[4]);
-		HashSet <Integer> mList= stringToMalingList(fields[5]);
-		return new ElectionMessage (id, cIndex, x, y, mList);
+		HashSet<Integer> mList = stringToMalingList(fields[5]);
+		return new ElectionMessage(id, cIndex, x, y, mList);
 	}
 
-	public ElectionMessage convertToElectionMessageIndividual (String message) {
+	public ElectionMessage convertToElectionMessageIndividual(String message) {
 		String[] fields = message.split("/");
 		int id = Integer.parseInt(fields[1]);
 		ComputationIndex cIndex = stringToCP(fields[2]);
@@ -183,7 +216,7 @@ public class NodeTransmitter extends Thread{
 		int y = Integer.parseInt(fields[4]);
 		int addresseeId = Integer.parseInt(fields[5]);
 
-		return new ElectionMessage (id, cIndex, x, y, addresseeId);
+		return new ElectionMessage(id, cIndex, x, y, addresseeId);
 	}
 
 	public AckMessage convertToAckMessage(String message) {
@@ -191,14 +224,15 @@ public class NodeTransmitter extends Thread{
 		int incomingId = Integer.parseInt(fields[1]);
 		int leaderID = Integer.parseInt(fields[2]);
 		float leaderValue = Float.valueOf(fields[3]);
-		int xCoordinate = Integer.parseInt(fields[4]);
-		int yCoordinate = Integer.parseInt(fields[5]);
-		int addresseeId= Integer.parseInt(fields[6]);
+		ComputationIndex cIndex = stringToCP(fields[4]);
+		int xCoordinate = Integer.parseInt(fields[5]);
+		int yCoordinate = Integer.parseInt(fields[6]);
+		int addresseeId = Integer.parseInt(fields[7]);
 
-		return new AckMessage(incomingId, leaderID, leaderValue, xCoordinate, yCoordinate, addresseeId);
+		return new AckMessage(incomingId, leaderID, leaderValue, cIndex, xCoordinate, yCoordinate, addresseeId);
 	}
 
-	public LeaderMessage convertToLeaderMessage (String message) {
+	public LeaderMessage convertToLeaderMessage(String message) {
 		String[] fields = message.split("/");
 		int incomingId = Integer.parseInt(fields[1]);
 		int leaderID = Integer.parseInt(fields[2]);
@@ -206,8 +240,7 @@ public class NodeTransmitter extends Thread{
 		int xCoordinate = Integer.parseInt(fields[4]);
 		int yCoordinate = Integer.parseInt(fields[5]);
 		boolean special = Boolean.parseBoolean(fields[6]);
-		HashSet <Integer> mList= stringToMalingList(fields[7]);
-
+		HashSet<Integer> mList = stringToMalingList(fields[7]);
 
 		return new LeaderMessage(incomingId, leaderID, leaderValue, xCoordinate, yCoordinate, special, mList);
 	}
@@ -217,25 +250,24 @@ public class NodeTransmitter extends Thread{
 		int incomingId = Integer.parseInt(fields[1]);
 		int leaderID = Integer.parseInt(fields[2]);
 		float leaderValue = Float.valueOf(fields[3]);
-		int addresseeId= Integer.parseInt(fields[4]);
+		int addresseeId = Integer.parseInt(fields[4]);
 
 		return new InfoMessage(incomingId, leaderID, leaderValue, addresseeId);
 	}
 
-
 	public ComputationIndex stringToCP(String cpString) {
 		String[] fields = cpString.split(",");
-		return new ComputationIndex(Integer.parseInt(fields[0]), Integer.parseInt(fields[1]), Float.valueOf((fields[2])));
+		return new ComputationIndex(Integer.parseInt(fields[0]), Integer.parseInt(fields[1]),
+				Float.valueOf((fields[2])));
 	}
 
-	public HashSet<Integer> stringToMalingList (String mailingListString) {
+	public HashSet<Integer> stringToMalingList(String mailingListString) {
 		String[] fields = mailingListString.split(",");
-		HashSet <Integer> mailingListConverted = new HashSet<Integer>();
-		for(String id : fields) {
+		HashSet<Integer> mailingListConverted = new HashSet<Integer>();
+		for (String id : fields) {
 			mailingListConverted.add(Integer.parseInt(id));
 		}
 
 		return mailingListConverted;
 	}
 }
-

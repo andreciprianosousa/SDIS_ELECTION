@@ -2,20 +2,22 @@ package logic;
 
 public class AckMessage {
 
-	//This message needs to be serializable to allow its representation as a sequence of bytes
+	private ComputationIndex cp;
 	private int incomingId;
-	private int storedID;
-	private float storedValue;
-
+	private int leaderID;
+	private float leaderValue;
 	private int xCoordinate;
 	private int yCoordinate;
 	private int addresseeId;
 	private String messageCode = "ack00";
+
 	// ACK Message always sent to 1 node (Parent)
-	public AckMessage(int incomingId, int leaderID, float leaderValue, int xCoordinate, int yCoordinate, int addresseeId) {
+	public AckMessage(int incomingId, int leaderID, float leaderValue, ComputationIndex cp, int xCoordinate,
+			int yCoordinate, int addresseeId) {
+		this.cp = cp;
 		this.incomingId = incomingId;
-		this.storedID = leaderID;
-		this.storedValue = leaderValue;
+		this.leaderID = leaderID;
+		this.leaderValue = leaderValue;
 		this.addresseeId = addresseeId;
 		this.xCoordinate = xCoordinate;
 		this.yCoordinate = yCoordinate;
@@ -23,7 +25,8 @@ public class AckMessage {
 
 	@Override
 	public String toString() {
-		return String.format(messageCode + "/" + incomingId + "/" + storedID + "/" + storedValue + "/" + xCoordinate + "/" + yCoordinate + "/" + addresseeId +"/" ); 
+		return String.format(messageCode + "/" + incomingId + "/" + leaderID + "/" + leaderValue + "/" + cp.toString()
+				+ "/" + xCoordinate + "/" + yCoordinate + "/" + addresseeId + "/");
 	}
 
 	public int getIncomingId() {
@@ -35,19 +38,27 @@ public class AckMessage {
 	}
 
 	public int getStoredID() {
-		return storedID;
+		return leaderID;
 	}
 
 	public void setStoredID(int storedID) {
-		this.storedID = storedID;
+		this.leaderID = storedID;
 	}
 
 	public float getStoredValue() {
-		return storedValue;
+		return leaderValue;
 	}
 
 	public void setStoredValue(float storedValue) {
-		this.storedValue = storedValue;
+		this.leaderValue = storedValue;
+	}
+
+	public ComputationIndex getCp() {
+		return cp;
+	}
+
+	public void setCp(ComputationIndex cp) {
+		this.cp = cp;
 	}
 
 	public int getAddresseeId() {

@@ -11,33 +11,30 @@ public class InfoMessage {
 	private int addresseeId = 0;
 	private String messageCode = "info0";
 
-
-	public InfoMessage(int id, int leader, float sv, int addressee) {
+	public InfoMessage(int id, int leaderID, float leaderValue, int addressee) {
 		this.incomingId = id;
-		this.leaderId = leader;
-		this.leaderValue = sv;
+		this.leaderId = leaderID;
+		this.leaderValue = leaderValue;
 		this.addresseeId = addressee;
 	}
 
 	@Override
 	public String toString() {
-		return String.format(messageCode + "/" + incomingId + "/" + leaderId + "/" + leaderValue + "/" + addresseeId +"/" ); 
+		return String
+				.format(messageCode + "/" + incomingId + "/" + leaderId + "/" + leaderValue + "/" + addresseeId + "/");
 	}
 
 	public int getIncomingId() {
 		return incomingId;
 	}
 
-
 	public void setIncomingId(int incomingId) {
 		this.incomingId = incomingId;
 	}
 
-
 	public int getLeaderId() {
 		return leaderId;
 	}
-
 
 	public void setLeaderId(int leaderId) {
 		this.leaderId = leaderId;
