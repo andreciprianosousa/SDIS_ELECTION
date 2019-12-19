@@ -1,5 +1,6 @@
 package logic;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -86,6 +87,12 @@ public class AckMessageHandler extends Thread {
 
 				node.simNode.setEnd();
 				node.simNode.getTimer();
+				
+				try {
+					node.simNode.storeElectionTime();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 
 				// send Leader message to all children
 				Iterator<Integer> i = node.getNeighbors().iterator();

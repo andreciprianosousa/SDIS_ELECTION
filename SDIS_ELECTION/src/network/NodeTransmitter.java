@@ -6,6 +6,8 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashSet;
 
 import logic.*;
@@ -15,6 +17,11 @@ public class NodeTransmitter extends Thread {
 	protected int port;
 	protected int timeOut;
 	protected String ipAddress;
+	
+	private boolean oldState = false;
+	private Instant deathNode = Instant.now();
+	private static final int refreshTestLiveliness = 10000;
+ 
 
 	protected byte[] dataToReceive = new byte[2048];
 
@@ -71,31 +78,88 @@ public class NodeTransmitter extends Thread {
 			message = new String(datagram.getData(), 0, datagram.getData().length, StandardCharsets.UTF_8);
 			// System.out.println("Node " + node.getNodeID() + ". Message " + message);
 
-			// ------------- Reception and logic starts here-----------------
-			String[] fields = message.split("/");
-			if (message.contains("hello")) {
-				this.node.updateNeighbors(Integer.parseInt(fields[1]), Integer.parseInt(fields[2]),
-						Integer.parseInt(fields[3]));
+      
+			if((Duration.between(deathNode, Instant.now()).toMillis()) > refreshTestLiveliness) {
+				// test node up/down
+				if(node.testLiveliness(true) == true) {
+					node.setKilled(true);
+					oldState = true;
+					deathNode = Instant.now();
+					System.out.println(">> Node down.");
+				} else {
+					if(oldState == true) {
+						System.out.println(">>> Ressurection!");
+						// SEND ELECTION MESSAGE? Yet, it's needed that network has connection and neighbors, jezz
+						// new Handler(this.node, logic.MessageType.ELECTION_GROUP, node.getWaitingAcks()).start();
+						new Bootstrap(node).start(); // New node, so set network and act accordingly
+					}
+									
+					node.setKilled(false);
+					oldState = false;
+				}				
 			}
-
-			else if (message.contains("elec")) {
-
-				// If Node is the message recipient, starts handling it
-				// Separates Group messages from Individual ones
-				if (message.contains("elecG") == true) {
-					electionMessage = convertToElectionMessageGroup(message);
-					if (electionMessage.getMailingList().contains(node.getNodeID())) {
-						// System.out.println("Node " + node.getNodeID() + " received election group
-						// message from " + electionMessage.getIncomingId());
-						new ElectionMessageHandler(this.node, electionMessage).start();
+			
+			
+			if(node.isKilled() == false) {			
+				// if not to test, change true to false
+				if(node.testPacket(true) == false) {
+					
+					//------------- Reception and logic starts here-----------------
+					String[] fields = message.split("/");
+					if(message.contains("hello")) {
+						this.node.updateNeighbors(Integer.parseInt(fields[1]), Integer.parseInt(fields[2]), Integer.parseInt(fields[3]));
+					}
+		
+					else if(message.contains("elec")) {
+		
+						// If Node is the message recipient, starts handling it
+						// Separates Group messages from Individual ones
+						if (message.contains("elecG") == true) {
+							electionMessage = convertToElectionMessageGroup(message);
+							if(electionMessage.getMailingList().contains(node.getNodeID())) {
+								//System.out.println("Node " + node.getNodeID() + " received election group message from " + electionMessage.getIncomingId());
+								new ElectionMessageHandler(this.node, electionMessage).start(); 
+							}
+						} 
+						else {
+							electionMessage = convertToElectionMessageIndividual(message);
+							if (electionMessage.getAddresseeId() == node.getNodeID()) {
+								//System.out.println("Node " + node.getNodeID() + " received election message from " + electionMessage.getIncomingId());
+								new ElectionMessageHandler(this.node, electionMessage).start();
+							}
+						}
+					}
+					else if(message.contains("ack")) {
+						ackMessage = convertToAckMessage(message);
+		
+						if (ackMessage.getAddresseeId() == node.getNodeID()) {
+							//System.out.println("Node " + node.getNodeID() + " received ack message from "+ ackMessage.getIncomingId());
+							new AckMessageHandler(this.node, ackMessage).start();
+						}
+					}
+		
+					else if(message.contains("leadr")) {
+						//				System.out.println("leader has " + fields.length);
+						//				for(int i=0; i<fields.length; i++) {
+						//					System.out.println(fields[i]);
+						//				}
+						// We may put here a mailing list check, because node that started election doesn't need leader message's information
+						leaderMessage = convertToLeaderMessage(message);
+						if(leaderMessage.getMailingList().contains(node.getNodeID())) {
+							//System.out.println("Node " + node.getNodeID() + " received leader message from " + leaderMessage.getIncomingId());
+							new LeaderMessageHandler(this.node, leaderMessage).start();
+						}
+					}
+		
+					else if(message.contains("info")) {
+						infoMessage = convertToInfoMessage(message);
+						if(infoMessage.getAddresseeId() == node.getNodeID()) {
+							//System.out.println("Node " + node.getNodeID() + " received info message from "+ infoMessage.getIncomingId());
+							new InfoMessageHandler(this.node, infoMessage).start();
+						}
 					}
 				} else {
-					electionMessage = convertToElectionMessageIndividual(message);
-					if (electionMessage.getAddresseeId() == node.getNodeID()) {
-						// System.out.println("Node " + node.getNodeID() + " received election message
-						// from " + electionMessage.getIncomingId());
-						new ElectionMessageHandler(this.node, electionMessage).start();
-					}
+					System.out.println("> Packet Drop! In node " + node.getNodeID() + ".");
 				}
 			} else if (message.contains("ack")) {
 				ackMessage = convertToAckMessage(message);
