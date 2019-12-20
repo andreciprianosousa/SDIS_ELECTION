@@ -71,6 +71,13 @@ public class LeaderMessageHandler extends Thread {
 				System.out.println("My Leader is " + node.getLeaderID() + " and the leader message says "
 						+ leaderMessage.getStoredID() + ". Do nothing.");
 
+			node.setElectionActive(false);
+			node.setParentActive(-1);
+			node.setAckStatus(true);
+			// Ready for new election
+			node.setStoredId(node.getNodeID());
+			node.setStoredValue(node.getNodeValue());
+
 			return;
 		} else { // Either leaderMessage ID > node Leader or other way around...
 

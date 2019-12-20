@@ -100,8 +100,8 @@ public class Node implements Serializable {
 		this.automovel = new Mobility(this, true, true);
 		automovel.start();
 		// Arg 1: Mover sim ou nao | 2 = x final coordenate | 3 = y final coordenate |
-		// 4 - direction [0 - Horizontal, 1 - Vertical] | 5 - Sleep time
-		automovel.testMobility(true, 15, 0, 0, 1);
+		// 4 - direction [0 - Horizontal, 10- Vertical] | 5 - Sleep time
+		automovel.testMobility(true, 0, 0, 0, 1);
 
 	}
 
@@ -123,8 +123,8 @@ public class Node implements Serializable {
 				// connecting and not in an election,
 				// it exchanges info messages with it to establish leader in the new overall
 				// network
-//				if (!neighbors.containsKey(nodeMessageID))
-//					new Handler(this, logic.MessageType.INFO, nodeMessageID).start();
+				if (!neighbors.containsKey(nodeMessageID))
+					new Handler(this, logic.MessageType.INFO, nodeMessageID).start();
 
 				neighbors.put(nodeMessageID, Instant.now());
 				// System.out.println("Updated to: " + Instant.now());
