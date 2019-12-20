@@ -51,6 +51,9 @@ public class LeaderMessageHandler extends Thread {
 
 		// If leader is special, don't care about parent and child stuff
 		if (!(leaderMessage.isSpecial())) {
+			if (DEBUG)
+				System.out.println("Leader incoming/current parent " + leaderMessage.getIncomingId() + "/"
+						+ node.getParentActive());
 			if (!(leaderMessage.getIncomingId() == node.getParentActive())) {
 
 				if (DEBUG)
@@ -76,6 +79,9 @@ public class LeaderMessageHandler extends Thread {
 			// And if has a different leader, broadcasts the leader msgs
 			if (node.isElectionActive() && (!(leaderMessage.isSpecial()))) {
 
+				if (DEBUG)
+					System.out.println("Receiving leader assurance from " + leaderMessage.getIncomingId());
+
 				node.setElectionActive(false);
 				node.setLeaderID(leaderMessage.getStoredID());
 				node.setLeaderValue(leaderMessage.getStoredValue());
@@ -85,11 +91,12 @@ public class LeaderMessageHandler extends Thread {
 				node.setStoredId(node.getNodeID());
 				node.setStoredValue(node.getNodeValue());
 
-				System.out.println("Node " + node.getNodeID() + "'s leader is " + node.getLeaderID());
-				System.out.println("CP(num/value/id): " + node.getComputationIndex().getNum() + " - "
-						+ node.getComputationIndex().getValue() + " - " + node.getComputationIndex().getId());
-				System.out.println("-----------------------------");
-
+				if (DEBUG) {
+					System.out.println("Node " + node.getNodeID() + "'s leader is " + node.getLeaderID());
+					System.out.println("CP(num/value/id): " + node.getComputationIndex().getNum() + " - "
+							+ node.getComputationIndex().getValue() + " - " + node.getComputationIndex().getId());
+					System.out.println("-----------------------------");
+				}
 				// If my only neighbour is my parent, don't propagate leader message and just
 				// return
 				if (node.getNeighbors().size() == 1) {

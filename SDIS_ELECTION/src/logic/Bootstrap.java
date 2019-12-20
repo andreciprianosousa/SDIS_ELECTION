@@ -9,7 +9,7 @@ public class Bootstrap extends Thread {
 	private static final int NetworkSet_Delay = 3000;
 	private static final int Election_Delay = 4000;
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	public Bootstrap(Node node) {
 		this.node = node;
@@ -71,8 +71,9 @@ public class Bootstrap extends Thread {
 						}
 					}
 				}
+				if (DEBUG)
+					System.out.println("Node " + node.getNodeID() + " bootstrapped election group message.");
 
-				System.out.println("Node " + node.getNodeID() + " bootstrapped election group message.");
 				node.simNode.setStart();
 
 				// -----------CP Tests-----------

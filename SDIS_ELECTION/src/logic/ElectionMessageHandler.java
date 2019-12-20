@@ -33,6 +33,10 @@ public class ElectionMessageHandler extends Thread {
 	@Override
 	public synchronized void run() {
 
+		if (DEBUG)
+			System.out.println("Receiving election from " + electionMessage.getIncomingId() + " Election status: "
+					+ node.isElectionActive());
+
 		// If I'm already in the process of electing:
 		// If it's the same election we're talking about, send immediate ack to the
 		// sender id of the message

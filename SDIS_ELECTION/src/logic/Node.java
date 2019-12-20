@@ -101,7 +101,7 @@ public class Node implements Serializable {
 		automovel.start();
 		// Arg 1: Mover sim ou nao | 2 = x final coordenate | 3 = y final coordenate |
 		// 4 - direction [0 - Horizontal, 1 - Vertical] | 5 - Sleep time
-		automovel.testMobility(true, 5, 0, 0, 1);
+		automovel.testMobility(true, 0, 0, 0, 1);
 
 	}
 
@@ -110,11 +110,21 @@ public class Node implements Serializable {
 			// if message node is inside neighborhood
 			if (this.isInsideNeighborhood(nodeMessageID, xNeighbor, yNeighbor)) {
 
+				// If I'm in an election, ignores new nodes entering range of neighbourhood!
+				// This not only prevents wrong leader passing with or without mobility, but
+				// also cuts down on number of inconsequential messages and network passivity
+				// This only works because every node updates itself (connects all nodes around)
+				// at every call of this method and thus doesn't lose new nodes.
+				// ERROR: conflicts with bootstrapping kinda
+//				if (this.isElectionActive())
+//					return;
+
 				// This check makes sure than, in mobility, if a node recognizes a new node
-				// connecting,
-				// it exchanges info messages with it to establish leader in the overall network
-				if (!neighbors.containsKey(nodeMessageID))
-					new Handler(this, logic.MessageType.INFO, nodeMessageID).start();
+				// connecting and not in an election,
+				// it exchanges info messages with it to establish leader in the new overall
+				// network
+//				if (!neighbors.containsKey(nodeMessageID))
+//					new Handler(this, logic.MessageType.INFO, nodeMessageID).start();
 
 				neighbors.put(nodeMessageID, Instant.now());
 				// System.out.println("Updated to: " + Instant.now());
@@ -158,62 +168,74 @@ public class Node implements Serializable {
 		// Actually remove the gone neighbours
 		for (int neighbor : toRemove) {
 			this.neighbors.remove(neighbor); // Remove from neighbours...
-			this.getWaitingAcks().remove(neighbor);// ... but also from waiting acks, this way a node doesn't wait for a
-													// node it may not even be connected anymore
-
-			// If ack removed was the last needed we need to check here
-			if ((this.getWaitingAcks().isEmpty()) && (this.getAckStatus() == true)) {
-				if (this.getParentActive() != -1) {
-					this.setAckStatus(false);
-					// send ACK message to parent stored in node.getParentActive()
-					if (DEBUG)
-						System.out.println("Sending to my parent " + this.getParentActive() + " the Leader Id "
-								+ this.getStoredId());
-					sendMessage(logic.MessageType.ACK, this.getParentActive());
-
-				}
-				// or prepare to send leader message if this node is the source of the election
-				// (if it has no parent)
-				else {
-
-					this.setAckStatus(true);
-					this.setElectionActive(false);
-					this.setLeaderID(this.getStoredId());
-					this.setLeaderValue(this.getStoredValue());
-					this.setStoredId(this.getNodeID());
-					this.setStoredValue(this.getNodeValue());
-					System.out.println("========================>   Leader agreed upon: " + this.getLeaderID());
-
-					this.simNode.setEnd();
-					this.simNode.getTimer();
-
-					try {
-						this.simNode.storeElectionTime();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
-					// send Leader message to all children
-					Iterator<Integer> i = this.getNeighbors().iterator();
-					this.getWaitingAcks().clear(); // clear this first just in case
-
-					Set<Integer> toSend = Collections.synchronizedSet(new HashSet<Integer>());
-					while (i.hasNext()) {
-						Integer temp = i.next();
-						toSend.add(temp);
-					}
-					// Send Election Message to all neighbours
-					if (DEBUG)
-						System.out.println("Sending leader to all nodes.\n-----------------------------");
-
-					sendMessage(logic.MessageType.LEADER, toSend);
-				}
-			}
 
 			if (DEBUG)
 				System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
 
 			printNeighbors();
+
+			if (this.isElectionActive()) {
+				this.getWaitingAcks().remove(neighbor);// ... but also from waiting acks, this way a node doesn't wait
+														// for a
+														// node it may not even be connected anymore
+
+				// If ack removed was the last needed we need to check here
+				if ((this.getWaitingAcks().isEmpty()) && (this.getAckStatus() == true)) {
+					if (this.getParentActive() != -1) {
+						this.setAckStatus(false);
+						// send ACK message to parent stored in node.getParentActive()
+						if (DEBUG)
+							System.out.println("Sending to my parent " + this.getParentActive() + " the Leader Id "
+									+ this.getStoredId() + " from removed last ack.");
+						sendMessage(logic.MessageType.ACK, this.getParentActive());
+
+					}
+					// or prepare to send leader message if this node is the source of the election
+					// (if it has no parent)
+					else {
+
+						this.setAckStatus(true);
+						this.setElectionActive(false);
+						this.setLeaderID(this.getStoredId());
+						this.setLeaderValue(this.getStoredValue());
+						this.setStoredId(this.getNodeID());
+						this.setStoredValue(this.getNodeValue());
+						if (DEBUG)
+							System.out.println("========================>   Leader agreed upon: " + this.getLeaderID());
+
+						this.simNode.setEnd();
+						this.simNode.getTimer();
+
+						try {
+							this.simNode.storeElectionTime();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+
+						// send Leader message to all children
+						Iterator<Integer> i = this.getNeighbors().iterator();
+						this.getWaitingAcks().clear(); // clear this first just in case
+
+						Set<Integer> toSend = Collections.synchronizedSet(new HashSet<Integer>());
+						while (i.hasNext()) {
+							Integer temp = i.next();
+							toSend.add(temp);
+						}
+						// Send Election Message to all neighbours
+						if (DEBUG)
+							System.out.println("Sending leader to all nodes.\n-----------------------------");
+
+						sendMessage(logic.MessageType.LEADER, toSend);
+					}
+				}
+			}
+
+			// Auto check to prevent multiple leader elections
+			if (this.isElectionActive()) {
+				if (DEBUG)
+					System.out.println("...but already in election so no need to start another.");
+				return;
+			}
 
 			// If leader is no longer my neighbour, restart the election because no leader =
 			// bad
@@ -225,36 +247,32 @@ public class Node implements Serializable {
 				this.setLeaderValue(this.nodeValue);
 				this.setParentActive(-1);
 				this.waitingAcks.remove(neighbor);
+				if (DEBUG)
+					System.out.println("Leader gone.");
 
-				if (this.getNodeID() > this.getMaximumIdNeighbors()) {
-					new Bootstrap(this).start();
-				} else {
-					// Start election fresh just in case
-					synchronized (this) {
-						Iterator<Integer> i = this.getNeighbors().iterator();
-						while (i.hasNext()) {
-							Integer temp = i.next();
-							if ((!(this.getWaitingAcks().contains(temp))) && (!(temp.toString().equals("")))) {
-								this.getWaitingAcks().add(temp);
-							}
+				synchronized (this) {
+					Iterator<Integer> i = this.getNeighbors().iterator();
+					while (i.hasNext()) {
+						Integer temp = i.next();
+						if ((!(this.getWaitingAcks().contains(temp))) && (!(temp.toString().equals("")))) {
+							this.getWaitingAcks().add(temp);
 						}
 					}
-
-					if (DEBUG)
-						System.out.println("Node " + this.getNodeID() + " bootstrapped election on leader removal.");
-
-					this.simNode.setStart();
-
-					// -----------CP Tests-----------
-					this.getComputationIndex().setNum(this.getComputationIndex().getNum() + 1);
-					this.getComputationIndex().setId(this.getNodeID());
-					this.getComputationIndex().setValue(this.getNodeValue());
-					// ------------------------------
-					new Handler(this, logic.MessageType.ELECTION_GROUP, this.getWaitingAcks()).start();
 				}
+
+				if (DEBUG)
+					System.out.println("Node " + this.getNodeID() + " bootstrapped election on leader removal.");
+
+				this.simNode.setStart();
+
+				// -----------CP Tests-----------
+				this.getComputationIndex().setNum(this.getComputationIndex().getNum() + 1);
+				this.getComputationIndex().setId(this.getNodeID());
+				this.getComputationIndex().setValue(this.getNodeValue());
+				// ------------------------------
+				new Handler(this, logic.MessageType.ELECTION_GROUP, this.getWaitingAcks()).start();
 			}
 		}
-
 	}
 
 	public int getMaximumIdNeighbors() {
@@ -517,8 +535,10 @@ public class Node implements Serializable {
 	}
 
 	public void printLeader() {
-		System.out.println("Node: " + nodeID + " || Leader: " + leaderID + " || LeaderValue: " + leaderValue
-				+ " || Stored Id: " + storedId + " || Stored Value: " + storedValue);
+		System.out.println(
+				"Node: " + nodeID + " || Leader: " + leaderID + " || LeaderValue: " + leaderValue + " || Stored Id: "
+						+ storedId + " || Stored Value: " + storedValue + " || CP: " + computationIndex.getNum() + "/"
+						+ computationIndex.getValue() + "/" + computationIndex.getId() + this.isElectionActive());
 		System.out.println("............................................");
 	}
 

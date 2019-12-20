@@ -47,6 +47,9 @@ public class AckMessageHandler extends Thread {
 			return; // Ignore ack from other CP that no longer matters
 		}
 
+		if (DEBUG)
+			System.out.println("Receiving ack from " + ackMessage.getIncomingId());
+
 		// When this node receives an Ack Message, updates waiting Acks first
 		if ((node.getWaitingAcks().contains(ackMessage.getIncomingId()))) {
 
@@ -87,7 +90,7 @@ public class AckMessageHandler extends Thread {
 
 				node.simNode.setEnd();
 				node.simNode.getTimer();
-				
+
 				try {
 					node.simNode.storeElectionTime();
 				} catch (IOException e) {
