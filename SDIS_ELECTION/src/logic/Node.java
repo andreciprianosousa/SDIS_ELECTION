@@ -1,5 +1,6 @@
 package logic;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
@@ -43,17 +44,18 @@ public class Node implements Serializable {
 	private int dropPacketProbability;
 	private boolean isKilled;
 	private boolean networkSet;
-	private static final int nodeTimeout    = 2;
+	private static final int nodeTimeout = 2;
 	private static final int networkTimeout = 10;
-	protected Mobility moves;
+	protected Mobility automovel;
 
 	protected int port;
 	protected String ipAddress;
 	protected Simulation simNode;
-	
+
 	protected Instant init;
 
-	public Node (int nodeID, int port, String ipAddress, int[] dimensions, int refreshRate, int timeOut, int dropPacketProbability) throws InterruptedException {
+	public Node(int nodeID, int port, String ipAddress, int[] dimensions, int refreshRate, int timeOut,
+			int dropPacketProbability) throws InterruptedException {
 		this.nodeID = nodeID;
 		this.port = port;
 		this.ipAddress = ipAddress;
@@ -78,24 +80,29 @@ public class Node implements Serializable {
 		this.isKilled = false;
 		this.networkSet = false;
 		this.init = Instant.now();
-		
+
 		// 0 in dropPacketProbability means no Drop Packets & no node Kills
-		if(this.dropPacketProbability == 0) {
+		if (this.dropPacketProbability == 0) {
 			this.simNode = new Simulation();
 		} else {
 			this.simNode = new Simulation(dropPacketProbability);
 		}
 
-		//Initial coordinates 
-		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0); //(int)xMax;
-		yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0); //(int)yMax;
+		// Initial coordinates
+		xCoordinate = (int) xMax; // (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
+		yCoordinate = (int) yMax; // (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
 
 		new NodeListener(this, refreshRate).start();
 		new NodeTransmitter(this, timeOut).start();
 
 		new Bootstrap(this).start(); // New node, so set network and act accordingly
-		
-		new Mobility(this, false).start();
+
+		this.automovel = new Mobility(this, true, true);
+		automovel.start();
+		// Arg 1: Mover sim ou nao | 2 = x final coordenate | 3 = y final coordenate |
+		// 4 - direction [0 - Horizontal, 1 - Vertical] | 5 - Sleep time
+		automovel.testMobility(true, 5, 0, 0, 1);
+
 	}
 
 	public synchronized void updateNeighbors(int nodeMessageID, int xNeighbor, int yNeighbor) {
@@ -107,6 +114,21 @@ public class Node implements Serializable {
 			}
 		}
 		updateNetworkSet();
+	}
+
+	// Used in update removed nodes
+	// "Send Message" for type Leader
+	public void sendMessage(logic.MessageType messageType, Set<Integer> mailingList) {
+		if (mailingList.isEmpty()) {
+			System.out.println("Mailing List is Empty");
+			return;
+		}
+		new Handler(this, messageType, mailingList).start();
+	}
+
+	// "Send Message" for type Ack
+	public void sendMessage(logic.MessageType messageType, int addresseeId) {
+		new Handler(this, messageType, addresseeId).start();
 	}
 
 	public void updateRemovedNodes() {
@@ -130,46 +152,55 @@ public class Node implements Serializable {
 			this.neighbors.remove(neighbor); // Remove from neighbours...
 			this.getWaitingAcks().remove(neighbor);// ... but also from waiting acks, this way a node doesn't wait for a
 													// node it may not even be connected anymore
-			// IMPORTANT FOR MOBILITY -> this solves the problem unless the last waiting ack
-			// is the one
-			// that gets lost. Because node only checks acks remaining when it receives one
-			// It will never check again on its own and will remain stuck
-			// Possible solution: check here if it is last ack, if so, copy the same logic
-			// here
-			// from the handler...very ugly and it doesn't work well...
-			// If this was the last acknowledge needed, then send to parent my own ack and
-			// update my parameters
-			// if(this.getWaitingAcks().isEmpty() && (this.getAckStatus() == true)) {
-			// if(this.getParentActive() != -1) {
-			// this.setAckStatus(false);
-			// // send ACK message to parent stored in node.getParentActive()
-			// new Handler(this, logic.MessageType.ACK, this.getParentActive()).start();
-			// System.out.println("Sending to my parent " + this.getParentActive() + " the
-			// Leader Id " + this.getStoredId());
-			// }
-			// // or prepare to send leader message if this node is the source of the
-			// election (if it has no parent)
-			// else {
-			// this.setAckStatus(true); // may change
-			// this.setElectionActive(false);
-			// this.setLeaderID(this.getStoredId());
-			// System.out.println("Leader agreed upon: " + this.getLeaderID());
-			//
-			// // send Leader message to all children, needs id and value of leader chosen
-			// (stored already)
-			// Iterator<Integer> i=this.getNeighbors().iterator();
-			// this.getWaitingAcks().clear(); // clear this first just in case
-			// HashSet<Integer> toSend = new HashSet<Integer>();
-			//
-			// while(i.hasNext()) {
-			// Integer temp = i.next();
-			// toSend.add(temp);
-			// }
-			// // Send Election Message to all neighbours, except parent
-			// System.out.println("Sending leader to all nodes.");
-			// new Handler(this, logic.MessageType.LEADER, toSend).start();
-			// }
-			// }
+
+			// If ack removed was the last needed we need to check here
+			if ((this.getWaitingAcks().isEmpty()) && (this.getAckStatus() == true)) {
+				if (this.getParentActive() != -1) {
+					this.setAckStatus(false);
+					// send ACK message to parent stored in node.getParentActive()
+					if (DEBUG)
+						System.out.println("Sending to my parent " + this.getParentActive() + " the Leader Id "
+								+ this.getStoredId());
+					sendMessage(logic.MessageType.ACK, this.getParentActive());
+
+				}
+				// or prepare to send leader message if this node is the source of the election
+				// (if it has no parent)
+				else {
+
+					this.setAckStatus(true);
+					this.setElectionActive(false);
+					this.setLeaderID(this.getStoredId());
+					this.setLeaderValue(this.getStoredValue());
+					this.setStoredId(this.getNodeID());
+					this.setStoredValue(this.getNodeValue());
+					System.out.println("========================>   Leader agreed upon: " + this.getLeaderID());
+
+					this.simNode.setEnd();
+					this.simNode.getTimer();
+
+					try {
+						this.simNode.storeElectionTime();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					// send Leader message to all children
+					Iterator<Integer> i = this.getNeighbors().iterator();
+					this.getWaitingAcks().clear(); // clear this first just in case
+
+					Set<Integer> toSend = Collections.synchronizedSet(new HashSet<Integer>());
+					while (i.hasNext()) {
+						Integer temp = i.next();
+						toSend.add(temp);
+					}
+					// Send Election Message to all neighbours
+					if (DEBUG)
+						System.out.println("Sending leader to all nodes.\n-----------------------------");
+
+					sendMessage(logic.MessageType.LEADER, toSend);
+				}
+			}
 
 			if (DEBUG)
 				System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
@@ -227,9 +258,9 @@ public class Node implements Serializable {
 		}
 		return max;
 	}
-	
+
 	private void updateNetworkSet() {
-		if(Duration.between(init, Instant.now()).toMillis() > (timeOut*1000)) {
+		if (Duration.between(init, Instant.now()).toMillis() > (timeOut * 1000)) {
 			timeOut = nodeTimeout;
 		} else {
 			timeOut = networkTimeout;
@@ -258,18 +289,18 @@ public class Node implements Serializable {
 			return false;
 		}
 	}
-	
+
 	public boolean testLiveliness(boolean isToTest) {
 
 		if (!isToTest)
 			return false;
-		
+
 		simNode.testNodeKill();
-		
-		if((simNode.isNodeKilled())) {
+
+		if ((simNode.isNodeKilled())) {
 			return true;
 		}
-		return false;		
+		return false;
 	}
 
 	public boolean testPacket(boolean isToTest) {
@@ -277,11 +308,11 @@ public class Node implements Serializable {
 
 		if (!isToTest)
 			return false;
-		
-		if(((simNode.dropPacketRange(this.nodeRange, distanceBetweenNodes)) || (simNode.dropPacketRandom())) == true) {
+
+		if (((simNode.dropPacketRange(this.nodeRange, distanceBetweenNodes)) || (simNode.dropPacketRandom())) == true) {
 			return true;
 		}
-		return false;		
+		return false;
 	}
 
 	@Override
@@ -307,7 +338,7 @@ public class Node implements Serializable {
 				.sqrt(Math.pow((node.xCoordinate - xCoordinate), 2) + Math.pow((node.yCoordinate - yCoordinate), 2));
 		return distanceBetweenNodes;
 	}
-  
+
 	public float getLeaderValue() {
 		return leaderValue;
 	}
