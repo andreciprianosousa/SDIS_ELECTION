@@ -101,7 +101,7 @@ public class Node implements Serializable {
 		automovel.start();
 		// Arg 1: Mover sim ou nao | 2 = x final coordenate | 3 = y final coordenate |
 		// 4 - direction [0 - Horizontal, 1 - Vertical] | 5 - Sleep time
-		automovel.testMobility(true, 0, 0, 0, 1);
+		automovel.testMobility(true, 15, 0, 0, 1);
 
 	}
 
@@ -248,7 +248,8 @@ public class Node implements Serializable {
 				this.setParentActive(-1);
 				this.waitingAcks.remove(neighbor);
 				if (DEBUG)
-					System.out.println("Leader gone.");
+					System.out.println(
+							"Leader gone or one of my neighbours gone but I don't have direct connection to leader.");
 
 				synchronized (this) {
 					Iterator<Integer> i = this.getNeighbors().iterator();
