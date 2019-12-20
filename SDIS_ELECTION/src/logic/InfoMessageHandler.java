@@ -73,7 +73,7 @@ public class InfoMessageHandler extends Thread {
 			}
 			return;
 
-		} else if ((infoMessage.getStoredValue() == node.getLeaderValue())
+		} else if ((infoMessage.getStoredValue() == node.getLeaderValue()) // Prevents infinite message passing
 				&& (infoMessage.getLeaderId() == node.getLeaderID())) {
 			if (DEBUG)
 				System.out.println("Same Leader! Now We can Rest in Peace!");

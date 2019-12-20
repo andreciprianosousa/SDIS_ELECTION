@@ -101,7 +101,7 @@ public class Node implements Serializable {
 		automovel.start();
 		// Arg 1: Mover sim ou nao | 2 = x final coordenate | 3 = y final coordenate |
 		// 4 - direction [0 - Horizontal, 10- Vertical] | 5 - Sleep time
-		automovel.testMobility(true, 0, 0, 0, 1);
+		automovel.testMobility(true, 10, 0, 0, 1);
 
 	}
 
@@ -116,8 +116,8 @@ public class Node implements Serializable {
 				// This only works because every node updates itself (connects all nodes around)
 				// at every call of this method and thus doesn't lose new nodes.
 				// ERROR: conflicts with bootstrapping kinda
-//				if (this.isElectionActive())
-//					return;
+				if (this.isElectionActive())
+					return;
 
 				// This check makes sure than, in mobility, if a node recognizes a new node
 				// connecting and not in an election,
