@@ -39,7 +39,7 @@ public class InfoMessageHandler extends Thread {
 		// If value of leader from exchanging messages is bigger, propagate that leader
 		// in "broadcast"
 		// If value is the same but their leader ID is bigger, also send message
-		if ((infoMessage.getStoredValue() > node.getStoredValue())
+		if ((infoMessage.getStoredValue() > node.getLeaderValue())
 				|| ((infoMessage.getStoredValue() == node.getStoredValue())
 						&& (infoMessage.getLeaderId() > node.getLeaderID()))) {
 
@@ -73,7 +73,7 @@ public class InfoMessageHandler extends Thread {
 			}
 			return;
 
-		} else if ((infoMessage.getStoredValue() == node.getStoredValue())
+		} else if ((infoMessage.getStoredValue() == node.getLeaderValue())
 				&& (infoMessage.getLeaderId() == node.getLeaderID())) {
 			if (DEBUG)
 				System.out.println("Same Leader! Now We can Rest in Peace!");

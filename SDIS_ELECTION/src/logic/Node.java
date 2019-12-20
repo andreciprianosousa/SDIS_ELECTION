@@ -109,8 +109,16 @@ public class Node implements Serializable {
 		if (nodeMessageID != nodeID) {
 			// if message node is inside neighborhood
 			if (this.isInsideNeighborhood(nodeMessageID, xNeighbor, yNeighbor)) {
+
+				// This check makes sure than, in mobility, if a node recognizes a new node
+				// connecting,
+				// it exchanges info messages with it to establish leader in the overall network
+				if (!neighbors.containsKey(nodeMessageID))
+					new Handler(this, logic.MessageType.INFO, nodeMessageID).start();
+
 				neighbors.put(nodeMessageID, Instant.now());
 				// System.out.println("Updated to: " + Instant.now());
+
 			}
 		}
 		updateNetworkSet();
