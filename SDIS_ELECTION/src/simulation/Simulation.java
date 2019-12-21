@@ -3,37 +3,58 @@ package simulation;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Random;
 
 public class Simulation {
 
-	private static final int nodeKillProb = 1;
 	private static final boolean DEBUG = false;
-	private static final int medianFailure = 100;
 
+	private int medianFailure = 100; // 100 Messages
+	private int medianDeath = 5; // 5 minute
+	private Instant nodeInit;
+	private Instant nodeCharge;
+
+	private boolean isToTestPacket;
+	private boolean isToTestDeath;
 	private boolean nodeKilled;
-	private int dropPacketProbability;
-	private int nodeKillProbability;
 
 	// THERE'S AN ERROR IN INSTANTS
 	protected Instant start = Instant.now();
 	protected Instant end = Instant.now();
 	protected Duration timeElapsed;
 
+	protected Random decisionMaker = new Random();
+
 	public Simulation() {
-		System.out.println("Hello from simulation");
-		nodeKilled = false;
-		this.dropPacketProbability = -1;
-		this.nodeKillProbability = -1;
+		if (DEBUG)
+			System.out.println("Hello from simulation. No packet drop, No death!.");
+		isToTestPacket = false;
+		isToTestDeath = false;
 	}
 
-	public Simulation(int dropPacketProbability) {
-		System.out.println("Hello from simulation w/ drop Packet Probability");
-		nodeKilled = false;
-		this.dropPacketProbability = dropPacketProbability;
-		this.nodeKillProbability = nodeKillProb; // %
+	public Simulation(int medianFailure, int medianDeath, Instant nodeInit) {
+		if (DEBUG)
+			System.out.println("Have Fun with the Simulation");
+
+		if (medianFailure <= 0) {
+			isToTestPacket = false;
+		} else {
+			isToTestPacket = true;
+			this.medianFailure = medianFailure;
+		}
+
+		if (medianDeath <= 0) {
+			isToTestDeath = false;
+		} else {
+			isToTestDeath = true;
+			this.medianDeath = medianDeath;
+		}
+
+		this.nodeInit = nodeInit;
+		this.nodeCharge = nodeInit;
 	}
 
 	public void setStart() {
@@ -61,19 +82,25 @@ public class Simulation {
 	}
 
 	public boolean meanTimeToHappenFailure(int messageCount) {
-		float Probability = 0;
-		int aux = 0, decisionN = 0;
+		double Probability = 0, aux = 0, decisionN = 0;
 
-		aux = messageCount / medianFailure;
-		Probability = (float) (1 - Math.pow(2, aux)) * 100;
+		// DecimalFormat df5 = new DecimalFormat("#.#####");
 
-		Random decisionMaker = new Random();
+		if (!isToTestPacket()) {
+			if (DEBUG)
+				System.out.println("No Test Packet!");
+			return false;
+		}
 
-		// Random Packet Dropout
+		// mean Time to Happen => P("event") = 1 - 2^[-(tc/tmedian)]
+		aux = -(1.0) * ((double) messageCount / (double) medianFailure);
+		Probability = (double) (1 - Math.pow(2, aux)) * 100;
+
 		decisionN = decisionMaker.nextInt(100); // Numbers between 0 and 99
 
 		if (DEBUG)
-			System.out.println("Range>>> decisionN =  " + decisionN + " | Pdropped = " + Probability);
+			System.out.println(
+					"meanTimeToHappenFailure >>> decisionN =  " + decisionN + " | Probability = " + Probability);
 
 		if (decisionN < Probability) {
 			return true; // Packet Dropped
@@ -82,80 +109,35 @@ public class Simulation {
 		}
 	}
 
-//	public boolean dropPacketRange(float range, float distance) {
-//		float Pdropped = 0, decisionN = 0;
-//
-//		if (Pdropped == 0)
-//			return false;
-//
-//		// No Drop Packet
-//		if ((dropPacketProbability == -1) && (nodeKillProbability == -1))
-//			return false;
-//
-//		Random decisionMaker = new Random();
-//
-//		// Probability calculation - Raw Method
-//		Pdropped = distance / range * 100;
-//
-//		// Random Packet Dropout
-//		decisionN = decisionMaker.nextInt(100); // Numbers between 0 and 99
-//
-//		if (DEBUG)
-//			System.out.println("Range>>> decisionN =  " + decisionN + " | Pdropped = " + Pdropped);
-//
-//		if (decisionN < Pdropped) {
-//			return true; // Packet Dropped
-//		} else {
-//			return false;
-//		}
-//	}
-//
-//	public boolean dropPacketRandom() {
-//		float decisionN = 0;
-//
-//		// No Drop Packet
-//		if ((dropPacketProbability == -1) && (nodeKillProbability == -1))
-//			return false;
-//
-//		Random decisionMaker = new Random();
-//
-//		// Random Packet Dropout
-//		decisionN = decisionMaker.nextInt(100); // Numbers between 0 and 99
-//
-//		if (DEBUG)
-//			System.out.println(
-//					"Random>>> decisionN =  " + decisionN + " | dropPacketProbability = " + dropPacketProbability);
-//
-//		if (decisionN < dropPacketProbability) {
-//			return true; // Packet Dropped
-//		} else {
-//			return false;
-//		}
-//	}
+	public boolean meanTimeToDie(Instant newInstant) {
+		double Probability = 0, decisionN = 0, aux = 0, timeSpent = 0;
 
-	public void testNodeKill() {
-
-		// No Kill
-		if ((dropPacketProbability == -1) && (nodeKillProbability == -1)) {
-			setNodeKilled(false);
-			return;
+		if (!isToTestDeath) {
+			if (DEBUG)
+				System.out.println("No Death for Nodes!");
+			return false;
 		}
 
-		Random decisionMaker = new Random();
-		int decisionN;
+		timeSpent = Duration.between(nodeCharge, newInstant).toMillis();
+		aux = -(1.0) * ((double) timeSpent / (double) (medianDeath * 60 * 1000));
+		Probability = (double) (1 - Math.pow(2, aux)) * 100;
 
-		// Random Kill
 		decisionN = decisionMaker.nextInt(100); // Numbers between 0 and 99
 
 		if (DEBUG)
-			System.out.println("Kill>>> decisionN = " + decisionN + " | nodeKillProbability = " + nodeKillProbability);
+			System.out.println("meanTimeToDie >>> decisionN =  " + decisionN + " | Probability = " + Probability);
 
-		if (decisionN < this.nodeKillProbability) {
+		if (decisionN < Probability) {
 			setNodeKilled(true);
+			return true; // Node death
 		} else {
 			setNodeKilled(false);
-
+			return false;
 		}
+	}
+
+	public void resetCharge(Instant upTo100) {
+		this.nodeCharge = upTo100;
 	}
 
 	public boolean isNodeKilled() {
@@ -165,4 +147,29 @@ public class Simulation {
 	public void setNodeKilled(boolean nodeKilled) {
 		this.nodeKilled = nodeKilled;
 	}
+
+	public boolean isToTestPacket() {
+		return isToTestPacket;
+	}
+
+	public void setToTestPacket(boolean isToTestPacket) {
+		this.isToTestPacket = isToTestPacket;
+	}
+
+	public boolean isToTestDeath() {
+		return isToTestDeath;
+	}
+
+	public void setToTestDeath(boolean isToTestDeath) {
+		this.isToTestDeath = isToTestDeath;
+	}
+
+	public int getMedianfailure() {
+		return medianFailure;
+	}
+
+	public int getMediandeath() {
+		return medianDeath;
+	}
+
 }

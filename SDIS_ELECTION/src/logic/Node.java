@@ -18,7 +18,7 @@ import simulation.Simulation;
 
 public class Node implements Serializable {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	protected int nodeID;
 	protected ComputationIndex computationIndex;
@@ -41,7 +41,10 @@ public class Node implements Serializable {
 	private int yCoordinate;
 	private int nodeRange;
 	private int timeOut;
-	private int dropPacketProbability;
+	private int medianFailure;
+	private boolean isToTestSimulation;
+	private int medianDeath;
+	private boolean isToTestDeath;
 	private boolean isKilled;
 	private boolean networkSet;
 	private static final int nodeTimeout = 2;
@@ -55,7 +58,7 @@ public class Node implements Serializable {
 	protected Instant init;
 
 	public Node(int nodeID, int port, String ipAddress, int[] dimensions, int refreshRate, int timeOut,
-			int dropPacketProbability) throws InterruptedException {
+			int medianFailure, int medianDeath) throws InterruptedException {
 		this.nodeID = nodeID;
 		this.port = port;
 		this.ipAddress = ipAddress;
@@ -76,28 +79,43 @@ public class Node implements Serializable {
 		this.nodeRange = dimensions[2];
 		this.neighbors = new ConcurrentHashMap<Integer, Instant>();
 		this.timeOut = timeOut;
-		this.dropPacketProbability = dropPacketProbability;
+		this.medianFailure = medianFailure;
+		this.medianDeath = medianDeath;
 		this.isKilled = false;
 		this.networkSet = false;
 		this.init = Instant.now();
 
 		// 0 in dropPacketProbability means no Drop Packets & no node Kills
-		if (this.dropPacketProbability == 0) {
+		if ((this.medianFailure <= 0) && (this.medianDeath <= 0)) {
 			this.simNode = new Simulation();
+			setToTestSimulation(false);
+			setToTestDeath(false);
 		} else {
-			this.simNode = new Simulation(dropPacketProbability);
+			this.simNode = new Simulation(medianFailure, medianDeath, init);
+			setToTestSimulation(true);
+			setToTestDeath(true);
+			if (this.medianFailure <= 0)
+				setToTestSimulation(false);
+			if (this.medianDeath <= 0)
+				setToTestDeath(false);
 		}
 
 		// Initial coordinates
 		xCoordinate = (int) xMax; // (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
 		yCoordinate = (int) yMax; // (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
 
+		if (DEBUG) {
+
+			System.out.println("Simulation(MF, MD): " + this.medianFailure + " - " + this.medianDeath);
+			System.out.println("Simulation(S,D): " + this.isToTestSimulation + " - " + this.isToTestDeath);
+		}
+
 		new NodeListener(this, refreshRate).start();
 		new NodeTransmitter(this, timeOut).start();
 
 		new Bootstrap(this).start(); // New node, so set network and act accordingly
 
-		this.automovel = new Mobility(this, true, true);
+		this.automovel = new Mobility(this, false, false);
 		automovel.start();
 		// Arg 1: Mover sim ou nao | 2 = x final coordenate | 3 = y final coordenate |
 		// 4 - direction [0 - Horizontal, 10- Vertical] | 5 - Sleep time
@@ -317,32 +335,34 @@ public class Node implements Serializable {
 		}
 	}
 
-	public boolean testLiveliness(boolean isToTest) {
+	public boolean testPacket(int messageCounter) {
 
-		if (!isToTest)
+		if (!isToTestSimulation)
 			return false;
 
-		simNode.testNodeKill();
-
-		if ((simNode.isNodeKilled())) {
+		if (simNode.meanTimeToHappenFailure(messageCounter) == true) {
 			return true;
 		}
 		return false;
 	}
 
-	public boolean testPacket(boolean isToTest, int messageCounter) {
-		float distanceBetweenNodes = 0;
+	public boolean testLiveliness() {
 
-		if (!isToTest)
+		if (!isToTestDeath)
 			return false;
 
-//		if (((simNode.dropPacketRange(this.nodeRange, distanceBetweenNodes)) || (simNode.dropPacketRandom())) == true) {
-//			return true;
-//		}
-		if (simNode.meanTimeToHappenFailure(messageCounter) == true) {
+		// simNode.testNodeKill();
+		simNode.meanTimeToDie(Instant.now());
+
+		if ((simNode.isNodeKilled())) {
+			simNode.resetCharge(Instant.now());
 			return true;
 		}
 		return false;
+	}
+
+	public void resetCharge() {
+		simNode.resetCharge(Instant.now());
 	}
 
 	@Override
@@ -546,12 +566,20 @@ public class Node implements Serializable {
 		System.out.println("............................................");
 	}
 
-	public int getDropPacketProbability() {
-		return dropPacketProbability;
+	public int getMedianFailure() {
+		return medianFailure;
 	}
 
-	public void setDropPacketProbability(int dropPacketProbability) {
-		this.dropPacketProbability = dropPacketProbability;
+	public void setMedianFailure(int medianFailure) {
+		this.medianFailure = medianFailure;
+	}
+
+	public int getMedianDeath() {
+		return medianDeath;
+	}
+
+	public void setMedianDeath(int medianDeath) {
+		this.medianDeath = medianDeath;
 	}
 
 	public boolean isKilled() {
@@ -568,5 +596,21 @@ public class Node implements Serializable {
 
 	public void setSimNode(Simulation simNode) {
 		this.simNode = simNode;
+	}
+
+	public boolean isToTestSimulation() {
+		return isToTestSimulation;
+	}
+
+	public void setToTestSimulation(boolean isToTestSimulation) {
+		this.isToTestSimulation = isToTestSimulation;
+	}
+
+	public boolean isToTestDeath() {
+		return isToTestDeath;
+	}
+
+	public void setToTestDeath(boolean isToTestDeath) {
+		this.isToTestDeath = isToTestDeath;
 	}
 }

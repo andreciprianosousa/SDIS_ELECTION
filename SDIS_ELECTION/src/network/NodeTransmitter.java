@@ -8,7 +8,9 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 import logic.*;
 
@@ -18,10 +20,7 @@ public class NodeTransmitter extends Thread {
 	protected int timeOut;
 	protected String ipAddress;
 
-	private boolean oldState = false;
-	private Instant deathNode = Instant.now();
-	private static final int refreshTestLiveliness = 10000;
-	private static final boolean isToTestSimulation = false;
+	private static final boolean DEBUG = true;
 	private int messageCounter = 0;
 
 	protected byte[] dataToReceive = new byte[2048];
@@ -79,39 +78,18 @@ public class NodeTransmitter extends Thread {
 			message = new String(datagram.getData(), 0, datagram.getData().length, StandardCharsets.UTF_8);
 			// System.out.println("Node " + node.getNodeID() + ". Message " + message);
 
-			if ((Duration.between(deathNode, Instant.now()).toMillis()) > refreshTestLiveliness) {
-				// test node up/down
-				if (node.testLiveliness(true) == true) {
-					node.setKilled(true);
-					oldState = true;
-					deathNode = Instant.now();
-					System.out.println(">> Node down.");
-				} else {
-					if (oldState == true) {
-						System.out.println(">>> Ressurection!");
-						// SEND ELECTION MESSAGE? Yet, it's needed that network has connection and
-						// neighbors, jezz
-						// new Handler(this.node, logic.MessageType.ELECTION_GROUP,
-						// node.getWaitingAcks()).start();
-						new Bootstrap(node).start(); // New node, so set network and act accordingly
-					}
-
-					node.setKilled(false);
-					oldState = false;
-				}
-			}
-
-			if (node.isKilled() == false) {
+			if (!(node.isKilled())) {
 
 				// ------------- Reception and logic starts here-----------------
 				String[] fields = message.split("/");
 				if (message.contains("hello")) {
 
 					// SIM
-					if (node.testPacket(isToTestSimulation, messageCounter) == false) {
+					if (node.testPacket(messageCounter) == true) {
 						System.out.println("> Packet Drop[HELLO PACKET]! In node " + node.getNodeID() + ".");
 						messageCounter = 0;
 					} else {
+						messageCounter++;
 						this.node.updateNeighbors(Integer.parseInt(fields[1]), Integer.parseInt(fields[2]),
 								Integer.parseInt(fields[3]));
 					}
@@ -128,7 +106,7 @@ public class NodeTransmitter extends Thread {
 							// message from " + electionMessage.getIncomingId());
 
 							// SIM
-							if (node.testPacket(isToTestSimulation, messageCounter) == false) {
+							if (node.testPacket(messageCounter) == true) {
 								System.out
 										.println("> Packet Drop[ELECTION_G PACKET]! In node " + node.getNodeID() + ".");
 								messageCounter = 0;
@@ -143,7 +121,7 @@ public class NodeTransmitter extends Thread {
 							// System.out.println("Node " + node.getNodeID() + " received election message
 							// from " + electionMessage.getIncomingId());
 
-							if (node.testPacket(isToTestSimulation, messageCounter) == false) {
+							if (node.testPacket(messageCounter) == true) {
 								System.out.println("> Packet Drop[ELECTION PACKET]! In node " + node.getNodeID() + ".");
 								messageCounter = 0;
 							} else {
@@ -158,7 +136,7 @@ public class NodeTransmitter extends Thread {
 					if (ackMessage.getAddresseeId() == node.getNodeID()) {
 						// System.out.println("Node " + node.getNodeID() + " received ack message from
 						// "+ ackMessage.getIncomingId());
-						if (node.testPacket(isToTestSimulation, messageCounter) == false) {
+						if (node.testPacket(messageCounter) == true) {
 							System.out.println("> Packet Drop[ACK PACKET]! In node " + node.getNodeID() + ".");
 							messageCounter = 0;
 						} else {
@@ -181,7 +159,7 @@ public class NodeTransmitter extends Thread {
 						// from " + leaderMessage.getIncomingId());
 
 						// SIM
-						if (node.testPacket(isToTestSimulation, messageCounter) == false) {
+						if (node.testPacket(messageCounter) == true) {
 							System.out.println("> Packet Drop[LEADER PACKET]! In node " + node.getNodeID() + ".");
 							messageCounter = 0;
 						} else {
@@ -198,7 +176,7 @@ public class NodeTransmitter extends Thread {
 						// "+ infoMessage.getIncomingId());
 
 						// SIM
-						if (node.testPacket(isToTestSimulation, messageCounter) == false) {
+						if (node.testPacket(messageCounter) == true) {
 							System.out.println("> Packet Drop[INFO PACKET]! In node " + node.getNodeID() + ".");
 							messageCounter = 0;
 						} else {
@@ -217,7 +195,7 @@ public class NodeTransmitter extends Thread {
 		ComputationIndex cIndex = stringToCP(fields[2]);
 		int x = Integer.parseInt(fields[3]);
 		int y = Integer.parseInt(fields[4]);
-		HashSet<Integer> mList = stringToMalingList(fields[5]);
+		Set<Integer> mList = stringToMalingList(fields[5]);
 		return new ElectionMessage(id, cIndex, x, y, mList);
 	}
 
@@ -253,7 +231,7 @@ public class NodeTransmitter extends Thread {
 		int xCoordinate = Integer.parseInt(fields[4]);
 		int yCoordinate = Integer.parseInt(fields[5]);
 		boolean special = Boolean.parseBoolean(fields[6]);
-		HashSet<Integer> mList = stringToMalingList(fields[7]);
+		Set<Integer> mList = stringToMalingList(fields[7]);
 
 		return new LeaderMessage(incomingId, leaderID, leaderValue, xCoordinate, yCoordinate, special, mList);
 	}
@@ -274,9 +252,9 @@ public class NodeTransmitter extends Thread {
 				Float.valueOf((fields[2])));
 	}
 
-	public HashSet<Integer> stringToMalingList(String mailingListString) {
+	public Set<Integer> stringToMalingList(String mailingListString) {
 		String[] fields = mailingListString.split(",");
-		HashSet<Integer> mailingListConverted = new HashSet<Integer>();
+		Set<Integer> mailingListConverted = Collections.synchronizedSet(new HashSet<Integer>());
 		for (String id : fields) {
 			mailingListConverted.add(Integer.parseInt(id));
 		}
