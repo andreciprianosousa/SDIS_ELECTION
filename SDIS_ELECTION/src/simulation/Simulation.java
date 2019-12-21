@@ -51,9 +51,9 @@ public class Simulation {
 	public void storeElectionTime() throws IOException {
 		String textToAppend = "Election in " + Instant.now() + "  ===>  " + timeElapsed.toMillis() + " ms.";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\Users\\pedro\\Desktop\\electionTime.txt", true) // Append
-																														// mode
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\electionTime.txt", true) // AppendMode
 		);
+
 		writer.newLine(); // Add new line
 		writer.write(textToAppend);
 		writer.close();
@@ -61,6 +61,9 @@ public class Simulation {
 
 	public boolean dropPacketRange(float range, float distance) {
 		float Pdropped = 0, decisionN = 0;
+
+		if (Pdropped == 0)
+			return false;
 
 		// No Drop Packet
 		if ((dropPacketProbability == -1) && (nodeKillProbability == -1))
