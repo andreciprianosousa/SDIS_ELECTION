@@ -330,13 +330,16 @@ public class Node implements Serializable {
 		return false;
 	}
 
-	public boolean testPacket(boolean isToTest) {
+	public boolean testPacket(boolean isToTest, int messageCounter) {
 		float distanceBetweenNodes = 0;
 
 		if (!isToTest)
 			return false;
 
-		if (((simNode.dropPacketRange(this.nodeRange, distanceBetweenNodes)) || (simNode.dropPacketRandom())) == true) {
+//		if (((simNode.dropPacketRange(this.nodeRange, distanceBetweenNodes)) || (simNode.dropPacketRandom())) == true) {
+//			return true;
+//		}
+		if (simNode.meanTimeToHappenFailure(messageCounter) == true) {
 			return true;
 		}
 		return false;

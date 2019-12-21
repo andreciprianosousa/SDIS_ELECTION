@@ -11,6 +11,7 @@ public class Simulation {
 
 	private static final int nodeKillProb = 1;
 	private static final boolean DEBUG = false;
+	private static final int medianFailure = 100;
 
 	private boolean nodeKilled;
 	private int dropPacketProbability;
@@ -59,40 +60,12 @@ public class Simulation {
 		writer.close();
 	}
 
-	public boolean dropPacketRange(float range, float distance) {
-		float Pdropped = 0, decisionN = 0;
+	public boolean meanTimeToHappenFailure(int messageCount) {
+		float Probability = 0;
+		int aux = 0, decisionN = 0;
 
-		if (Pdropped == 0)
-			return false;
-
-		// No Drop Packet
-		if ((dropPacketProbability == -1) && (nodeKillProbability == -1))
-			return false;
-
-		Random decisionMaker = new Random();
-
-		// Probability calculation - Raw Method
-		Pdropped = distance / range * 100;
-
-		// Random Packet Dropout
-		decisionN = decisionMaker.nextInt(100); // Numbers between 0 and 99
-
-		if (DEBUG)
-			System.out.println("Range>>> decisionN =  " + decisionN + " | Pdropped = " + Pdropped);
-
-		if (decisionN < Pdropped) {
-			return true; // Packet Dropped
-		} else {
-			return false;
-		}
-	}
-
-	public boolean dropPacketRandom() {
-		float decisionN = 0;
-
-		// No Drop Packet
-		if ((dropPacketProbability == -1) && (nodeKillProbability == -1))
-			return false;
+		aux = messageCount / medianFailure;
+		Probability = (float) (1 - Math.pow(2, aux)) * 100;
 
 		Random decisionMaker = new Random();
 
@@ -100,15 +73,65 @@ public class Simulation {
 		decisionN = decisionMaker.nextInt(100); // Numbers between 0 and 99
 
 		if (DEBUG)
-			System.out.println(
-					"Random>>> decisionN =  " + decisionN + " | dropPacketProbability = " + dropPacketProbability);
+			System.out.println("Range>>> decisionN =  " + decisionN + " | Pdropped = " + Probability);
 
-		if (decisionN < dropPacketProbability) {
+		if (decisionN < Probability) {
 			return true; // Packet Dropped
 		} else {
 			return false;
 		}
 	}
+
+//	public boolean dropPacketRange(float range, float distance) {
+//		float Pdropped = 0, decisionN = 0;
+//
+//		if (Pdropped == 0)
+//			return false;
+//
+//		// No Drop Packet
+//		if ((dropPacketProbability == -1) && (nodeKillProbability == -1))
+//			return false;
+//
+//		Random decisionMaker = new Random();
+//
+//		// Probability calculation - Raw Method
+//		Pdropped = distance / range * 100;
+//
+//		// Random Packet Dropout
+//		decisionN = decisionMaker.nextInt(100); // Numbers between 0 and 99
+//
+//		if (DEBUG)
+//			System.out.println("Range>>> decisionN =  " + decisionN + " | Pdropped = " + Pdropped);
+//
+//		if (decisionN < Pdropped) {
+//			return true; // Packet Dropped
+//		} else {
+//			return false;
+//		}
+//	}
+//
+//	public boolean dropPacketRandom() {
+//		float decisionN = 0;
+//
+//		// No Drop Packet
+//		if ((dropPacketProbability == -1) && (nodeKillProbability == -1))
+//			return false;
+//
+//		Random decisionMaker = new Random();
+//
+//		// Random Packet Dropout
+//		decisionN = decisionMaker.nextInt(100); // Numbers between 0 and 99
+//
+//		if (DEBUG)
+//			System.out.println(
+//					"Random>>> decisionN =  " + decisionN + " | dropPacketProbability = " + dropPacketProbability);
+//
+//		if (decisionN < dropPacketProbability) {
+//			return true; // Packet Dropped
+//		} else {
+//			return false;
+//		}
+//	}
 
 	public void testNodeKill() {
 

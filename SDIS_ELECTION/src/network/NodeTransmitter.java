@@ -21,6 +21,8 @@ public class NodeTransmitter extends Thread {
 	private boolean oldState = false;
 	private Instant deathNode = Instant.now();
 	private static final int refreshTestLiveliness = 10000;
+	private static final boolean isToTestSimulation = false;
+	private int messageCounter = 0;
 
 	protected byte[] dataToReceive = new byte[2048];
 
@@ -100,104 +102,111 @@ public class NodeTransmitter extends Thread {
 			}
 
 			if (node.isKilled() == false) {
-				// if not to test, change true to false
-				if (node.testPacket(true) == false) {
 
-					// ------------- Reception and logic starts here-----------------
-					String[] fields = message.split("/");
-					if (message.contains("hello")) {
+				// ------------- Reception and logic starts here-----------------
+				String[] fields = message.split("/");
+				if (message.contains("hello")) {
+
+					// SIM
+					if (node.testPacket(isToTestSimulation, messageCounter) == false) {
+						System.out.println("> Packet Drop[HELLO PACKET]! In node " + node.getNodeID() + ".");
+						messageCounter = 0;
+					} else {
 						this.node.updateNeighbors(Integer.parseInt(fields[1]), Integer.parseInt(fields[2]),
 								Integer.parseInt(fields[3]));
 					}
+				}
 
-					else if (message.contains("elec")) {
+				else if (message.contains("elec")) {
 
-						// If Node is the message recipient, starts handling it
-						// Separates Group messages from Individual ones
-						if (message.contains("elecG") == true) {
-							electionMessage = convertToElectionMessageGroup(message);
-							if (electionMessage.getMailingList().contains(node.getNodeID())) {
-								// System.out.println("Node " + node.getNodeID() + " received election group
-								// message from " + electionMessage.getIncomingId());
-								new ElectionMessageHandler(this.node, electionMessage).start();
-							}
-						} else {
-							electionMessage = convertToElectionMessageIndividual(message);
-							if (electionMessage.getAddresseeId() == node.getNodeID()) {
-								// System.out.println("Node " + node.getNodeID() + " received election message
-								// from " + electionMessage.getIncomingId());
+					// If Node is the message recipient, starts handling it
+					// Separates Group messages from Individual ones
+					if (message.contains("elecG") == true) {
+						electionMessage = convertToElectionMessageGroup(message);
+						if (electionMessage.getMailingList().contains(node.getNodeID())) {
+							// System.out.println("Node " + node.getNodeID() + " received election group
+							// message from " + electionMessage.getIncomingId());
+
+							// SIM
+							if (node.testPacket(isToTestSimulation, messageCounter) == false) {
+								System.out
+										.println("> Packet Drop[ELECTION_G PACKET]! In node " + node.getNodeID() + ".");
+								messageCounter = 0;
+							} else {
+								messageCounter++;
 								new ElectionMessageHandler(this.node, electionMessage).start();
 							}
 						}
-					} else if (message.contains("ack")) {
-						ackMessage = convertToAckMessage(message);
+					} else {
+						electionMessage = convertToElectionMessageIndividual(message);
+						if (electionMessage.getAddresseeId() == node.getNodeID()) {
+							// System.out.println("Node " + node.getNodeID() + " received election message
+							// from " + electionMessage.getIncomingId());
 
-						if (ackMessage.getAddresseeId() == node.getNodeID()) {
-							// System.out.println("Node " + node.getNodeID() + " received ack message from
-							// "+ ackMessage.getIncomingId());
+							if (node.testPacket(isToTestSimulation, messageCounter) == false) {
+								System.out.println("> Packet Drop[ELECTION PACKET]! In node " + node.getNodeID() + ".");
+								messageCounter = 0;
+							} else {
+								messageCounter++;
+								new ElectionMessageHandler(this.node, electionMessage).start();
+							}
+						}
+					}
+				} else if (message.contains("ack")) {
+					ackMessage = convertToAckMessage(message);
+
+					if (ackMessage.getAddresseeId() == node.getNodeID()) {
+						// System.out.println("Node " + node.getNodeID() + " received ack message from
+						// "+ ackMessage.getIncomingId());
+						if (node.testPacket(isToTestSimulation, messageCounter) == false) {
+							System.out.println("> Packet Drop[ACK PACKET]! In node " + node.getNodeID() + ".");
+							messageCounter = 0;
+						} else {
+							messageCounter++;
 							new AckMessageHandler(this.node, ackMessage).start();
 						}
 					}
+				}
 
-					else if (message.contains("leadr")) {
-						// System.out.println("leader has " + fields.length);
-						// for(int i=0; i<fields.length; i++) {
-						// System.out.println(fields[i]);
-						// }
-						// We may put here a mailing list check, because node that started election
-						// doesn't need leader message's information
-						leaderMessage = convertToLeaderMessage(message);
-						if (leaderMessage.getMailingList().contains(node.getNodeID())) {
-							// System.out.println("Node " + node.getNodeID() + " received leader message
-							// from " + leaderMessage.getIncomingId());
+				else if (message.contains("leadr")) {
+					// System.out.println("leader has " + fields.length);
+					// for(int i=0; i<fields.length; i++) {
+					// System.out.println(fields[i]);
+					// }
+					// We may put here a mailing list check, because node that started election
+					// doesn't need leader message's information
+					leaderMessage = convertToLeaderMessage(message);
+					if (leaderMessage.getMailingList().contains(node.getNodeID())) {
+						// System.out.println("Node " + node.getNodeID() + " received leader message
+						// from " + leaderMessage.getIncomingId());
+
+						// SIM
+						if (node.testPacket(isToTestSimulation, messageCounter) == false) {
+							System.out.println("> Packet Drop[LEADER PACKET]! In node " + node.getNodeID() + ".");
+							messageCounter = 0;
+						} else {
+							messageCounter++;
 							new LeaderMessageHandler(this.node, leaderMessage).start();
 						}
 					}
+				}
 
-					else if (message.contains("info")) {
-						infoMessage = convertToInfoMessage(message);
-						if (infoMessage.getAddresseeId() == node.getNodeID()) {
-							// System.out.println("Node " + node.getNodeID() + " received info message from
-							// "+ infoMessage.getIncomingId());
+				else if (message.contains("info")) {
+					infoMessage = convertToInfoMessage(message);
+					if (infoMessage.getAddresseeId() == node.getNodeID()) {
+						// System.out.println("Node " + node.getNodeID() + " received info message from
+						// "+ infoMessage.getIncomingId());
+
+						// SIM
+						if (node.testPacket(isToTestSimulation, messageCounter) == false) {
+							System.out.println("> Packet Drop[INFO PACKET]! In node " + node.getNodeID() + ".");
+							messageCounter = 0;
+						} else {
+							messageCounter++;
 							new InfoMessageHandler(this.node, infoMessage).start();
 						}
 					}
-				} else {
-					System.out.println("> Packet Drop! In node " + node.getNodeID() + ".");
 				}
-			} else if (message.contains("ack")) {
-				ackMessage = convertToAckMessage(message);
-
-				if (ackMessage.getAddresseeId() == node.getNodeID()) {
-					// System.out.println("Node " + node.getNodeID() + " received ack message from
-					// "+ ackMessage.getIncomingId());
-					new AckMessageHandler(this.node, ackMessage).start();
-				}
-			}
-
-			else if (message.contains("leadr")) {
-				// System.out.println("leader has " + fields.length);
-				// for(int i=0; i<fields.length; i++) {
-				// System.out.println(fields[i]);
-				// }
-				// We may put here a mailing list check, because node that started election
-				// doesn't need leader message's information
-				leaderMessage = convertToLeaderMessage(message);
-				if (leaderMessage.getMailingList().contains(node.getNodeID())) {
-					// System.out.println("Node " + node.getNodeID() + " received leader message
-					// from " + leaderMessage.getIncomingId());
-					new LeaderMessageHandler(this.node, leaderMessage).start();
-				}
-			}
-
-			else if (message.contains("info")) {
-				infoMessage = convertToInfoMessage(message);
-				if (infoMessage.getAddresseeId() == node.getNodeID()) {
-					// System.out.println("Node " + node.getNodeID() + " received info message from
-					// "+ infoMessage.getIncomingId());
-					new InfoMessageHandler(this.node, infoMessage).start();
-				}
-
 			}
 		}
 	}
