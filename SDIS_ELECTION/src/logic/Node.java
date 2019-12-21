@@ -101,7 +101,7 @@ public class Node implements Serializable {
 		automovel.start();
 		// Arg 1: Mover sim ou nao | 2 = x final coordenate | 3 = y final coordenate |
 		// 4 - direction [0 - Horizontal, 10- Vertical] | 5 - Sleep time
-		automovel.testMobility(true, 10, 0, 0, 1);
+		automovel.testMobility(true, 0, 0, 0, 1);
 
 	}
 
