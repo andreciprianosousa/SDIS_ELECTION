@@ -89,18 +89,23 @@ public class Mobility extends Thread {
 		sleepTime = decisionMaker.nextInt(20) * 1000; // max 20 seconds
 	}
 
-	public void testMobility(int xi, int yi, int xf, int yf, int direction, int sleep) {
-		if (!test)
+	public void testMobility(int xf, int yf, int direction, int sleep) {
+		if (!test) {
 			return;
+		}
 
-		this.xCoordinate = xi;
-		this.yCoordinate = yi;
 		this.nextX = xf;
 		this.nextY = yf;
 		this.nodeDirection = direction;
 		this.constantToSleep = sleep;
 		this.nodeSpeed = 1;
 		setMoving(true);
+
+		if ((this.yCoordinate == this.nextY) && (this.nodeDirection == 1)) {
+			System.out.println("You set the same vertical position to move. Maybe you should change that");
+		} else if ((this.xCoordinate == this.nextX) && (this.nodeDirection == 0)) {
+			System.out.println("You set the same horizontal position to move. Maybe you should change that");
+		}
 	}
 
 	@Override
@@ -133,17 +138,30 @@ public class Mobility extends Thread {
 
 			} else if (isMoving == true) {
 				if (nodeDirection == 0) {
+					System.out.println("Horizontal");
 					if (xCoordinate > nextX) {
 						xCoordinate--;
 					} else if (xCoordinate < nextX) {
 						xCoordinate++;
+					} else if (xCoordinate == nextX) {
+						if (isTest()) {
+							System.out.println("You have arrived.");
+							setMoving(false);
+							return;
+						}
 					}
 
-				} else {
+				} else if (nodeDirection == 1) {
 					if (yCoordinate > nextY) {
 						yCoordinate--;
 					} else if (yCoordinate < nextY) {
 						yCoordinate++;
+					} else if (yCoordinate == nextY) {
+						if (isTest()) {
+							System.out.println("You have arrived.");
+							setMoving(false);
+							return;
+						}
 					}
 				}
 

@@ -141,6 +141,9 @@ public class Node implements Serializable {
 			System.out.println("Simulation(MF, MD): " + this.medianFailure + " - " + this.medianDeath);
 			System.out.println("Simulation(S,D): " + this.isToTestSimulation + " - " + this.isToTestDeath);
 			System.out.println("Mobility(M,T): " + this.hasMobility + " - " + this.testMobility);
+			// System.out.println(
+			// "Mobility(xF,yF,Direction): " + this.finalX + " - " + this.finalY + " - " +
+			// this.direction);
 			// System.out.println();
 		}
 
@@ -154,7 +157,7 @@ public class Node implements Serializable {
 
 		// Arg 1: 1 = x final coordenate | 2 = y final coordenate |
 		// 3 - direction [0 - Horizontal, 1 - Vertical] | 4 - Sleep time
-		automovel.testMobility(xCoordinate, yCoordinate, finalX, finalY, direction, 1);
+		automovel.testMobility(finalX, finalY, direction, 1);
 
 	}
 
