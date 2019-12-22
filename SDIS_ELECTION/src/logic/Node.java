@@ -41,15 +41,25 @@ public class Node implements Serializable {
 	private int yCoordinate;
 	private int nodeRange;
 	private int timeOut;
+
+	private boolean networkSet;
+	private static final int nodeTimeout = 2;
+	private static final int networkTimeout = 10;
+
+	// Simulation Purpose
 	private int medianFailure;
 	private boolean isToTestSimulation;
 	private int medianDeath;
 	private boolean isToTestDeath;
 	private boolean isKilled;
-	private boolean networkSet;
-	private static final int nodeTimeout = 2;
-	private static final int networkTimeout = 10;
+
+	// Mobility Purpose
 	protected Mobility automovel;
+	protected int finalX;
+	protected int finalY;
+	protected int direction;
+	protected boolean hasMobility;
+	protected boolean testMobility;
 
 	protected int port;
 	protected String ipAddress;
@@ -58,7 +68,7 @@ public class Node implements Serializable {
 	protected Instant init;
 
 	public Node(int nodeID, int port, String ipAddress, int[] dimensions, int refreshRate, int timeOut,
-			int medianFailure, int medianDeath) throws InterruptedException {
+			int medianFailure, int medianDeath, int[] finalDestination) throws InterruptedException {
 		this.nodeID = nodeID;
 		this.port = port;
 		this.ipAddress = ipAddress;
@@ -79,13 +89,20 @@ public class Node implements Serializable {
 		this.nodeRange = dimensions[2];
 		this.neighbors = new ConcurrentHashMap<Integer, Instant>();
 		this.timeOut = timeOut;
+
+		// Simulation Purpose
 		this.medianFailure = medianFailure;
 		this.medianDeath = medianDeath;
 		this.isKilled = false;
 		this.networkSet = false;
 		this.init = Instant.now();
 
-		// 0 in dropPacketProbability means no Drop Packets & no node Kills
+		// Mobility Purpose
+		this.finalX = finalDestination[0];
+		this.finalY = finalDestination[1];
+		this.direction = finalDestination[2];
+
+		// 0 in mFailure && mDeath means no Drop Packets & no node Kills
 		if ((this.medianFailure <= 0) && (this.medianDeath <= 0)) {
 			this.simNode = new Simulation();
 			setToTestSimulation(false);
@@ -100,6 +117,21 @@ public class Node implements Serializable {
 				setToTestDeath(false);
 		}
 
+		// -1 = no movement
+		// has Mobility = TRUE => nodes move randomly following "Randow Waypoint Model"
+		// test Mobility = TRUE => nodes move accordingly to user input (has only 1
+		// move) and stops
+		if (((finalX < 0) && (finalY < 0) && (direction < 0)) || (direction > 1)) {
+			hasMobility = false;
+			testMobility = false;
+		} else if ((finalX < 0) || (finalY < 0) || (direction < 0)) {
+			hasMobility = true;
+			testMobility = false;
+		} else {
+			testMobility = true;
+			hasMobility = true;
+		}
+
 		// Initial coordinates
 		xCoordinate = (int) xMax; // (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
 		yCoordinate = (int) yMax; // (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
@@ -108,6 +140,8 @@ public class Node implements Serializable {
 
 			System.out.println("Simulation(MF, MD): " + this.medianFailure + " - " + this.medianDeath);
 			System.out.println("Simulation(S,D): " + this.isToTestSimulation + " - " + this.isToTestDeath);
+			System.out.println("Mobility(M,T): " + this.hasMobility + " - " + this.testMobility);
+			// System.out.println();
 		}
 
 		new NodeListener(this, refreshRate).start();
@@ -115,11 +149,12 @@ public class Node implements Serializable {
 
 		new Bootstrap(this).start(); // New node, so set network and act accordingly
 
-		this.automovel = new Mobility(this, false, false);
+		this.automovel = new Mobility(this, hasMobility, testMobility);
 		automovel.start();
-		// Arg 1: Mover sim ou nao | 2 = x final coordenate | 3 = y final coordenate |
-		// 4 - direction [0 - Horizontal, 10- Vertical] | 5 - Sleep time
-		automovel.testMobility(true, 0, 0, 0, 1);
+
+		// Arg 1: 1 = x final coordenate | 2 = y final coordenate |
+		// 3 - direction [0 - Horizontal, 1 - Vertical] | 4 - Sleep time
+		automovel.testMobility(xCoordinate, yCoordinate, finalX, finalY, direction, 1);
 
 	}
 
