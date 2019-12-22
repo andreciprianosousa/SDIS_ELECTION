@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import logic.*;
 
@@ -254,12 +255,15 @@ public class NodeTransmitter extends Thread {
 
 	public Set<Integer> stringToMalingList(String mailingListString) {
 		String[] fields = mailingListString.split(",");
-		Set<Integer> mailingListConverted = Collections.synchronizedSet(new HashSet<Integer>()); // try concurrent
-																									// hashmap
-		for (String id : fields) {
-			mailingListConverted.add(Integer.parseInt(id));
+		Set<Integer> mailingListConverted = ConcurrentHashMap.newKeySet();
+
+		if (mailingListConverted.size() > 0) {
+			for (String id : fields) {
+				mailingListConverted.add(Integer.parseInt(id));
+			}
 		}
 
 		return mailingListConverted;
+		// return mailingListConverted;
 	}
 }
