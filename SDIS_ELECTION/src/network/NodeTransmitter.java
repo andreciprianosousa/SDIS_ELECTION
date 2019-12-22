@@ -254,7 +254,8 @@ public class NodeTransmitter extends Thread {
 
 	public Set<Integer> stringToMalingList(String mailingListString) {
 		String[] fields = mailingListString.split(",");
-		Set<Integer> mailingListConverted = Collections.synchronizedSet(new HashSet<Integer>());
+		Set<Integer> mailingListConverted = Collections.synchronizedSet(new HashSet<Integer>()); // try concurrent
+																									// hashmap
 		for (String id : fields) {
 			mailingListConverted.add(Integer.parseInt(id));
 		}

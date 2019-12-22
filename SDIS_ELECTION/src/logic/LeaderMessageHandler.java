@@ -64,23 +64,6 @@ public class LeaderMessageHandler extends Thread {
 			}
 		}
 
-//		// This if prevents infinite leader messages
-//		if (leaderMessage.getStoredID() == node.getLeaderID()) {
-//
-//			if (DEBUG)
-//				System.out.println("My Leader is " + node.getLeaderID() + " and the leader message says "
-//						+ leaderMessage.getStoredID() + ". Do nothing.");
-//
-//			node.setElectionActive(false);
-//			node.setParentActive(-1);
-//			node.setAckStatus(true);
-//			// Ready for new election
-//			node.setStoredId(node.getNodeID());
-//			node.setStoredValue(node.getNodeValue());
-//
-//			return;
-//		} else { // Either leaderMessage ID > node Leader or other way around...
-
 		// If this node receives leader message, update parameters accordingly if
 		// necessary
 		// And if has a different leader, broadcasts the leader msgs

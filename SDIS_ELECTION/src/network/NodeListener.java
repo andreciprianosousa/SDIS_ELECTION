@@ -79,14 +79,12 @@ public class NodeListener extends Thread {
 				// perceive Resurrection
 				if (node.isToTestDeath()) {
 					if (oldState == true) {
-						System.out.println(">>> Ressurection!");
-						// SEND ELECTION MESSAGE? Yet, it's needed that network has connection and
-						// neighbors, jezz
-						// new Handler(this.node, logic.MessageType.ELECTION_GROUP,
-						// node.getWaitingAcks()).start();
+						System.out
+								.println(">>> Ressurection!  " + Duration.between(deathNode, Instant.now()).toMillis());
 
-						// FALAR COM CIPRIANO
-						node.resetCharge(); // Charge restored to new test
+						node.resetCharge(); // Charge restored to test new possible death
+
+						// Cipriano - This is for you
 						new Bootstrap(node).start(); // New node, so set network and act accordingly
 					}
 					oldState = false;
@@ -99,16 +97,6 @@ public class NodeListener extends Thread {
 							deathNode = Instant.now();
 							oldState = true;
 							System.out.println("(-, - )… zzzZZZ");
-							if (node.getNeighbors().size() > 0) {
-								synchronized (GoingToSleep) {
-									try {
-										this.wait();
-									} catch (InterruptedException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-								}
-							}
 						}
 					}
 				}
