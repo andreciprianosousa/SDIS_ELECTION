@@ -16,6 +16,7 @@ public class Mobility extends Thread {
 	protected boolean test;
 
 	protected int nodeSpeed;
+	protected int constantToSleep = 1; // when =1 doesn't interfere with speed
 	protected int nodeDirection;
 	protected int nextX;
 	protected int nextY;
@@ -48,8 +49,6 @@ public class Mobility extends Thread {
 		if (nodeDirection == 0) { // X axis
 			decisionMaker = new Random();
 			nextX = decisionMaker.nextInt(this.xRange);
-			// MUDA AQUI PARA A COORDENADA X
-
 			nextY = yCoordinate;
 			if (print)
 				System.out.println("New X: " + nextX + " || New Y: " + nextY);
@@ -58,8 +57,6 @@ public class Mobility extends Thread {
 			decisionMaker = new Random();
 			nextX = xCoordinate;
 			nextY = decisionMaker.nextInt(this.yRange);
-			// MUDA AQUI PARA A COORDENADA Y
-
 			if (print)
 				System.out.println("New X: " + nextX + " || New Y: " + nextY);
 		}
@@ -92,13 +89,18 @@ public class Mobility extends Thread {
 		sleepTime = decisionMaker.nextInt(20) * 1000; // max 20 seconds
 	}
 
-	public void testMobility(boolean move, int x, int y, int direction, int sleep) {
-		setMoving(move);
-		this.nextX = x;
-		this.nextY = y;
+	public void testMobility(int xi, int yi, int xf, int yf, int direction, int sleep) {
+		if (!test)
+			return;
+
+		this.xCoordinate = xi;
+		this.yCoordinate = yi;
+		this.nextX = xf;
+		this.nextY = yf;
 		this.nodeDirection = direction;
+		this.constantToSleep = sleep;
 		this.nodeSpeed = 1;
-		// this.sleepTime = sleep;
+		setMoving(true);
 	}
 
 	@Override
@@ -110,15 +112,17 @@ public class Mobility extends Thread {
 				yCoordinate = nextY;
 				node.setxCoordinate(xCoordinate);
 				node.setyCoordinate(yCoordinate);
-				if (!isTest())
-					randomSleepTime();
+
+				if (isTest()) {
+					System.out.println("___Node arrived!___");
+					return;
+				}
+
+				randomSleepTime();
 				setMoving(false);
 
 				if (print)
 					System.out.println("Node will not move for " + sleepTime + " s.");
-
-				if (isTest())
-					return;
 
 				try {
 					setnewMove(true);
@@ -140,16 +144,14 @@ public class Mobility extends Thread {
 						yCoordinate--;
 					} else if (yCoordinate < nextY) {
 						yCoordinate++;
-						;
 					}
 				}
-				;
 
 				if (print)
 					System.out.println("X = " + xCoordinate + " || Y = " + yCoordinate);
 
 				// if (!isTest())
-				sleepTime = 1 / nodeSpeed * 1000;
+				sleepTime = (1 / nodeSpeed) * constantToSleep * 1000;
 
 				try {
 					Thread.sleep(sleepTime);
