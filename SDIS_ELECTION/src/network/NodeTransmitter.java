@@ -257,11 +257,15 @@ public class NodeTransmitter extends Thread {
 		String[] fields = mailingListString.split(",");
 		Set<Integer> mailingListConverted = ConcurrentHashMap.newKeySet();
 
-		// if (mailingListConverted.size() > 0) {
+		if (mailingListConverted.isEmpty()) {
+			if (DEBUG) {
+				System.out.println(" > > > > > > Nothing to convert < < < < < ");
+			}
+			return mailingListConverted;
+		}
 		for (String id : fields) {
 			mailingListConverted.add(Integer.parseInt(id));
 		}
-		// }
 
 		return mailingListConverted;
 	}
