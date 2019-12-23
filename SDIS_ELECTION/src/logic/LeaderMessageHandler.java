@@ -50,6 +50,8 @@ public class LeaderMessageHandler extends Thread {
 	public synchronized void run() {
 
 		// If leader is special, don't care about parent and child stuff
+		// It it isn't, if it's not my parent who's sending the leader message, then
+		// reject that info.
 		if (!(leaderMessage.isSpecial())) {
 			if (DEBUG)
 				System.out.println("Leader incoming/current parent " + leaderMessage.getIncomingId() + "/"
@@ -64,8 +66,9 @@ public class LeaderMessageHandler extends Thread {
 			}
 		}
 
-		// If this node receives leader message, update parameters accordingly if
-		// necessary
+		// If this node receives leader message from parent DUE TO AN ELECTION, update
+		// parameters
+		// accordingly if necessary
 		// And if has a different leader, broadcasts the leader msgs
 		if (node.isElectionActive() && (!(leaderMessage.isSpecial()))) {
 
@@ -92,13 +95,18 @@ public class LeaderMessageHandler extends Thread {
 			if (node.getNeighbors().size() == 1) {
 				return;
 			}
-
+			// If not, send leader message to neighbours
 			sendLeaderMessage();
+
+			// If im not in an election and message isn't from exchanging leaders, ignore
+			// everything
 		} else if (!(node.isElectionActive()) && !(leaderMessage.isSpecial())) {
 			if (DEBUG)
 				System.out.println("Not election and not special, end.");
 			return;
-		} else {
+
+			// If message is special and I'm not in election
+		} else if (leaderMessage.isSpecial() && !(node.isElectionActive())) {
 
 			if (leaderMessage.getStoredID() <= node.getLeaderID()) {
 				System.out.println("Men, that guy is weak. Do nothing!");
@@ -119,6 +127,11 @@ public class LeaderMessageHandler extends Thread {
 
 			// If not, send leader messages to neighbours except to the message sender's id
 			sendLeaderMessage();
+			// If message is special and I'm in election, reject leader special message
+		} else if (leaderMessage.isSpecial() && node.isElectionActive()) {
+			if (DEBUG)
+				System.out.println("Rejection special message while on election!");
+			return;
 		}
 	}
 }

@@ -18,7 +18,7 @@ import simulation.Simulation;
 
 public class Node implements Serializable {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	protected int nodeID;
 	protected ComputationIndex computationIndex;
