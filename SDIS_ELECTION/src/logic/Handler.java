@@ -66,11 +66,17 @@ public class Handler extends Thread {
 			electionMessage.setAGroup(false);
 			messageToSend = electionMessage.toString().getBytes(StandardCharsets.UTF_8);
 
+			// Counter of Election Messages
+			// node.getSimNode().addMsgCounter(node.getComputationIndex().getId());
+
 		} else if (messageType == MessageType.ELECTION_GROUP) {
 			electionMessage = new ElectionMessage(node.getNodeID(), node.getComputationIndex(), node.getxCoordinate(),
 					node.getyCoordinate(), mailingList);
 			electionMessage.setAGroup(true);
 			messageToSend = electionMessage.toString().getBytes(StandardCharsets.UTF_8);
+
+			// Counter of Election Messages
+			// node.getSimNode().addMsgCounter(node.getComputationIndex().getId());
 
 		} else if (messageType == MessageType.LEADER) {
 			// Leader Message sends always messages to a group (it can be a "group of 1"),

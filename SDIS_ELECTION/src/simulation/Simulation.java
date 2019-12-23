@@ -7,6 +7,8 @@ import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Simulation {
 
@@ -16,6 +18,9 @@ public class Simulation {
 	private int medianDeath = 5; // 5 minute
 	private Instant nodeInit;
 	private Instant nodeCharge;
+
+	protected ConcurrentHashMap<Integer, Integer> mapMsgOverhead = new ConcurrentHashMap<Integer, Integer>();
+	private int msgSentInElection;
 
 	private boolean isToTestPacket;
 	private boolean isToTestDeath;
@@ -57,6 +62,7 @@ public class Simulation {
 		this.nodeCharge = nodeInit;
 	}
 
+	// 1st Metric - Election Time
 	public void setStart() {
 		this.start = Instant.now();
 	}
@@ -70,6 +76,30 @@ public class Simulation {
 		System.out.println("Time taken: " + timeElapsed.toMillis() + " milliseconds");
 	}
 
+	// 2nd Metric - Overhead Messages
+	public void resetMsgCounter() {
+		msgSentInElection = 0;
+	}
+
+	public void addMsgCounter(int id) {
+
+		resetMsgCounter();
+
+		if (mapMsgOverhead.containsKey(id)) {
+			msgSentInElection = mapMsgOverhead.get(id);
+			mapMsgOverhead.remove(id, msgSentInElection);
+		}
+		msgSentInElection++;
+		mapMsgOverhead.put(id, msgSentInElection);
+	}
+
+	public void getMsgOverhead(int id) {
+		System.out.println("Msg Overhead in Election " + id + " = " + mapMsgOverhead.get(id));
+	}
+
+	// 3rd Metric - Time Without Leader
+
+	// Storage Facility
 	public void storeElectionTime() throws IOException {
 		String textToAppend = "Election in " + Instant.now() + "  ===>  " + timeElapsed.toMillis() + " ms.";
 
@@ -81,6 +111,11 @@ public class Simulation {
 		writer.close();
 	}
 
+	public double runningAvg() {
+		return 0;
+	}
+
+	// Simulation - Drop Packets following Mean Time To Happen
 	public boolean meanTimeToHappenFailure(int messageCount) {
 		double Probability = 0, aux = 0, decisionN = 0;
 
@@ -109,6 +144,7 @@ public class Simulation {
 		}
 	}
 
+	// Simulation - Node Death following Mean Time To Happen
 	public boolean meanTimeToDie(Instant newInstant) {
 		double Probability = 0, decisionN = 0, aux = 0, timeSpent = 0;
 
@@ -140,6 +176,7 @@ public class Simulation {
 		this.nodeCharge = upTo100;
 	}
 
+	// Getters and Setters
 	public boolean isNodeKilled() {
 		return nodeKilled;
 	}

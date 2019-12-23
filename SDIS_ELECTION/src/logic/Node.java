@@ -261,6 +261,7 @@ public class Node implements Serializable {
 
 						this.simNode.setEnd();
 						this.simNode.getTimer();
+						// this.simNode.getMsgOverhead(this.getComputationIndex().getId());
 
 						try {
 							this.simNode.storeElectionTime();
