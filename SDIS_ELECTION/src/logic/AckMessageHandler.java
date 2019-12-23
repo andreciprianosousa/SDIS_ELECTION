@@ -92,11 +92,11 @@ public class AckMessageHandler extends Thread {
 				node.simNode.getTimer();
 				// node.simNode.getMsgOverhead(node.getComputationIndex().getId());
 
-				try {
-					node.simNode.storeElectionTime();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+//				try {
+//					node.simNode.storeElectionTime();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
 
 				// send Leader message to all children
 				Iterator<Integer> i = node.getNeighbors().iterator();

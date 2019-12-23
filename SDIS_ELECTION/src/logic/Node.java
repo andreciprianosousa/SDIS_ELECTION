@@ -263,11 +263,11 @@ public class Node implements Serializable {
 						this.simNode.getTimer();
 						// this.simNode.getMsgOverhead(this.getComputationIndex().getId());
 
-						try {
-							this.simNode.storeElectionTime();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+//						try {
+//							this.simNode.storeElectionTime();
+//						} catch (IOException e) {
+//							e.printStackTrace();
+//						}
 
 						// send Leader message to all children
 						Iterator<Integer> i = this.getNeighbors().iterator();
