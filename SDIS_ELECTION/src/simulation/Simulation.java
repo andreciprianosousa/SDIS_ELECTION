@@ -19,17 +19,9 @@ public class Simulation {
 	private Instant nodeInit;
 	private Instant nodeCharge;
 
-	protected ConcurrentHashMap<Integer, Integer> mapMsgOverhead = new ConcurrentHashMap<Integer, Integer>();
-	private int msgSentInElection;
-
 	private boolean isToTestPacket;
 	private boolean isToTestDeath;
 	private boolean nodeKilled;
-
-	// THERE'S AN ERROR IN INSTANTS
-	protected Instant start = Instant.now();
-	protected Instant end = Instant.now();
-	protected Duration timeElapsed;
 
 	protected Random decisionMaker = new Random();
 
@@ -60,59 +52,6 @@ public class Simulation {
 
 		this.nodeInit = nodeInit;
 		this.nodeCharge = nodeInit;
-	}
-
-	// 1st Metric - Election Time
-	public void setStart() {
-		this.start = Instant.now();
-	}
-
-	public void setEnd() {
-		this.end = Instant.now();
-	}
-
-	public void getTimer() {
-		this.timeElapsed = Duration.between(start, end);
-		System.out.println("Time taken: " + timeElapsed.toMillis() + " milliseconds");
-	}
-
-	// 2nd Metric - Overhead Messages Sent By Node
-	public void resetMsgCounter() {
-		msgSentInElection = 0;
-	}
-
-	public void addMsgCounter(int id) {
-
-		resetMsgCounter();
-
-		if (mapMsgOverhead.containsKey(id)) {
-			msgSentInElection = mapMsgOverhead.get(id);
-			mapMsgOverhead.remove(id, msgSentInElection);
-		}
-		msgSentInElection++;
-		mapMsgOverhead.put(id, msgSentInElection);
-	}
-
-	public void getMsgOverhead(int id) {
-		System.out.println("Msg Overhead in Election " + id + " = " + mapMsgOverhead.get(id));
-	}
-
-	// 3rd Metric - Time Without Leader
-
-	// Storage Facility
-	public void storeElectionTime() throws IOException {
-		String textToAppend = "Election in " + Instant.now() + "  ===>  " + timeElapsed.toMillis() + " ms.";
-
-		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\electionTime.txt", true) // AppendMode
-		);
-
-		writer.newLine(); // Add new line
-		writer.write(textToAppend);
-		writer.close();
-	}
-
-	public double runningAvg() {
-		return 0;
 	}
 
 	// Simulation - Drop Packets following Mean Time To Happen

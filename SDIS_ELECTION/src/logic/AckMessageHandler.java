@@ -88,9 +88,9 @@ public class AckMessageHandler extends Thread {
 				node.setStoredValue(node.getNodeValue());
 				System.out.println("========================>   Leader agreed upon: " + node.getLeaderID());
 
-				node.simNode.setEnd();
-				node.simNode.getTimer();
-				node.simNode.getMsgOverhead(node.getComputationIndex().getId());
+				node.networkEvaluation.setEnd(node.getComputationIndex().getId());
+				node.networkEvaluation.getTimer(node.getComputationIndex().getId());
+//				node.networkEvaluation.getMsgOverhead(node.getComputationIndex().getId());
 
 //				try {
 //					node.simNode.storeElectionTime();

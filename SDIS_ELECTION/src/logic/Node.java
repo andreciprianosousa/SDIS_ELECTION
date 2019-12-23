@@ -47,6 +47,7 @@ public class Node implements Serializable {
 	private static final int networkTimeout = 10;
 
 	// Simulation Purpose
+	protected Simulation simNode;
 	private int medianFailure;
 	private boolean isToTestSimulation;
 	private int medianDeath;
@@ -61,9 +62,11 @@ public class Node implements Serializable {
 	protected boolean hasMobility;
 	protected boolean testMobility;
 
+	// Network+Algorithm Evaluation Purpose
+	protected Evaluation networkEvaluation;
+
 	protected int port;
 	protected String ipAddress;
-	protected Simulation simNode;
 
 	protected Instant init;
 
@@ -149,6 +152,8 @@ public class Node implements Serializable {
 
 		new NodeListener(this, refreshRate).start();
 		new NodeTransmitter(this, timeOut).start();
+
+		this.networkEvaluation = new Evaluation(this);
 
 		new Bootstrap(this).start(); // New node, so set network and act accordingly
 
@@ -259,9 +264,9 @@ public class Node implements Serializable {
 						if (DEBUG)
 							System.out.println("========================>   Leader agreed upon: " + this.getLeaderID());
 
-						this.simNode.setEnd();
-						this.simNode.getTimer();
-						this.simNode.getMsgOverhead(this.getComputationIndex().getId());
+						this.networkEvaluation.setEnd(this.getComputationIndex().getId());
+						this.networkEvaluation.getTimer(this.getComputationIndex().getId());
+						// this.networkEvaluation.getMsgOverhead(this.getComputationIndex().getId());
 
 //						try {
 //							this.simNode.storeElectionTime();
@@ -321,7 +326,7 @@ public class Node implements Serializable {
 				if (DEBUG)
 					System.out.println("Node " + this.getNodeID() + " bootstrapped election on leader removal.");
 
-				this.simNode.setStart();
+				this.networkEvaluation.setStart(this.getComputationIndex().getId());
 
 				// -----------CP Tests-----------
 				this.getComputationIndex().setNum(this.getComputationIndex().getNum() + 1);
