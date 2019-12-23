@@ -76,7 +76,7 @@ public class Simulation {
 		System.out.println("Time taken: " + timeElapsed.toMillis() + " milliseconds");
 	}
 
-	// 2nd Metric - Overhead Messages
+	// 2nd Metric - Overhead Messages Sent By Node
 	public void resetMsgCounter() {
 		msgSentInElection = 0;
 	}
