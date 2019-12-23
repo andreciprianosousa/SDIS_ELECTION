@@ -90,7 +90,7 @@ public class AckMessageHandler extends Thread {
 
 				node.simNode.setEnd();
 				node.simNode.getTimer();
-				// node.simNode.getMsgOverhead(node.getComputationIndex().getId());
+				node.simNode.getMsgOverhead(node.getComputationIndex().getId());
 
 //				try {
 //					node.simNode.storeElectionTime();

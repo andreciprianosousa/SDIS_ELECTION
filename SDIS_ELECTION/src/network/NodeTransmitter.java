@@ -21,7 +21,7 @@ public class NodeTransmitter extends Thread {
 	protected int timeOut;
 	protected String ipAddress;
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private int messageCounter = 0;
 
 	protected byte[] dataToReceive = new byte[2048];
@@ -257,7 +257,7 @@ public class NodeTransmitter extends Thread {
 		String[] fields = mailingListString.split(",");
 		Set<Integer> mailingListConverted = ConcurrentHashMap.newKeySet();
 
-		if (mailingListConverted.isEmpty()) {
+		if (fields[0].isEmpty()) {
 			if (DEBUG) {
 				System.out.println(" > > > > > > Nothing to convert < < < < < ");
 			}
