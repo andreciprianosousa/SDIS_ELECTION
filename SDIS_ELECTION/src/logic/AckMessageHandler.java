@@ -1,6 +1,7 @@
 package logic;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -90,6 +91,8 @@ public class AckMessageHandler extends Thread {
 
 				node.networkEvaluation.setEnd(node.getComputationIndex().getId());
 				node.networkEvaluation.getTimer(node.getComputationIndex().getId());
+
+//				System.out.println("End Election: " + node.getComputationIndex().getId() + " = " + Instant.now());
 //				node.networkEvaluation.getMsgOverhead(node.getComputationIndex().getId());
 
 //				try {

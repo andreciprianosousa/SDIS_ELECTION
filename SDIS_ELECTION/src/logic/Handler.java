@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,6 +22,8 @@ public class Handler extends Thread {
 	byte[] messageToSend; // = new byte[2048]; // This value does nothing, I could pu a 0 here and it
 							// would work
 	DatagramPacket datagram;
+
+	private static boolean DEBUG = false;
 
 	// Constructor
 	public Handler(Node node, MessageType messageType, Set<Integer> mailingList) {
@@ -100,6 +103,12 @@ public class Handler extends Thread {
 
 		// Sends Datagram
 		try {
+			if ((messageType == MessageType.ELECTION) || (messageType == MessageType.ELECTION_GROUP)) {
+				if (DEBUG)
+					System.out.println("Init Election: " + node.getComputationIndex().getId() + " = " + Instant.now());
+
+				node.networkEvaluation.setStart(node.getComputationIndex().getId());
+			}
 			socket.send(datagram);
 		} catch (IOException e) {
 			System.out.println(": Error sending datagram (Node: " + node.getNodeID() + ")");

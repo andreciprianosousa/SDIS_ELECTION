@@ -220,7 +220,7 @@ public class Node implements Serializable {
 			// Instant.now()).toMillis());
 			if (Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut * 1000)) {
 				if (DEBUG)
-					System.out.println("Duration = "
+					System.out.println("Removed because Duration = "
 							+ Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() + "ms.");
 				toRemove.add(neighbor);
 			}
@@ -325,8 +325,6 @@ public class Node implements Serializable {
 
 				if (DEBUG)
 					System.out.println("Node " + this.getNodeID() + " bootstrapped election on leader removal.");
-
-				this.networkEvaluation.setStart(this.getComputationIndex().getId());
 
 				// -----------CP Tests-----------
 				this.getComputationIndex().setNum(this.getComputationIndex().getNum() + 1);
