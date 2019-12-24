@@ -18,7 +18,7 @@ import simulation.Simulation;
 
 public class Node implements Serializable {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	protected int nodeID;
 	protected ComputationIndex computationIndex;
@@ -264,15 +264,15 @@ public class Node implements Serializable {
 						if (DEBUG)
 							System.out.println("========================>   Leader agreed upon: " + this.getLeaderID());
 
-						this.networkEvaluation.setEnd(this.getComputationIndex().getId());
-						this.networkEvaluation.getTimer(this.getComputationIndex().getId());
-						// this.networkEvaluation.getMsgOverhead(this.getComputationIndex().getId());
+						this.networkEvaluation.setEndElectionTimer(this.getComputationIndex().getId());
 
-//						try {
-//							this.simNode.storeElectionTime();
-//						} catch (IOException e) {
-//							e.printStackTrace();
-//						}
+						this.networkEvaluation.setEndWithoutLeaderTimer();
+
+						try {
+							this.networkEvaluation.getElectionTimer(this.getComputationIndex().getId());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 
 						// send Leader message to all children
 						Iterator<Integer> i = this.getNeighbors().iterator();

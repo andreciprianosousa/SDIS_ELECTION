@@ -1,5 +1,6 @@
 package logic;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -55,6 +56,15 @@ public class ElectionMessageHandler extends Thread {
 							"Already in same election! Sending immediate ack to " + electionMessage.getIncomingId());
 
 				sendMessage(logic.MessageType.ACK, electionMessage.getIncomingId());
+
+				// This ACK is sent only if in election
+				try {
+					node.networkEvaluation.counterMessagesInElection(node.getComputationIndex().getId(),
+							logic.MessageType.ACK);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} else {
 				// If I have priority in Computation Index, send to sender of message new
 				// Election in my terms

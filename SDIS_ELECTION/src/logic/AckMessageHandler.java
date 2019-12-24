@@ -76,7 +76,15 @@ public class AckMessageHandler extends Thread {
 							"Sending to my parent " + node.getParentActive() + " the Leader Id " + node.getStoredId());
 				sendMessage(logic.MessageType.ACK, node.getParentActive());
 
+				// This ACK is sent only if in election
+				try {
+					node.networkEvaluation.counterMessagesInElection(node.getComputationIndex().getId(),
+							logic.MessageType.ACK);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
+
 			// or prepare to send leader message if this node is the source of the election
 			// (if it has no parent)
 			else {
@@ -89,17 +97,15 @@ public class AckMessageHandler extends Thread {
 				node.setStoredValue(node.getNodeValue());
 				System.out.println("========================>   Leader agreed upon: " + node.getLeaderID());
 
-				node.networkEvaluation.setEnd(node.getComputationIndex().getId());
-				node.networkEvaluation.getTimer(node.getComputationIndex().getId());
+				node.networkEvaluation.setEndElectionTimer(node.getComputationIndex().getId());
 
-//				System.out.println("End Election: " + node.getComputationIndex().getId() + " = " + Instant.now());
-//				node.networkEvaluation.getMsgOverhead(node.getComputationIndex().getId());
+				node.networkEvaluation.setEndWithoutLeaderTimer();
 
-//				try {
-//					node.simNode.storeElectionTime();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
+				try {
+					node.networkEvaluation.getElectionTimer(node.getComputationIndex().getId());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 
 				// send Leader message to all children
 				Iterator<Integer> i = node.getNeighbors().iterator();

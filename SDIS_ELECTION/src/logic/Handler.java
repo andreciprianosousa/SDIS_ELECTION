@@ -103,12 +103,21 @@ public class Handler extends Thread {
 
 		// Sends Datagram
 		try {
+			// Only starts counting time when it's send an Election Msg
+			// Starts Counting messages in election with Election Msg
 			if ((messageType == MessageType.ELECTION) || (messageType == MessageType.ELECTION_GROUP)) {
 				if (DEBUG)
 					System.out.println("Init Election: " + node.getComputationIndex().getId() + " = " + Instant.now());
 
-				node.networkEvaluation.setStart(node.getComputationIndex().getId());
+				node.networkEvaluation.setStartElectionTimer(node.getComputationIndex().getId());
+				node.networkEvaluation.counterMessagesInElection(node.getComputationIndex().getId(), messageType);
 			}
+
+			// Ends the message counting when Leader msg is sent
+			if (messageType == MessageType.LEADER) {
+				node.networkEvaluation.counterMessagesInElection(node.getComputationIndex().getId(), messageType);
+			}
+
 			socket.send(datagram);
 		} catch (IOException e) {
 			System.out.println(": Error sending datagram (Node: " + node.getNodeID() + ")");
