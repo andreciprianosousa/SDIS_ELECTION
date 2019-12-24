@@ -1,0 +1,61 @@
+Teste 1 - Network Setup todos-sabem-todos (5 nós mas pode ser mais, tamanho exato não sei pq depende de tempo de setup inicial)
+	1.1 - Criar rede - 
+		1 0 0 5 0 0 0 0 0
+		2 0 0 5 0 0 0 0 0		
+		3 0 0 5 0 0 0 0 0
+		4 0 0 5 0 0 0 0 0
+		5 0 0 5 0 0 0 0 0
+	1.2 - Remover líder - não sei remover o nó em script ou em terminal xD
+
+Teste 2 - Network Setup topologia estática mas com líder a fazer de ponte, removendo depois o líder
+	1.1 - Criar rede
+		1 0 0 5 0 0 0 0 0
+		2 10 0 5 0 0 10 0 0
+		3 5 0 5 0 0 5 0 0
+		4 0 10 5 0 0 0 10 0
+		5 10 10 5 0 0 10 10 0
+		6 5 10 5 0 0 5 10 0
+		7 0 5 5 0 0 0 5 0
+	1.2 - Remover líder e criar partição, resultando em duas redes - não sei remover o nó em script ou em terminal xD
+
+Teste 3 - Network Setup estatica, com nó que não é líder a fazer de ponte
+	1.1 - Criar rede
+		7 0 0 5 0 0 0 0 0
+		6 10 0 5 0 0 10 0 0
+		5 5 0 5 0 0 5 0 0
+		4 0 10 5 0 0 0 10 0
+		3 10 10 5 0 0 10 10 0
+		2 5 10 5 0 0 5 10 0
+		1 0 5 5 0 0 0 5 0
+	1.2 - Remover nó e tirar parte da rede de contacto indireto com líder, resultando em duas redes - não sei remover o nó em script ou em terminal xD
+
+Teste 4 - Network Setup com 1 ou mais nós estáticos e outro a movimentar-se até ao range do primeiro
+	1.1 - Criar rede (mais pequeno ou maior a ser o movimentado, tanto faz, dá certo à mesma)
+		1 0 0 5 0 0 0 0 0 (2 0 0 5 0 0 0 0 0)
+	1.2 - Criar nó movimentado
+		2 15 0 5 0 0 5 0 0 (1 15 0 5 0 0 5 0 0)	
+
+Teste 5 - Network Setup com 1 ou mais nós estáticos e outro a movimentar-se fora do range do primeiro
+	1.1 - Criar rede (mais pequeno ou maior a ser o movimentado, tanto faz, dá certo à mesma)
+		1 0 0 5 0 0 0 0 0 (2 0 0 5 0 0 0 0 0)
+	1.2 - Criar nó movimentado
+		2 0 0 5 0 0 15 0 0 (1 0 0 5 0 0 15 0 0)	 	
+	
+Teste 6 - Network Setup com 2 redes estáticas e com um nó a mover-se para o meio entre as duas, criando uma ponte, sendo o nó o novo líder to be
+	1.1 - Criar rede
+		1 0 0 5 0 0 0 0 0
+		2 5 0 5 0 0 5 0 0
+		3 15 0 5 0 0 15 0 0
+		4 20 0 5 0 0 20 0 0
+	1.2 - Criar nó movimentado
+		5 10 15 5 0 0 10 0 1		
+
+Teste 7 - Network Setup com 2 redes estáticas e com um nó a mover-se para o meio entre as duas, criando uma ponte, sendo o nó não líder to be
+	1.1 - Criar rede
+		2 0 0 5 0 0 0 0 0
+		3 5 0 5 0 0 5 0 0
+		4 15 0 5 0 0 15 0 0
+		5 20 0 5 0 0 20 0 0
+	1.2 - Criar nó movimentado
+		1 10 15 5 0 0 10 0 1
+
