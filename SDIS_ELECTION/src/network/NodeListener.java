@@ -26,7 +26,7 @@ public class NodeListener extends Thread {
 	private Instant deathNode = Instant.now();
 
 	private static final int refreshTestLiveliness = 1000;
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final String GoingToSleep = null;
 
 	public NodeListener(Node node, int refreshRate) {
@@ -60,6 +60,16 @@ public class NodeListener extends Thread {
 		}
 
 		while (true) {
+
+			// Start Timer Without Leader
+			if ((node.getNeighbors().size() > 0) && (node.getMaximumIdNeighbors() > node.getNodeID())
+					&& (node.getNodeID() == node.getLeaderID())) {
+				if (!(node.getNetworkEvaluation().getWithoutLeaderInit().contains(node.getNodeID()))) {
+					if (DEBUG)
+						System.out.println("Starting Timer WL");
+					node.getNetworkEvaluation().setStartWithoutLeaderTimer();
+				}
+			}
 
 			node.updateRemovedNodes();
 

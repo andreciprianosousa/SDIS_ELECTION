@@ -655,4 +655,29 @@ public class Node implements Serializable {
 	public void setToTestDeath(boolean isToTestDeath) {
 		this.isToTestDeath = isToTestDeath;
 	}
+
+	public boolean isHasMobility() {
+		return hasMobility;
+	}
+
+	public void setHasMobility(boolean hasMobility) {
+		this.hasMobility = hasMobility;
+	}
+
+	public boolean isTestMobility() {
+		return testMobility;
+	}
+
+	public void setTestMobility(boolean testMobility) {
+		this.testMobility = testMobility;
+	}
+
+	public Evaluation getNetworkEvaluation() {
+		return networkEvaluation;
+	}
+
+	public void setNetworkEvaluation(Evaluation networkEvaluation) {
+		this.networkEvaluation = networkEvaluation;
+	}
+
 }

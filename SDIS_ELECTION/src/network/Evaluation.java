@@ -204,4 +204,77 @@ public class Evaluation {
 	public double runningAvg() {
 		return 0;
 	}
+
+	public Node getNode() {
+		return node;
+	}
+
+	public void setNode(Node node) {
+		this.node = node;
+	}
+
+	public ConcurrentHashMap<Integer, Instant> getElectionInit() {
+		return electionInit;
+	}
+
+	public void setElectionInit(ConcurrentHashMap<Integer, Instant> electionInit) {
+		this.electionInit = electionInit;
+	}
+
+	public ConcurrentHashMap<Integer, Instant> getElectionEnd() {
+		return electionEnd;
+	}
+
+	public void setElectionEnd(ConcurrentHashMap<Integer, Instant> electionEnd) {
+		this.electionEnd = electionEnd;
+	}
+
+	public Duration getElectionTimeElapsed() {
+		return electionTimeElapsed;
+	}
+
+	public void setElectionTimeElapsed(Duration electionTimeElapsed) {
+		this.electionTimeElapsed = electionTimeElapsed;
+	}
+
+	public ConcurrentHashMap<Integer, Integer> getMapMsgOverhead() {
+		return mapMsgOverhead;
+	}
+
+	public void setMapMsgOverhead(ConcurrentHashMap<Integer, Integer> mapMsgOverhead) {
+		this.mapMsgOverhead = mapMsgOverhead;
+	}
+
+	public int getMsgSentInElection() {
+		return msgSentInElection;
+	}
+
+	public void setMsgSentInElection(int msgSentInElection) {
+		this.msgSentInElection = msgSentInElection;
+	}
+
+	public ConcurrentHashMap<Integer, Instant> getWithoutLeaderInit() {
+		return withoutLeaderInit;
+	}
+
+	public void setWithoutLeaderInit(ConcurrentHashMap<Integer, Instant> withoutLeaderInit) {
+		this.withoutLeaderInit = withoutLeaderInit;
+	}
+
+	public ConcurrentHashMap<Integer, Instant> getWithoutLeaderEnd() {
+		return withoutLeaderEnd;
+	}
+
+	public void setWithoutLeaderEnd(ConcurrentHashMap<Integer, Instant> withoutLeaderEnd) {
+		this.withoutLeaderEnd = withoutLeaderEnd;
+	}
+
+	public Duration getWithoutLeaderTimeElapsed() {
+		return withoutLeaderTimeElapsed;
+	}
+
+	public void setWithoutLeaderTimeElapsed(Duration withoutLeaderTimeElapsed) {
+		this.withoutLeaderTimeElapsed = withoutLeaderTimeElapsed;
+	}
+
 }
