@@ -1,5 +1,6 @@
 package logic;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -84,6 +85,14 @@ public class LeaderMessageHandler extends Thread {
 			node.setStoredId(node.getNodeID());
 			node.setStoredValue(node.getNodeValue());
 
+			// Set End To Timer Without Leader
+			node.networkEvaluation.setEndWithoutLeaderTimer();
+			try {
+				node.networkEvaluation.getWithoutLeaderTimer();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 			if (DEBUG) {
 				System.out.println("Node " + node.getNodeID() + "'s leader is " + node.getLeaderID());
 				System.out.println("CP(num/value/id): " + node.getComputationIndex().getNum() + " - "
@@ -118,6 +127,14 @@ public class LeaderMessageHandler extends Thread {
 			node.setLeaderValue(leaderMessage.getStoredValue());
 			node.setStoredId(node.getNodeID());
 			node.setStoredValue(node.getNodeValue());
+
+			// Set End To Timer Without Leader
+			node.networkEvaluation.setEndWithoutLeaderTimer();
+			try {
+				node.networkEvaluation.getWithoutLeaderTimer();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
 			// If my only neighbour is my parent, don't propagate leader message and just
 			// return

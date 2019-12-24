@@ -62,9 +62,9 @@ public class ElectionMessageHandler extends Thread {
 					node.networkEvaluation.counterMessagesInElection(node.getComputationIndex().getId(),
 							logic.MessageType.ACK);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
 			} else {
 				// If I have priority in Computation Index, send to sender of message new
 				// Election in my terms

@@ -61,16 +61,6 @@ public class NodeListener extends Thread {
 
 		while (true) {
 
-			// Start Timer Without Leader
-			if ((node.getNeighbors().size() > 0) && (node.getMaximumIdNeighbors() > node.getNodeID())
-					&& (node.getNodeID() == node.getLeaderID())) {
-				if (!(node.getNetworkEvaluation().getWithoutLeaderInit().contains(node.getNodeID()))) {
-					if (DEBUG)
-						System.out.println("Starting Timer WL");
-					node.getNetworkEvaluation().setStartWithoutLeaderTimer();
-				}
-			}
-
 			node.updateRemovedNodes();
 
 			if (print % 4 == 0 && (node.isKilled() == false)) {

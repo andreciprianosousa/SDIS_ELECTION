@@ -21,7 +21,7 @@ public class NodeTransmitter extends Thread {
 	protected int timeOut;
 	protected String ipAddress;
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private int messageCounter = 0;
 
 	protected byte[] dataToReceive = new byte[2048];
@@ -80,6 +80,9 @@ public class NodeTransmitter extends Thread {
 			// System.out.println("Node " + node.getNodeID() + ". Message " + message);
 
 			if (!(node.isKilled())) {
+
+				// Start Timer Without Leader
+				node.getNetworkEvaluation().checkWithoutLeader();
 
 				// ------------- Reception and logic starts here-----------------
 				String[] fields = message.split("/");

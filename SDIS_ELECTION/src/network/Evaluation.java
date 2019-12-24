@@ -128,6 +128,28 @@ public class Evaluation {
 	// 3rd Metric - Time Without Leader
 	// Frac. Time W/out Leader (F) is the fraction of sim time that a node is
 	// involved in an election
+	public void checkWithoutLeader() {
+		if (DEBUG)
+			System.out.println("Node = " + node.getNodeID() + " | Size = " + node.getNeighbors().size()
+					+ " | MaxNeigh = " + node.getMaximumIdNeighbors() + " | Leader = " + node.getLeaderID());
+
+		if ((node.getNeighbors().size() > 0) && (node.getMaximumIdNeighbors() > node.getNodeID())
+				&& (node.getNodeID() == node.getLeaderID())) {
+			if (!(node.getNetworkEvaluation().getWithoutLeaderInit().containsKey(node.getNodeID()))) {
+				if (DEBUG)
+					System.out.println("Starting Timer WL - Case 1");
+				setStartWithoutLeaderTimer();
+			}
+		}
+		if (((node.getNodeID() != node.getLeaderID())) && (!(node.getNeighbors().contains(node.getLeaderID())))) {
+			if (!(node.getNetworkEvaluation().getWithoutLeaderInit().containsKey(node.getNodeID()))) {
+				if (DEBUG)
+					System.out.println("Starting Timer WL - Case 2");
+				setStartWithoutLeaderTimer();
+			}
+		}
+	}
+
 	public void setStartWithoutLeaderTimer() {
 		withoutLeaderInit.put(node.getNodeID(), Instant.now());
 	}
@@ -141,6 +163,8 @@ public class Evaluation {
 		if (!(withoutLeaderInit.containsKey(node.getNodeID()))) {
 			if (DEBUG)
 				System.out.println("No Timer was started with that Node ID");
+
+			withoutLeaderEnd.remove(node.getNodeID());
 			return;
 		}
 		if (!(withoutLeaderEnd.containsKey(node.getNodeID()))) {
@@ -152,6 +176,9 @@ public class Evaluation {
 		this.withoutLeaderTimeElapsed = Duration.between(withoutLeaderInit.get(node.getNodeID()),
 				withoutLeaderEnd.get(node.getNodeID()));
 		System.out.println("Without Leader _ Time taken: " + withoutLeaderTimeElapsed.toMillis() + " milliseconds");
+
+		withoutLeaderInit.remove(node.getNodeID());
+		withoutLeaderEnd.remove(node.getNodeID());
 
 		if (toWrite)
 			storeWithoutLeaderTimer();

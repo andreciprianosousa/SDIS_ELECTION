@@ -1,5 +1,6 @@
 package logic;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -49,6 +50,14 @@ public class InfoMessageHandler extends Thread {
 			node.setStoredValue(node.getNodeValue());
 			System.out.println("Leader changed in Node " + node.getNodeID() + " to: " + node.getLeaderID()
 					+ " due to exchanging messages with " + infoMessage.getIncomingId());
+
+			// Set End To Timer Without Leader
+			node.networkEvaluation.setEndWithoutLeaderTimer();
+			try {
+				node.networkEvaluation.getWithoutLeaderTimer();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
 			// send "special "Leader message to all neighbours except one that passed the
 			// info to me
