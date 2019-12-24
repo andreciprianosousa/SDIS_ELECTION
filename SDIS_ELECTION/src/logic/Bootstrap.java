@@ -6,7 +6,7 @@ public class Bootstrap extends Thread {
 
 	protected Node node;
 
-	private static final int NetworkSet_Delay = 3000;
+	private static final int NetworkSet_Delay = 1000;
 	private static final int Election_Delay = 4000;
 
 	private static final boolean DEBUG = true;

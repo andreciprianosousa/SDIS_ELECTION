@@ -18,7 +18,7 @@ import simulation.Simulation;
 
 public class Node implements Serializable {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	protected int nodeID;
 	protected ComputationIndex computationIndex;
@@ -301,8 +301,14 @@ public class Node implements Serializable {
 
 			// If leader is no longer my neighbour, restart the election because no leader =
 			// bad
+
+			// If I'm alone just bootstrap normally and end
+			if (neighbors.isEmpty()) {
+				new Bootstrap(this).start();
+			}
 			// Special case for the leader itself, it doesn't need to check itself
-			if (!neighbors.containsKey(leaderID) && !(nodeID == leaderID)) {
+			else if (!neighbors.containsKey(leaderID) && !(nodeID == leaderID)) {
+				this.setElectionActive(true);
 				this.setStoredId(this.nodeID);
 				this.setStoredValue(this.nodeValue);
 				this.setLeaderID(this.nodeID);
