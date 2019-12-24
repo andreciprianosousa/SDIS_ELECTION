@@ -32,6 +32,8 @@ public class Bootstrap extends Thread {
 			node.setLeaderValue(node.getNodeValue());
 			System.out.println("I'm alone, my current Leader is me: " + node.getLeaderID());
 			System.out.println("-----------------------------");
+
+			node.networkEvaluation.setEndWithoutLeaderTimer();
 		}
 
 		// OUTDATED CODE, BUT MAY STILL BE USEFUL IN THE INITIAL BOOTSTRAP IF WE NEED TO

@@ -133,8 +133,7 @@ public class Evaluation {
 			System.out.println("Node = " + node.getNodeID() + " | Size = " + node.getNeighbors().size()
 					+ " | MaxNeigh = " + node.getMaximumIdNeighbors() + " | Leader = " + node.getLeaderID());
 
-		if ((node.getNeighbors().size() > 0) && (node.getMaximumIdNeighbors() > node.getNodeID())
-				&& (node.getNodeID() == node.getLeaderID())) {
+		if ((node.getNeighbors().size() > 0) && (node.getMaximumIdNeighbors() > node.getLeaderID())) {
 			if (!(node.getNetworkEvaluation().getWithoutLeaderInit().containsKey(node.getNodeID()))) {
 				if (DEBUG)
 					System.out.println("Starting Timer WL - Case 1");
@@ -170,6 +169,10 @@ public class Evaluation {
 		if (!(withoutLeaderEnd.containsKey(node.getNodeID()))) {
 			if (DEBUG)
 				System.out.println("Timer wasn't finished yet Or it was left behind");
+
+			// Fail Safe Case... In case that it's initiated and never finished
+			if (Duration.between(withoutLeaderInit.get(node.getNodeID()), Instant.now()).toMillis() > 5000)
+				withoutLeaderEnd.remove(node.getNodeID());
 			return;
 		}
 

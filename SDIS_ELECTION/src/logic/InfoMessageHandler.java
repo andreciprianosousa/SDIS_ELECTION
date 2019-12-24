@@ -51,13 +51,13 @@ public class InfoMessageHandler extends Thread {
 			System.out.println("Leader changed in Node " + node.getNodeID() + " to: " + node.getLeaderID()
 					+ " due to exchanging messages with " + infoMessage.getIncomingId());
 
-			// Set End To Timer Without Leader
-			node.networkEvaluation.setEndWithoutLeaderTimer();
-			try {
-				node.networkEvaluation.getWithoutLeaderTimer();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			// Set End To Timer Without Leader - May not be necessary
+			// node.networkEvaluation.setEndWithoutLeaderTimer();
+//			try {
+//				node.networkEvaluation.getWithoutLeaderTimer();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
 
 			// send "special "Leader message to all neighbours except one that passed the
 			// info to me

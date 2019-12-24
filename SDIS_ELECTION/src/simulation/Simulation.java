@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Simulation {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	private int medianFailure = 100; // 100 Messages
 	private int medianDeath = 5; // 5 minute
@@ -20,8 +20,12 @@ public class Simulation {
 	private Instant nodeCharge;
 
 	private boolean isToTestPacket;
+	private boolean takeDecisionFailure;
+	private double decisionFailure;
 	private boolean isToTestDeath;
 	private boolean nodeKilled;
+	private boolean takeDecisionDeath;
+	private double decisionDeath;
 
 	protected Random decisionMaker = new Random();
 
@@ -50,33 +54,40 @@ public class Simulation {
 			this.medianDeath = medianDeath;
 		}
 
+		this.decisionFailure = 0;
+		this.decisionDeath = 0;
+		this.takeDecisionFailure = true;
+		this.takeDecisionDeath = true;
 		this.nodeInit = nodeInit;
 		this.nodeCharge = nodeInit;
 	}
 
 	// Simulation - Drop Packets following Mean Time To Happen
 	public boolean meanTimeToHappenFailure(int messageCount) {
-		double Probability = 0, aux = 0, decisionN = 0;
+		double Probability, aux = 0;
 
 		// DecimalFormat df5 = new DecimalFormat("#.#####");
-
 		if (!isToTestPacket()) {
 			if (DEBUG)
 				System.out.println("No Test Packet!");
 			return false;
 		}
 
+		if (takeDecisionFailure == true) {
+			decisionFailure = decisionMaker.nextInt(100); // Numbers between 0 and 99
+			takeDecisionFailure = false;
+		}
+
 		// mean Time to Happen => P("event") = 1 - 2^[-(tc/tmedian)]
 		aux = -(1.0) * ((double) messageCount / (double) medianFailure);
 		Probability = (double) (1 - Math.pow(2, aux)) * 100;
 
-		decisionN = decisionMaker.nextInt(100); // Numbers between 0 and 99
-
 		if (DEBUG)
 			System.out.println(
-					"meanTimeToHappenFailure >>> decisionN =  " + decisionN + " | Probability = " + Probability);
+					"meanTimeToHappenFailure >>> decisionN =  " + decisionFailure + " | Probability = " + Probability);
 
-		if (decisionN < Probability) {
+		if (decisionFailure < Probability) {
+			takeDecisionFailure = true;
 			return true; // Packet Dropped
 		} else {
 			return false;
@@ -85,7 +96,7 @@ public class Simulation {
 
 	// Simulation - Node Death following Mean Time To Happen
 	public boolean meanTimeToDie(Instant newInstant) {
-		double Probability = 0, decisionN = 0, aux = 0, timeSpent = 0;
+		double Probability, aux = 0, timeSpent = 0;
 
 		if (!isToTestDeath) {
 			if (DEBUG)
@@ -93,17 +104,21 @@ public class Simulation {
 			return false;
 		}
 
+		if (takeDecisionDeath == true) {
+			decisionDeath = decisionMaker.nextInt(100); // Numbers between 0 and 99
+			takeDecisionDeath = false;
+		}
+
 		timeSpent = Duration.between(nodeCharge, newInstant).toMillis();
 		aux = -(1.0) * ((double) timeSpent / (double) (medianDeath * 60 * 1000));
 		Probability = (double) (1 - Math.pow(2, aux)) * 100;
 
-		decisionN = decisionMaker.nextInt(100); // Numbers between 0 and 99
-
 		if (DEBUG)
-			System.out.println("meanTimeToDie >>> decisionN =  " + decisionN + " | Probability = " + Probability);
+			System.out.println("meanTimeToDie >>> decisionN =  " + decisionDeath + " | Probability = " + Probability);
 
-		if (decisionN < Probability) {
+		if (decisionDeath < Probability) {
 			setNodeKilled(true);
+			takeDecisionDeath = true;
 			return true; // Node death
 		} else {
 			setNodeKilled(false);

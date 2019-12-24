@@ -155,6 +155,7 @@ public class Node implements Serializable {
 
 		this.networkEvaluation = new Evaluation(this);
 
+		this.getNetworkEvaluation().checkWithoutLeader();
 		new Bootstrap(this).start(); // New node, so set network and act accordingly
 
 		this.automovel = new Mobility(this, hasMobility, testMobility);
@@ -304,10 +305,14 @@ public class Node implements Serializable {
 
 			// If I'm alone just bootstrap normally and end
 			if (neighbors.isEmpty()) {
+				this.getNetworkEvaluation().checkWithoutLeader();
 				new Bootstrap(this).start();
 			}
 			// Special case for the leader itself, it doesn't need to check itself
 			else if (!neighbors.containsKey(leaderID) && !(nodeID == leaderID)) {
+				// Check if node is without leader
+				this.getNetworkEvaluation().checkWithoutLeader();
+
 				this.setElectionActive(true);
 				this.setStoredId(this.nodeID);
 				this.setStoredValue(this.nodeValue);
@@ -315,6 +320,7 @@ public class Node implements Serializable {
 				this.setLeaderValue(this.nodeValue);
 				this.setParentActive(-1);
 				this.waitingAcks.remove(neighbor);
+
 				if (DEBUG)
 					System.out.println(
 							"Leader gone or one of my neighbours gone but I don't have direct connection to leader.");
