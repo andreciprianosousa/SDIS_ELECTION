@@ -15,8 +15,8 @@ public class Evaluation {
 	private static final boolean DEBUG_ElectionTimer = false;
 	private static final boolean DEBUG_MsgOverhead = false;
 	private static final boolean DEBUG_WithoutLeaderTimer = false;
-	private static final boolean DEBUG_ExchangingLeader = true;
-	private static final boolean DEBUG_ElectionRate = false;
+	private static final boolean DEBUG_ExchangingLeader = false;
+	private static final boolean DEBUG_ElectionRate = true;
 	private static final int timeoutLeaderExchange = 300000;
 
 	private static boolean toWrite = false;
@@ -46,6 +46,7 @@ public class Evaluation {
 	private int currentNumberOfElectionRates;
 	private boolean isElectionRateDone;
 	private boolean newTestElectionRate;
+	private boolean newElection;
 
 	public Evaluation(Node node) {
 		this.node = node;
@@ -54,6 +55,7 @@ public class Evaluation {
 		this.currentNumberOfElectionRates = 0;
 		this.isElectionRateDone = false;
 		this.newTestElectionRate = true;
+		this.newElection = false;
 	}
 
 	// 1st Metric - Election Time
@@ -290,20 +292,21 @@ public class Evaluation {
 
 		if (isNewTestElectionRate() == true) {
 			if (DEBUG_ElectionRate)
-				System.out.println("<<<<4>>>> Set New Election rates <<<<4>>>>");
+				System.out.println("<<5>> Set New Election rates <<5>>");
 			electionRateInit = Instant.now();
 			setNewTestElectionRate(false);
 		}
 	}
 
-	public void counterElectionRate(int id) throws IOException {
+	public void counterElectionRate(int id) {
 
 		if (isElectionRateDone() == true) {
 			if (DEBUG_ElectionRate)
-				System.out.println(
-						"<<<<4>>>> Election Rate done " + totalNumberOfElectionRates + "x. It's enough! <<<<4>>>>");
+				System.out.println("<<5>> Election Rate done " + totalNumberOfElectionRates + "x. It's enough! <<5>>");
 			return;
 		}
+
+		setNewElection(false);
 
 		if (Duration.between(electionRateInit, Instant.now()).toMillis() >= unitTime * 1000) {
 			synchronized (this) {
@@ -311,16 +314,21 @@ public class Evaluation {
 				currentNumberOfElectionRates++;
 				if (DEBUG_ElectionRate)
 					System.out.println(
-							"<<<<4>>>> In the last " + unitTime + " s, Election Rate = " + electionRate + ".<<<<4>>>>");
+							"<<5>> In the last " + unitTime + " s, Election Rate = " + electionRate + ".<<5>>");
 
 				if (currentNumberOfElectionRates == totalNumberOfElectionRates) {
 					setElectionRateDone(true);
 					if (DEBUG_ElectionRate)
-						System.out.println("<<<<4>>>> All Election Rates were done.<<<<4>>>>");
+						System.out.println("<<5>> All Election Rates were done.<<5>>");
 				}
 
-				if (toWrite)
-					storeElectionRate(electionRate);
+				if (toWrite) {
+					try {
+						storeElectionRate(electionRate);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 
 				nodeElectionRate.clear();
 				if (isElectionRateDone() == false) {
@@ -329,10 +337,16 @@ public class Evaluation {
 			}
 		} else {
 			synchronized (this) {
-				if (!(nodeElectionRate.contains(id))) {
+				if (!(nodeElectionRate.containsKey(id))) {
 					nodeElectionRate.put(node.getNodeID(), 1);
 					if (DEBUG_ElectionRate)
-						System.out.println("<<<<4>>>> New Election to Count!<<<<4>>>>");
+						System.out.println("<<5>> New Election to Count!<<5>>");
+				} else {
+					electionRate = nodeElectionRate.get(id);
+					electionRate++;
+					nodeElectionRate.replace(id, electionRate);
+					if (DEBUG_ElectionRate)
+						System.out.println("<<5>> Election with Same ID ++ <<5>>");
 				}
 			}
 		}
@@ -389,7 +403,8 @@ public class Evaluation {
 
 	public void storeElectionRate(int electionRatetoStore) throws IOException {
 		String textToAppend = "Time" + "," + Instant.now() + "," + "Election_Rate" + "," + "Node" + ","
-				+ node.getNodeID() + "," + "Election_Rate" + "," + electionRatetoStore + "\n";
+				+ node.getNodeID() + "," + "Election_Rate" + "," + electionRatetoStore + "," + "UnitTime" + ","
+				+ unitTime + "," + "s" + "\n";
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\electionRate.txt", true) // AppendMode
 		);
@@ -529,6 +544,14 @@ public class Evaluation {
 
 	public void setNewTestElectionRate(boolean newTestElectionRate) {
 		this.newTestElectionRate = newTestElectionRate;
+	}
+
+	public boolean isNewElection() {
+		return newElection;
+	}
+
+	public void setNewElection(boolean newElection) {
+		this.newElection = newElection;
 	}
 
 }

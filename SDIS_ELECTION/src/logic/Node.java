@@ -322,6 +322,9 @@ public class Node implements Serializable {
 				this.setParentActive(-1);
 				this.waitingAcks.remove(neighbor);
 
+				// Needed for Network Evaluation
+				this.getNetworkEvaluation().setNewElection(true);
+
 				if (DEBUG)
 					System.out.println(
 							"Leader gone or one of my neighbours gone but I don't have direct connection to leader.");

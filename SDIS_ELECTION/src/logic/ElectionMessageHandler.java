@@ -126,6 +126,9 @@ public class ElectionMessageHandler extends Thread {
 			node.getComputationIndex().setId(electionMessage.getComputationIndex().getId());
 			node.getComputationIndex().setValue(electionMessage.getComputationIndex().getValue());
 
+			// Needed for Network Evaluation
+			node.getNetworkEvaluation().setNewElection(true);
+
 			// If this node has no neighbours except parent, send ack to parent and set
 			// ackSent to false right away
 			if (node.getNeighbors().size() == 1) {
