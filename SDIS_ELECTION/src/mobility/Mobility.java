@@ -30,10 +30,11 @@ public class Mobility extends Thread {
 	public Mobility(Node node, boolean mobility, boolean test) {
 		this.xCoordinate = node.getxCoordinate();
 		this.yCoordinate = node.getyCoordinate();
-		// this.xRange = (int) node.getxMax();
-		this.xRange = 100;
-		// this.yRange = (int) node.getyMax();
-		this.yRange = 100;
+		// Uncomment
+		this.xRange = (int) node.getxMax();
+		// this.xRange = 100;
+		this.yRange = (int) node.getyMax();
+		// this.yRange = 100;
 		this.node = node;
 		this.mobility = mobility;
 		this.test = test;
@@ -48,7 +49,12 @@ public class Mobility extends Thread {
 		// random point
 		if (nodeDirection == 0) { // X axis
 			decisionMaker = new Random();
-			nextX = decisionMaker.nextInt(this.xRange);
+			if (this.xRange == 0) {
+				nextX = 0;
+			} else {
+				nextX = decisionMaker.nextInt(this.xRange);
+			}
+
 			nextY = yCoordinate;
 			if (print)
 				System.out.println("New X: " + nextX + " || New Y: " + nextY);
@@ -56,7 +62,12 @@ public class Mobility extends Thread {
 		} else { // Y axis
 			decisionMaker = new Random();
 			nextX = xCoordinate;
-			nextY = decisionMaker.nextInt(this.yRange);
+			if (this.yRange == 0) {
+				nextY = 0;
+			} else {
+				nextY = decisionMaker.nextInt(this.yRange);
+			}
+
 			if (print)
 				System.out.println("New X: " + nextX + " || New Y: " + nextY);
 		}
@@ -127,7 +138,7 @@ public class Mobility extends Thread {
 				setMoving(false);
 
 				if (print)
-					System.out.println("Node will not move for " + sleepTime + " s.");
+					System.out.println("Node will not move for " + sleepTime + " ms.");
 
 				try {
 					setnewMove(true);
