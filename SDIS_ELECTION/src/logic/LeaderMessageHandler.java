@@ -11,7 +11,7 @@ public class LeaderMessageHandler extends Thread {
 	protected Node node;
 	protected LeaderMessage leaderMessage;
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	public LeaderMessageHandler(Node node, LeaderMessage lm) {
 

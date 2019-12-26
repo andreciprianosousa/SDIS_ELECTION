@@ -112,6 +112,8 @@ public class Handler extends Thread {
 				node.networkEvaluation.setStartElectionTimer(node.getComputationIndex().getId());
 				node.networkEvaluation.counterMessagesInElection(node.getComputationIndex().getId(), messageType);
 
+				// Needed for Network Evaluation => Set New Election
+				node.getNetworkEvaluation().setNewElection(true);
 			}
 
 			// Ends the message counting when Leader msg is sent

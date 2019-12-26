@@ -9,7 +9,7 @@ public class ElectionMessageHandler extends Thread {
 	protected Node node;
 	protected ElectionMessage electionMessage;
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	public ElectionMessageHandler(Node node, ElectionMessage em) {
 
@@ -126,8 +126,8 @@ public class ElectionMessageHandler extends Thread {
 			node.getComputationIndex().setId(electionMessage.getComputationIndex().getId());
 			node.getComputationIndex().setValue(electionMessage.getComputationIndex().getValue());
 
-			// Needed for Network Evaluation
-			node.getNetworkEvaluation().setNewElection(true);
+//			// Needed for Network Evaluation
+//			node.getNetworkEvaluation().setNewElection(true);
 
 			// If this node has no neighbours except parent, send ack to parent and set
 			// ackSent to false right away

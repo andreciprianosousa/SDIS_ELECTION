@@ -188,7 +188,6 @@ public class Node implements Serializable {
 				if (!neighbors.containsKey(nodeMessageID)) {
 					// Starts the timer of Exchanging Leaders
 					if (this.nodeID < nodeMessageID) {
-						System.out.println("O Meu id é menor que o id do meu viznho");
 						this.networkEvaluation.setStartExchangingLeadersTimer(nodeMessageID);
 					}
 					new Handler(this, logic.MessageType.INFO, nodeMessageID).start();
@@ -322,8 +321,8 @@ public class Node implements Serializable {
 				this.setParentActive(-1);
 				this.waitingAcks.remove(neighbor);
 
-				// Needed for Network Evaluation
-				this.getNetworkEvaluation().setNewElection(true);
+//				// Needed for Network Evaluation
+//				this.getNetworkEvaluation().setNewElection(true);
 
 				if (DEBUG)
 					System.out.println(

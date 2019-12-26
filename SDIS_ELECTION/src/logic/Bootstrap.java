@@ -9,7 +9,7 @@ public class Bootstrap extends Thread {
 	private static final int NetworkSet_Delay = 1000;
 	private static final int Election_Delay = 4000;
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	public Bootstrap(Node node) {
 		this.node = node;
@@ -21,7 +21,6 @@ public class Bootstrap extends Thread {
 			Thread.sleep(NetworkSet_Delay); // Gives time to node set himself in the network, subject to change with
 											// network size
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 

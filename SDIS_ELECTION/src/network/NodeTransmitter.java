@@ -101,6 +101,9 @@ public class NodeTransmitter extends Thread {
 
 				else if (message.contains("elec")) {
 
+					// Needed for Network Evaluation
+					node.getNetworkEvaluation().setNewElection(true);
+
 					// If Node is the message recipient, starts handling it
 					// Separates Group messages from Individual ones
 					if (message.contains("elecG") == true) {

@@ -12,7 +12,7 @@ public class AckMessageHandler extends Thread {
 	protected Node node;
 	protected AckMessage ackMessage;
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	public AckMessageHandler(Node node, AckMessage ackMessage) {
 

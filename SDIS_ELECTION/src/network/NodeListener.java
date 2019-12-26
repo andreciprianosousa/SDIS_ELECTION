@@ -71,8 +71,10 @@ public class NodeListener extends Thread {
 
 			print++;
 
+			System.out.println(" Election_Active: " + node.isElectionActive() + " | is_New_Election: "
+					+ node.getNetworkEvaluation().isNewElection());
 			node.getNetworkEvaluation().setStartElectionRateTimer();
-			if ((node.isElectionActive()) && (node.getNetworkEvaluation().isNewElection() == true)) {
+			if (node.getNetworkEvaluation().isNewElection() == true) {
 				node.getNetworkEvaluation().counterElectionRate(node.getComputationIndex().getId());
 			}
 

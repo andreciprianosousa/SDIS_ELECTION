@@ -17,7 +17,7 @@ public class Evaluation {
 	private static final boolean DEBUG_WithoutLeaderTimer = false;
 	private static final boolean DEBUG_ExchangingLeader = false;
 	private static final boolean DEBUG_ElectionRate = true;
-	private static final int timeoutLeaderExchange = 300000;
+	private static final int timeoutLeaderExchange = 3000;
 
 	private static boolean toWrite = false;
 
@@ -51,7 +51,7 @@ public class Evaluation {
 	public Evaluation(Node node) {
 		this.node = node;
 		this.unitTime = 60;
-		this.totalNumberOfElectionRates = 2;
+		this.totalNumberOfElectionRates = 5;
 		this.currentNumberOfElectionRates = 0;
 		this.isElectionRateDone = false;
 		this.newTestElectionRate = true;
@@ -72,17 +72,18 @@ public class Evaluation {
 
 		if (!(electionInit.containsKey(id))) {
 			if (DEBUG_ElectionTimer)
-				System.out.println("No Election was started with that ID");
+				System.out.println("<<1>> No Election was started with that ID");
 			return;
 		}
 		if (!(electionEnd.containsKey(id))) {
 			if (DEBUG_ElectionTimer)
-				System.out.println("Election wasn't finished yet Or it was left behind for a stronger leader");
+				System.out.println("<<1>> Election wasn't finished yet Or it was left behind for a stronger leader");
 			return;
 		}
 
 		this.electionTimeElapsed = Duration.between(electionInit.get(id), electionEnd.get(id));
-		System.out.println("Election _ Time taken: " + electionTimeElapsed.toMillis() + " milliseconds");
+		if (DEBUG_ElectionTimer)
+			System.out.println("<<1>> Election _ Time taken: " + electionTimeElapsed.toMillis() + " milliseconds");
 
 		if (toWrite) {
 			try {
@@ -112,7 +113,7 @@ public class Evaluation {
 			msgSentInElection = 0;
 
 			if (DEBUG_MsgOverhead) {
-				System.out.println("Setting new Counter");
+				System.out.println("<<2>> Setting new Counter");
 			}
 
 			synchronized (this) {
@@ -124,7 +125,7 @@ public class Evaluation {
 		} else {
 			if (type == MessageType.LEADER) {
 				if (DEBUG_MsgOverhead)
-					System.out.println("Leader Message - Stop Counting. Deleting Counter.");
+					System.out.println("<<2>> Leader Message - Stop Counting. Deleting Counter.");
 
 				synchronized (this) {
 					msgSentInElection = mapMsgOverhead.get(id);
@@ -132,8 +133,8 @@ public class Evaluation {
 					mapMsgOverhead.replace(id, msgSentInElection, newCounterValue);
 					msgSentInElection = newCounterValue;
 
-					// System.out.println("Msg Overhead in Election " + id + " = " +
-					// mapMsgOverhead.get(id));
+					if (DEBUG_MsgOverhead)
+						System.out.println("<<2>> Msg Overhead in Election " + id + " = " + mapMsgOverhead.get(id));
 
 					msgSentInElection = mapMsgOverhead.get(id);
 
@@ -150,7 +151,7 @@ public class Evaluation {
 				return;
 			} else {
 				if (DEBUG_MsgOverhead)
-					System.out.println("Updating Counter.");
+					System.out.println("<<2>> Updating Counter.");
 
 				synchronized (this) {
 					msgSentInElection = mapMsgOverhead.get(id);
@@ -168,20 +169,20 @@ public class Evaluation {
 	// involved in an election
 	public void checkWithoutLeader() {
 		if (DEBUG_WithoutLeaderTimer)
-			System.out.println("Node = " + node.getNodeID() + " | Size = " + node.getNeighbors().size()
+			System.out.println("<<3>> Node = " + node.getNodeID() + " | Size = " + node.getNeighbors().size()
 					+ " | MaxNeigh = " + node.getMaximumIdNeighbors() + " | Leader = " + node.getLeaderID());
 
 		if ((node.getNeighbors().size() > 0) && (node.getMaximumIdNeighbors() > node.getLeaderID())) {
 			if (!(node.getNetworkEvaluation().getWithoutLeaderInit().containsKey(node.getNodeID()))) {
 				if (DEBUG_WithoutLeaderTimer)
-					System.out.println("Starting Timer WL - Case 1");
+					System.out.println("<<3>> Starting Timer WL - Case 1");
 				setStartWithoutLeaderTimer();
 			}
 		}
 		if (((node.getNodeID() != node.getLeaderID())) && (!(node.getNeighbors().contains(node.getLeaderID())))) {
 			if (!(node.getNetworkEvaluation().getWithoutLeaderInit().containsKey(node.getNodeID()))) {
 				if (DEBUG_WithoutLeaderTimer)
-					System.out.println("Starting Timer WL - Case 2");
+					System.out.println("<<3>> Starting Timer WL - Case 2");
 				setStartWithoutLeaderTimer();
 			}
 		}
@@ -199,14 +200,14 @@ public class Evaluation {
 
 		if (!(withoutLeaderInit.containsKey(node.getNodeID()))) {
 			if (DEBUG_WithoutLeaderTimer)
-				System.out.println("No Timer was started with that Node ID");
+				System.out.println("<<3>> No Timer was started with that Node ID");
 
 			withoutLeaderEnd.remove(node.getNodeID());
 			return;
 		}
 		if (!(withoutLeaderEnd.containsKey(node.getNodeID()))) {
 			if (DEBUG_WithoutLeaderTimer)
-				System.out.println("Timer wasn't finished yet Or it was left behind");
+				System.out.println("<<3>> Timer wasn't finished yet Or it was left behind");
 
 			// Fail Safe Case... In case that it's initiated and never finished
 			if (Duration.between(withoutLeaderInit.get(node.getNodeID()), Instant.now()).toMillis() > 5000)
@@ -216,7 +217,9 @@ public class Evaluation {
 
 		this.withoutLeaderTimeElapsed = Duration.between(withoutLeaderInit.get(node.getNodeID()),
 				withoutLeaderEnd.get(node.getNodeID()));
-		System.out.println("Without Leader _ Time taken: " + withoutLeaderTimeElapsed.toMillis() + " milliseconds");
+		if (DEBUG_WithoutLeaderTimer)
+			System.out.println(
+					"<<3>> Without Leader _ Time taken: " + withoutLeaderTimeElapsed.toMillis() + " milliseconds");
 
 		withoutLeaderInit.remove(node.getNodeID());
 		withoutLeaderEnd.remove(node.getNodeID());
@@ -251,13 +254,13 @@ public class Evaluation {
 
 		if (!(leaderExchangeInit.containsKey(addresseeId))) {
 			if (DEBUG_ExchangingLeader)
-				System.out.println("No Leader Exchange not contains Init [Case 1 or 2]");
+				System.out.println("<<4>> No Leader Exchange not contains Init [Case 1 or 2]");
 			leaderExchangeEnd.remove(addresseeId);
 			return;
 		}
 		if (!(leaderExchangeEnd.containsKey(addresseeId))) {
 			if (DEBUG_ExchangingLeader)
-				System.out.println("Leader Election wasn't finished yet Or it was left behind");
+				System.out.println("<<4>> Leader Election wasn't finished yet Or it was left behind");
 
 			if (Duration.between(leaderExchangeInit.get(addresseeId), Instant.now()).toMillis() > timeoutLeaderExchange)
 				leaderExchangeInit.remove(addresseeId);
@@ -266,8 +269,9 @@ public class Evaluation {
 
 		this.leaderExchangeElapsed = Duration.between(leaderExchangeInit.get(addresseeId),
 				leaderExchangeEnd.get(addresseeId));
-		System.out.println("Leader _ Exchange [" + addresseeId + "," + node.getNodeID() + "] Time taken: "
-				+ leaderExchangeElapsed.toMillis() + " milliseconds");
+		if (DEBUG_ExchangingLeader)
+			System.out.println("<<4>> Leader _ Exchange [" + addresseeId + "," + node.getNodeID() + "] Time taken: "
+					+ leaderExchangeElapsed.toMillis() + " milliseconds");
 
 		if (toWrite) {
 			try {
@@ -292,7 +296,7 @@ public class Evaluation {
 
 		if (isNewTestElectionRate() == true) {
 			if (DEBUG_ElectionRate)
-				System.out.println("<<5>> Set New Election rates <<5>>");
+				System.out.println("<<5>> Set New Election rates");
 			electionRateInit = Instant.now();
 			setNewTestElectionRate(false);
 		}
@@ -302,7 +306,7 @@ public class Evaluation {
 
 		if (isElectionRateDone() == true) {
 			if (DEBUG_ElectionRate)
-				System.out.println("<<5>> Election Rate done " + totalNumberOfElectionRates + "x. It's enough! <<5>>");
+				System.out.println("<<5>> Election Rate done " + totalNumberOfElectionRates + "x. It's enough!");
 			return;
 		}
 
@@ -313,13 +317,12 @@ public class Evaluation {
 				electionRate = nodeElectionRate.size();
 				currentNumberOfElectionRates++;
 				if (DEBUG_ElectionRate)
-					System.out.println(
-							"<<5>> In the last " + unitTime + " s, Election Rate = " + electionRate + ".<<5>>");
+					System.out.println("<<5>> In the last " + unitTime + " s, Election Rate = " + electionRate + ".");
 
 				if (currentNumberOfElectionRates == totalNumberOfElectionRates) {
 					setElectionRateDone(true);
 					if (DEBUG_ElectionRate)
-						System.out.println("<<5>> All Election Rates were done.<<5>>");
+						System.out.println("<<5>> All Election Rates were done.");
 				}
 
 				if (toWrite) {
@@ -340,13 +343,13 @@ public class Evaluation {
 				if (!(nodeElectionRate.containsKey(id))) {
 					nodeElectionRate.put(node.getNodeID(), 1);
 					if (DEBUG_ElectionRate)
-						System.out.println("<<5>> New Election to Count!<<5>>");
+						System.out.println("<<5>> New Election to Count!");
 				} else {
 					electionRate = nodeElectionRate.get(id);
 					electionRate++;
 					nodeElectionRate.replace(id, electionRate);
 					if (DEBUG_ElectionRate)
-						System.out.println("<<5>> Election with Same ID ++ <<5>>");
+						System.out.println("<<5>> Election with Same ID ++");
 				}
 			}
 		}
