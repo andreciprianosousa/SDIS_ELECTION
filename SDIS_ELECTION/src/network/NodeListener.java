@@ -26,7 +26,7 @@ public class NodeListener extends Thread {
 	private Instant deathNode = Instant.now();
 
 	private static final int refreshTestLiveliness = 1000;
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String GoingToSleep = null;
 
 	public NodeListener(Node node, int refreshRate) {
@@ -96,7 +96,8 @@ public class NodeListener extends Thread {
 						if (setToKill == true) {
 							deathNode = Instant.now();
 							oldState = true;
-							System.out.println("(-, - )… zzzZZZ");
+							if (DEBUG)
+								System.out.println("(-, - )ï¿½ zzzZZZ");
 						}
 					}
 				}
@@ -123,7 +124,7 @@ public class NodeListener extends Thread {
 
 			} else {
 				if (DEBUG) {
-					System.out.println("                             (-, - )… zzzZZZ");
+					System.out.println("                             (-, - )ï¿½ zzzZZZ");
 				}
 
 				if ((Duration.between(deathNode, Instant.now()).toMillis()) > (5 * refreshTestLiveliness)) {
