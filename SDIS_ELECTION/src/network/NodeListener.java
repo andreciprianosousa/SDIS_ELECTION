@@ -63,13 +63,22 @@ public class NodeListener extends Thread {
 
 			node.updateRemovedNodes();
 
-			if (print % 4 == 0 && (node.isKilled() == false)) {
-				node.printLeader();
-				System.out.println("From Node Listener, NODE " + node.getNodeID());
-				node.printNeighbors();
-			}
+//			if (print % 4 == 0 && (node.isKilled() == false)) {
+//				node.printLeader();
+//				System.out.println("From Node Listener, NODE " + node.getNodeID());
+//				node.printNeighbors();
+//			}
 
 			print++;
+
+			node.getNetworkEvaluation().setStartElectionRateTimer();
+			if (node.isElectionActive()) {
+				try {
+					node.getNetworkEvaluation().counterElectionRate(node.getComputationIndex().getId());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 
 			if (!(node.isKilled())) {
 

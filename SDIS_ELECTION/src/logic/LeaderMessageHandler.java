@@ -87,11 +87,7 @@ public class LeaderMessageHandler extends Thread {
 
 			// Set End To Timer Without Leader
 			node.networkEvaluation.setEndWithoutLeaderTimer();
-			try {
-				node.networkEvaluation.getWithoutLeaderTimer();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			node.networkEvaluation.getWithoutLeaderTimer();
 
 			if (DEBUG) {
 				System.out.println("Node " + node.getNodeID() + "'s leader is " + node.getLeaderID());
@@ -130,11 +126,7 @@ public class LeaderMessageHandler extends Thread {
 
 			// Set End To Timer Without Leader
 			node.networkEvaluation.setEndWithoutLeaderTimer();
-			try {
-				node.networkEvaluation.getWithoutLeaderTimer();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			node.networkEvaluation.getWithoutLeaderTimer();
 
 			// If my only neighbour is my parent, don't propagate leader message and just
 			// return

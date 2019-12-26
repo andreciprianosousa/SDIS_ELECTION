@@ -11,7 +11,14 @@ import logic.*;
 
 public class Evaluation {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
+	private static final boolean DEBUG_ElectionTimer = false;
+	private static final boolean DEBUG_MsgOverhead = false;
+	private static final boolean DEBUG_WithoutLeaderTimer = false;
+	private static final boolean DEBUG_ExchangingLeader = true;
+	private static final boolean DEBUG_ElectionRate = false;
+	private static final int timeoutLeaderExchange = 300000;
+
 	private static boolean toWrite = false;
 
 	private Node node;
@@ -26,9 +33,27 @@ public class Evaluation {
 	private ConcurrentHashMap<Integer, Instant> withoutLeaderInit = new ConcurrentHashMap<Integer, Instant>();
 	private ConcurrentHashMap<Integer, Instant> withoutLeaderEnd = new ConcurrentHashMap<Integer, Instant>();
 	private Duration withoutLeaderTimeElapsed;
+	// 4th Metric Vars
+	private ConcurrentHashMap<Integer, Instant> leaderExchangeInit = new ConcurrentHashMap<Integer, Instant>();
+	private ConcurrentHashMap<Integer, Instant> leaderExchangeEnd = new ConcurrentHashMap<Integer, Instant>();
+	private Duration leaderExchangeElapsed;
+	// 5th Metric Vars
+	private ConcurrentHashMap<Integer, Integer> nodeElectionRate = new ConcurrentHashMap<Integer, Integer>();
+	private int electionRate;
+	private Instant electionRateInit;
+	private int unitTime; // in seconds
+	private int totalNumberOfElectionRates;
+	private int currentNumberOfElectionRates;
+	private boolean isElectionRateDone;
+	private boolean newTestElectionRate;
 
 	public Evaluation(Node node) {
 		this.node = node;
+		this.unitTime = 60;
+		this.totalNumberOfElectionRates = 2;
+		this.currentNumberOfElectionRates = 0;
+		this.isElectionRateDone = false;
+		this.newTestElectionRate = true;
 	}
 
 	// 1st Metric - Election Time
@@ -41,15 +66,15 @@ public class Evaluation {
 		electionEnd.put(id, Instant.now());
 	}
 
-	public void getElectionTimer(int id) throws IOException {
+	public void getElectionTimer(int id) {
 
 		if (!(electionInit.containsKey(id))) {
-			if (DEBUG)
+			if (DEBUG_ElectionTimer)
 				System.out.println("No Election was started with that ID");
 			return;
 		}
 		if (!(electionEnd.containsKey(id))) {
-			if (DEBUG)
+			if (DEBUG_ElectionTimer)
 				System.out.println("Election wasn't finished yet Or it was left behind for a stronger leader");
 			return;
 		}
@@ -57,29 +82,34 @@ public class Evaluation {
 		this.electionTimeElapsed = Duration.between(electionInit.get(id), electionEnd.get(id));
 		System.out.println("Election _ Time taken: " + electionTimeElapsed.toMillis() + " milliseconds");
 
-		if (toWrite)
-			storeElectionTime(id);
+		if (toWrite) {
+			try {
+				storeElectionTime(id);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	// 2nd Metric - Overhead Messages Sent By Node in Election
 	// Message Overhead (M) is the avg number of messages sent by a node in election
-	public void counterMessagesInElection(int id, MessageType type) throws IOException {
+	public void counterMessagesInElection(int id, MessageType type) {
 		int newCounterValue;
 
-		if (DEBUG) {
-			System.out.println("Election: " + id + " | Message Type: " + type);
+		if (DEBUG_MsgOverhead) {
+			// System.out.println("Election: " + id + " | Message Type: " + type);
 		}
 
 		// If this election was not active, then reset the counter
 		// Then as this is the first msg and put it in the Map
 		// -> It's triggered only by election or ack msg
-		// If there's already this election,
+		// If there's already this electiohn,
 		// * and it's sent an Leader msg, election has terminated
 		// * if it's other type, replace the old counter, with the updated
 		if (!(mapMsgOverhead.containsKey(id))) {
 			msgSentInElection = 0;
 
-			if (DEBUG) {
+			if (DEBUG_MsgOverhead) {
 				System.out.println("Setting new Counter");
 			}
 
@@ -91,7 +121,7 @@ public class Evaluation {
 
 		} else {
 			if (type == MessageType.LEADER) {
-				if (DEBUG)
+				if (DEBUG_MsgOverhead)
 					System.out.println("Leader Message - Stop Counting. Deleting Counter.");
 
 				synchronized (this) {
@@ -100,18 +130,24 @@ public class Evaluation {
 					mapMsgOverhead.replace(id, msgSentInElection, newCounterValue);
 					msgSentInElection = newCounterValue;
 
-					System.out.println("Msg Overhead in Election " + id + " = " + mapMsgOverhead.get(id));
+					// System.out.println("Msg Overhead in Election " + id + " = " +
+					// mapMsgOverhead.get(id));
 
 					msgSentInElection = mapMsgOverhead.get(id);
 
-					if (toWrite)
-						storeMessageOverhead(id, msgSentInElection);
+					if (toWrite) {
+						try {
+							storeMessageOverhead(id, msgSentInElection);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
 
 					mapMsgOverhead.remove(id, msgSentInElection);
 				}
 				return;
 			} else {
-				if (DEBUG)
+				if (DEBUG_MsgOverhead)
 					System.out.println("Updating Counter.");
 
 				synchronized (this) {
@@ -129,20 +165,20 @@ public class Evaluation {
 	// Frac. Time W/out Leader (F) is the fraction of sim time that a node is
 	// involved in an election
 	public void checkWithoutLeader() {
-		if (DEBUG)
+		if (DEBUG_WithoutLeaderTimer)
 			System.out.println("Node = " + node.getNodeID() + " | Size = " + node.getNeighbors().size()
 					+ " | MaxNeigh = " + node.getMaximumIdNeighbors() + " | Leader = " + node.getLeaderID());
 
 		if ((node.getNeighbors().size() > 0) && (node.getMaximumIdNeighbors() > node.getLeaderID())) {
 			if (!(node.getNetworkEvaluation().getWithoutLeaderInit().containsKey(node.getNodeID()))) {
-				if (DEBUG)
+				if (DEBUG_WithoutLeaderTimer)
 					System.out.println("Starting Timer WL - Case 1");
 				setStartWithoutLeaderTimer();
 			}
 		}
 		if (((node.getNodeID() != node.getLeaderID())) && (!(node.getNeighbors().contains(node.getLeaderID())))) {
 			if (!(node.getNetworkEvaluation().getWithoutLeaderInit().containsKey(node.getNodeID()))) {
-				if (DEBUG)
+				if (DEBUG_WithoutLeaderTimer)
 					System.out.println("Starting Timer WL - Case 2");
 				setStartWithoutLeaderTimer();
 			}
@@ -157,17 +193,17 @@ public class Evaluation {
 		withoutLeaderEnd.put(node.getNodeID(), Instant.now());
 	}
 
-	public void getWithoutLeaderTimer() throws IOException {
+	public void getWithoutLeaderTimer() {
 
 		if (!(withoutLeaderInit.containsKey(node.getNodeID()))) {
-			if (DEBUG)
+			if (DEBUG_WithoutLeaderTimer)
 				System.out.println("No Timer was started with that Node ID");
 
 			withoutLeaderEnd.remove(node.getNodeID());
 			return;
 		}
 		if (!(withoutLeaderEnd.containsKey(node.getNodeID()))) {
-			if (DEBUG)
+			if (DEBUG_WithoutLeaderTimer)
 				System.out.println("Timer wasn't finished yet Or it was left behind");
 
 			// Fail Safe Case... In case that it's initiated and never finished
@@ -183,21 +219,129 @@ public class Evaluation {
 		withoutLeaderInit.remove(node.getNodeID());
 		withoutLeaderEnd.remove(node.getNodeID());
 
-		if (toWrite)
-			storeWithoutLeaderTimer();
+		if (toWrite) {
+			try {
+				storeWithoutLeaderTimer();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	// 4th Metric - Time spent in exchanging leaders
-	// Related to Leader Special and Info Messages
+	// Related to Info Messages
+	// There is 3 cases in dispute:
+	// 1) Info Sender has LEADER bigger than Receiver => Sends INFO and gets no
+	// __ reply, because receiver switch it's leader and it's done.
+	// 2) Info Sender has same receiver LEADER => Sends INFO and gets no reply
+	// 3) Info Sender has LEADER smaller than Receiver => Sends INFO and gets reply
+	// __ with new leader
+	// This function works only for case 3
+	public void setStartExchangingLeadersTimer(int addresseeId) {
+		leaderExchangeInit.put(addresseeId, Instant.now());
+	}
+
+	public void setEndExchangingLeadersTimer(int addresseeId) {
+		leaderExchangeEnd.put(addresseeId, Instant.now());
+	}
+
+	public void getExchangingLeaderTimer(int addresseeId) {
+
+		if (!(leaderExchangeInit.containsKey(addresseeId))) {
+			if (DEBUG_ExchangingLeader)
+				System.out.println("No Leader Exchange not contains Init [Case 1 or 2]");
+			leaderExchangeEnd.remove(addresseeId);
+			return;
+		}
+		if (!(leaderExchangeEnd.containsKey(addresseeId))) {
+			if (DEBUG_ExchangingLeader)
+				System.out.println("Leader Election wasn't finished yet Or it was left behind");
+
+			if (Duration.between(leaderExchangeInit.get(addresseeId), Instant.now()).toMillis() > timeoutLeaderExchange)
+				leaderExchangeInit.remove(addresseeId);
+			return;
+		}
+
+		this.leaderExchangeElapsed = Duration.between(leaderExchangeInit.get(addresseeId),
+				leaderExchangeEnd.get(addresseeId));
+		System.out.println("Leader _ Exchange [" + addresseeId + "," + node.getNodeID() + "] Time taken: "
+				+ leaderExchangeElapsed.toMillis() + " milliseconds");
+
+		if (toWrite) {
+			try {
+				storeExchangingLeaderTimer(addresseeId);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		leaderExchangeInit.remove(addresseeId);
+		leaderExchangeEnd.remove(addresseeId);
+	}
 
 	// 5th Metric - Election-Rate (R) is defined as the avg number of elections that
 	// a node participates in per unit time
 	// It depends on so many things ...
+	public void setStartElectionRateTimer() {
+
+		if (isElectionRateDone() == true) {
+			return;
+		}
+
+		if (isNewTestElectionRate() == true) {
+			if (DEBUG_ElectionRate)
+				System.out.println("<<<<4>>>> Set New Election rates <<<<4>>>>");
+			electionRateInit = Instant.now();
+			setNewTestElectionRate(false);
+		}
+	}
+
+	public void counterElectionRate(int id) throws IOException {
+
+		if (isElectionRateDone() == true) {
+			if (DEBUG_ElectionRate)
+				System.out.println(
+						"<<<<4>>>> Election Rate done " + totalNumberOfElectionRates + "x. It's enough! <<<<4>>>>");
+			return;
+		}
+
+		if (Duration.between(electionRateInit, Instant.now()).toMillis() >= unitTime * 1000) {
+			synchronized (this) {
+				electionRate = nodeElectionRate.size();
+				currentNumberOfElectionRates++;
+				if (DEBUG_ElectionRate)
+					System.out.println(
+							"<<<<4>>>> In the last " + unitTime + " s, Election Rate = " + electionRate + ".<<<<4>>>>");
+
+				if (currentNumberOfElectionRates == totalNumberOfElectionRates) {
+					setElectionRateDone(true);
+					if (DEBUG_ElectionRate)
+						System.out.println("<<<<4>>>> All Election Rates were done.<<<<4>>>>");
+				}
+
+				if (toWrite)
+					storeElectionRate(electionRate);
+
+				nodeElectionRate.clear();
+				if (isElectionRateDone() == false) {
+					setNewTestElectionRate(true);
+				}
+			}
+		} else {
+			synchronized (this) {
+				if (!(nodeElectionRate.contains(id))) {
+					nodeElectionRate.put(node.getNodeID(), 1);
+					if (DEBUG_ElectionRate)
+						System.out.println("<<<<4>>>> New Election to Count!<<<<4>>>>");
+				}
+			}
+		}
+	}
 
 	// Storage Facility
 	public void storeElectionTime(int id) throws IOException {
 		String textToAppend = "Time" + "," + Instant.now() + "," + "Election" + "," + id + "," + "Node" + ","
-				+ node.getNodeID() + "," + "Msg_Overhead" + "," + electionTimeElapsed.toMillis() + "," + "ms" + "\n";
+				+ node.getNodeID() + "," + "ElectionTime" + "," + electionTimeElapsed.toMillis() + "," + "ms" + "\n";
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\electionTime.txt", true) // AppendMode
 		);
@@ -224,6 +368,30 @@ public class Evaluation {
 				+ node.getNodeID() + "," + "Time" + "," + withoutLeaderTimeElapsed + "\n";
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\withoutLeader.txt", true) // AppendMode
+		);
+
+		writer.newLine(); // Add new line
+		writer.write(textToAppend);
+		writer.close();
+	}
+
+	public void storeExchangingLeaderTimer(int id) throws IOException {
+		String textToAppend = "Time" + "," + Instant.now() + "," + "Leader_Exchange" + "," + id + "," + "Node" + ","
+				+ node.getNodeID() + "," + "ExchangingLeader" + "," + leaderExchangeElapsed + "\n";
+
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\exchangingLeader.txt", true) // AppendMode
+		);
+
+		writer.newLine(); // Add new line
+		writer.write(textToAppend);
+		writer.close();
+	}
+
+	public void storeElectionRate(int electionRatetoStore) throws IOException {
+		String textToAppend = "Time" + "," + Instant.now() + "," + "Election_Rate" + "," + "Node" + ","
+				+ node.getNodeID() + "," + "Election_Rate" + "," + electionRatetoStore + "\n";
+
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\electionRate.txt", true) // AppendMode
 		);
 
 		writer.newLine(); // Add new line
@@ -305,6 +473,62 @@ public class Evaluation {
 
 	public void setWithoutLeaderTimeElapsed(Duration withoutLeaderTimeElapsed) {
 		this.withoutLeaderTimeElapsed = withoutLeaderTimeElapsed;
+	}
+
+	public static boolean isToWrite() {
+		return toWrite;
+	}
+
+	public static void setToWrite(boolean toWrite) {
+		Evaluation.toWrite = toWrite;
+	}
+
+	public ConcurrentHashMap<Integer, Integer> getNodeElectionRate() {
+		return nodeElectionRate;
+	}
+
+	public void setNodeElectionRate(ConcurrentHashMap<Integer, Integer> nodeElectionRate) {
+		this.nodeElectionRate = nodeElectionRate;
+	}
+
+	public int getUnitTime() {
+		return unitTime;
+	}
+
+	public void setUnitTime(int unitTime) {
+		this.unitTime = unitTime;
+	}
+
+	public int getTotalNumberOfElectionRates() {
+		return totalNumberOfElectionRates;
+	}
+
+	public void setTotalNumberOfElectionRates(int totalNumberOfElectionRates) {
+		this.totalNumberOfElectionRates = totalNumberOfElectionRates;
+	}
+
+	public int getCurrentNumberOfElectionRates() {
+		return currentNumberOfElectionRates;
+	}
+
+	public void setCurrentNumberOfElectionRates(int currentNumberOfElectionRates) {
+		this.currentNumberOfElectionRates = currentNumberOfElectionRates;
+	}
+
+	public boolean isElectionRateDone() {
+		return isElectionRateDone;
+	}
+
+	public void setElectionRateDone(boolean isElectionRateDone) {
+		this.isElectionRateDone = isElectionRateDone;
+	}
+
+	public boolean isNewTestElectionRate() {
+		return newTestElectionRate;
+	}
+
+	public void setNewTestElectionRate(boolean newTestElectionRate) {
+		this.newTestElectionRate = newTestElectionRate;
 	}
 
 }

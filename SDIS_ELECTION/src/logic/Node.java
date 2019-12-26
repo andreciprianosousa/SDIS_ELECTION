@@ -18,7 +18,7 @@ import simulation.Simulation;
 
 public class Node implements Serializable {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	protected int nodeID;
 	protected ComputationIndex computationIndex;
@@ -185,8 +185,14 @@ public class Node implements Serializable {
 				// connecting and not in an election,
 				// it exchanges info messages with it to establish leader in the new overall
 				// network
-				if (!neighbors.containsKey(nodeMessageID))
+				if (!neighbors.containsKey(nodeMessageID)) {
+					// Starts the timer of Exchanging Leaders
+					if (this.nodeID < nodeMessageID) {
+						System.out.println("O Meu id é menor que o id do meu viznho");
+						this.networkEvaluation.setStartExchangingLeadersTimer(nodeMessageID);
+					}
 					new Handler(this, logic.MessageType.INFO, nodeMessageID).start();
+				}
 
 				neighbors.put(nodeMessageID, Instant.now());
 				// System.out.println("Updated to: " + Instant.now());
@@ -268,12 +274,7 @@ public class Node implements Serializable {
 						this.networkEvaluation.setEndElectionTimer(this.getComputationIndex().getId());
 
 						this.networkEvaluation.setEndWithoutLeaderTimer();
-
-						try {
-							this.networkEvaluation.getElectionTimer(this.getComputationIndex().getId());
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+						this.networkEvaluation.getElectionTimer(this.getComputationIndex().getId());
 
 						// send Leader message to all children
 						Iterator<Integer> i = this.getNeighbors().iterator();
@@ -690,6 +691,14 @@ public class Node implements Serializable {
 
 	public void setNetworkEvaluation(Evaluation networkEvaluation) {
 		this.networkEvaluation = networkEvaluation;
+	}
+
+	public Instant getInit() {
+		return init;
+	}
+
+	public void setInit(Instant init) {
+		this.init = init;
 	}
 
 }

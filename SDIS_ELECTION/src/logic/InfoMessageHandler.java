@@ -51,6 +51,10 @@ public class InfoMessageHandler extends Thread {
 			System.out.println("Leader changed in Node " + node.getNodeID() + " to: " + node.getLeaderID()
 					+ " due to exchanging messages with " + infoMessage.getIncomingId());
 
+			// End to Exchanging Leaders Timer && Processing
+			node.networkEvaluation.setEndExchangingLeadersTimer(infoMessage.getIncomingId());
+			node.networkEvaluation.getExchangingLeaderTimer(infoMessage.getIncomingId());
+
 			// Set End To Timer Without Leader - May not be necessary
 			// node.networkEvaluation.setEndWithoutLeaderTimer();
 //			try {
@@ -86,6 +90,11 @@ public class InfoMessageHandler extends Thread {
 				&& (infoMessage.getLeaderId() == node.getLeaderID())) {
 			if (DEBUG)
 				System.out.println("Same Leader! Now We can Rest in Peace!");
+
+			// End to Exchanging Leaders Timer && Processing
+			node.networkEvaluation.setEndExchangingLeadersTimer(infoMessage.getIncomingId());
+			node.networkEvaluation.getExchangingLeaderTimer(infoMessage.getIncomingId());
+
 			return;
 		}
 
@@ -97,6 +106,7 @@ public class InfoMessageHandler extends Thread {
 				System.out.println("Sending back stronger leader.\n-----------------------------");
 
 			sendMessage(logic.MessageType.INFO, infoMessage.getIncomingId());
+
 		}
 	}
 }

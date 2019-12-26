@@ -58,12 +58,8 @@ public class ElectionMessageHandler extends Thread {
 				sendMessage(logic.MessageType.ACK, electionMessage.getIncomingId());
 
 				// This ACK is sent only if in election
-				try {
-					node.networkEvaluation.counterMessagesInElection(node.getComputationIndex().getId(),
-							logic.MessageType.ACK);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				node.networkEvaluation.counterMessagesInElection(node.getComputationIndex().getId(),
+						logic.MessageType.ACK);
 
 			} else {
 				// If I have priority in Computation Index, send to sender of message new
