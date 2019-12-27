@@ -270,10 +270,12 @@ public class Node implements Serializable {
 						if (DEBUG)
 							System.out.println("========================>   Leader agreed upon: " + this.getLeaderID());
 
+						// Metric 1 - Election Timer
 						this.networkEvaluation.setEndElectionTimer(this.getComputationIndex().getId());
-
-						this.networkEvaluation.setEndWithoutLeaderTimer();
 						this.networkEvaluation.getElectionTimer(this.getComputationIndex().getId());
+						// Metric 3 - Without Leader Timer
+						this.networkEvaluation.setEndWithoutLeaderTimer();
+						this.networkEvaluation.getWithoutLeaderTimer();
 
 						// send Leader message to all children
 						Iterator<Integer> i = this.getNeighbors().iterator();
@@ -320,9 +322,6 @@ public class Node implements Serializable {
 				this.setLeaderValue(this.nodeValue);
 				this.setParentActive(-1);
 				this.waitingAcks.remove(neighbor);
-
-//				// Needed for Network Evaluation
-//				this.getNetworkEvaluation().setNewElection(true);
 
 				if (DEBUG)
 					System.out.println(

@@ -32,7 +32,9 @@ public class Bootstrap extends Thread {
 			System.out.println("I'm alone, my current Leader is me: " + node.getLeaderID());
 			System.out.println("-----------------------------");
 
+			// Metric 3 - Without Leader Timer
 			node.networkEvaluation.setEndWithoutLeaderTimer();
+			node.networkEvaluation.getWithoutLeaderTimer();
 		}
 
 		// OUTDATED CODE, BUT MAY STILL BE USEFUL IN THE INITIAL BOOTSTRAP IF WE NEED TO

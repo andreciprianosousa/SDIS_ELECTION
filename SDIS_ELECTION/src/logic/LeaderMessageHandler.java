@@ -85,7 +85,7 @@ public class LeaderMessageHandler extends Thread {
 			node.setStoredId(node.getNodeID());
 			node.setStoredValue(node.getNodeValue());
 
-			// Set End To Timer Without Leader
+			// Metric 3 - Without Leader Timer
 			node.networkEvaluation.setEndWithoutLeaderTimer();
 			node.networkEvaluation.getWithoutLeaderTimer();
 
@@ -124,7 +124,7 @@ public class LeaderMessageHandler extends Thread {
 			node.setStoredId(node.getNodeID());
 			node.setStoredValue(node.getNodeValue());
 
-			// Set End To Timer Without Leader
+			// Metric 3 - Without Leader Timer
 			node.networkEvaluation.setEndWithoutLeaderTimer();
 			node.networkEvaluation.getWithoutLeaderTimer();
 

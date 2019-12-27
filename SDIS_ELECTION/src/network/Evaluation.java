@@ -14,10 +14,11 @@ public class Evaluation {
 	private static final boolean DEBUG = false;
 	private static final boolean DEBUG_ElectionTimer = false;
 	private static final boolean DEBUG_MsgOverhead = false;
-	private static final boolean DEBUG_WithoutLeaderTimer = false;
+	private static final boolean DEBUG_WithoutLeaderTimer = true;
 	private static final boolean DEBUG_ExchangingLeader = false;
-	private static final boolean DEBUG_ElectionRate = true;
+	private static final boolean DEBUG_ElectionRate = false;
 	private static final int timeoutLeaderExchange = 3000;
+	private static final int timeoutWithoutLeader = 5000;
 
 	private static boolean toWrite = false;
 
@@ -30,12 +31,13 @@ public class Evaluation {
 	private ConcurrentHashMap<Integer, Integer> mapMsgOverhead = new ConcurrentHashMap<Integer, Integer>();
 	private int msgSentInElection;
 	// 3rd Metric Vars
-	private ConcurrentHashMap<Integer, Instant> withoutLeaderInit = new ConcurrentHashMap<Integer, Instant>();
-	private ConcurrentHashMap<Integer, Instant> withoutLeaderEnd = new ConcurrentHashMap<Integer, Instant>();
+	private Instant withoutLeaderInit = Instant.MIN;
+	private Instant withoutLeaderEnd = Instant.MIN;
 	private Duration withoutLeaderTimeElapsed;
 	// 4th Metric Vars
 	private ConcurrentHashMap<Integer, Instant> leaderExchangeInit = new ConcurrentHashMap<Integer, Instant>();
 	private ConcurrentHashMap<Integer, Instant> leaderExchangeEnd = new ConcurrentHashMap<Integer, Instant>();
+
 	private Duration leaderExchangeElapsed;
 	// 5th Metric Vars
 	private ConcurrentHashMap<Integer, Integer> nodeElectionRate = new ConcurrentHashMap<Integer, Integer>();
@@ -172,57 +174,71 @@ public class Evaluation {
 			System.out.println("<<3>> Node = " + node.getNodeID() + " | Size = " + node.getNeighbors().size()
 					+ " | MaxNeigh = " + node.getMaximumIdNeighbors() + " | Leader = " + node.getLeaderID());
 
-		if ((node.getNeighbors().size() > 0) && (node.getMaximumIdNeighbors() > node.getLeaderID())) {
-			if (!(node.getNetworkEvaluation().getWithoutLeaderInit().containsKey(node.getNodeID()))) {
-				if (DEBUG_WithoutLeaderTimer)
-					System.out.println("<<3>> Starting Timer WL - Case 1");
-				setStartWithoutLeaderTimer();
-			}
+		// Case 0.1 - Where there's a possibility of a INFO message is being sent before
+		// a node realizes other node belongs to his neighborhood, if the leader is what
+		// it's supposed to be, then retrieve
+		if (node.getMaximumIdNeighbors() == node.getLeaderID()) {
+			return;
 		}
+
+		// Case 0.2 - When the node has a leader, that has connection with and it's the
+		// biggest with the network. If so, then retrieve
+		if (node.getLeaderID() == 2) {
+
+		}
+
+		// Case 1 - Node has neighbours, and there's one node that is be bigger than him
+		// As we are in the network layer, we have access to that info
+		if ((node.getNeighbors().size() > 0) && (node.getMaximumIdNeighbors() > node.getLeaderID())) {
+			if (DEBUG_WithoutLeaderTimer)
+				System.out.println("<<3>> Starting Timer WL - Case 1");
+			setStartWithoutLeaderTimer();
+		}
+
+		// Case 2 - Node still has leaderID, but leader was just removed from
+		// neighbourhood
 		if (((node.getNodeID() != node.getLeaderID())) && (!(node.getNeighbors().contains(node.getLeaderID())))) {
-			if (!(node.getNetworkEvaluation().getWithoutLeaderInit().containsKey(node.getNodeID()))) {
-				if (DEBUG_WithoutLeaderTimer)
-					System.out.println("<<3>> Starting Timer WL - Case 2");
-				setStartWithoutLeaderTimer();
-			}
+			if (DEBUG_WithoutLeaderTimer)
+				System.out.println("<<3>> Starting Timer WL - Case 2");
+			setStartWithoutLeaderTimer();
 		}
 	}
 
 	public void setStartWithoutLeaderTimer() {
-		withoutLeaderInit.put(node.getNodeID(), Instant.now());
+		withoutLeaderInit = Instant.now();
 	}
 
 	public void setEndWithoutLeaderTimer() {
-		withoutLeaderEnd.put(node.getNodeID(), Instant.now());
+		withoutLeaderEnd = Instant.now();
 	}
 
 	public void getWithoutLeaderTimer() {
 
-		if (!(withoutLeaderInit.containsKey(node.getNodeID()))) {
+		if (withoutLeaderInit == Instant.MIN) {
 			if (DEBUG_WithoutLeaderTimer)
 				System.out.println("<<3>> No Timer was started with that Node ID");
-
-			withoutLeaderEnd.remove(node.getNodeID());
+			withoutLeaderEnd = Instant.MIN;
 			return;
 		}
-		if (!(withoutLeaderEnd.containsKey(node.getNodeID()))) {
+
+		if (withoutLeaderEnd == Instant.MIN) {
 			if (DEBUG_WithoutLeaderTimer)
 				System.out.println("<<3>> Timer wasn't finished yet Or it was left behind");
 
 			// Fail Safe Case... In case that it's initiated and never finished
-			if (Duration.between(withoutLeaderInit.get(node.getNodeID()), Instant.now()).toMillis() > 5000)
-				withoutLeaderEnd.remove(node.getNodeID());
+			if (Duration.between(withoutLeaderInit, Instant.now()).toMillis() > timeoutWithoutLeader) {
+				withoutLeaderInit = Instant.MIN;
+			}
 			return;
 		}
 
-		this.withoutLeaderTimeElapsed = Duration.between(withoutLeaderInit.get(node.getNodeID()),
-				withoutLeaderEnd.get(node.getNodeID()));
+		this.withoutLeaderTimeElapsed = Duration.between(withoutLeaderInit, withoutLeaderEnd);
 		if (DEBUG_WithoutLeaderTimer)
 			System.out.println(
 					"<<3>> Without Leader _ Time taken: " + withoutLeaderTimeElapsed.toMillis() + " milliseconds");
 
-		withoutLeaderInit.remove(node.getNodeID());
-		withoutLeaderEnd.remove(node.getNodeID());
+		withoutLeaderInit = Instant.MIN;
+		withoutLeaderEnd = Instant.MIN;
 
 		if (toWrite) {
 			try {
@@ -469,21 +485,21 @@ public class Evaluation {
 		this.msgSentInElection = msgSentInElection;
 	}
 
-	public ConcurrentHashMap<Integer, Instant> getWithoutLeaderInit() {
-		return withoutLeaderInit;
-	}
-
-	public void setWithoutLeaderInit(ConcurrentHashMap<Integer, Instant> withoutLeaderInit) {
-		this.withoutLeaderInit = withoutLeaderInit;
-	}
-
-	public ConcurrentHashMap<Integer, Instant> getWithoutLeaderEnd() {
-		return withoutLeaderEnd;
-	}
-
-	public void setWithoutLeaderEnd(ConcurrentHashMap<Integer, Instant> withoutLeaderEnd) {
-		this.withoutLeaderEnd = withoutLeaderEnd;
-	}
+//	public ConcurrentHashMap<Integer, Instant> getWithoutLeaderInit() {
+//		return withoutLeaderInit;
+//	}
+//
+//	public void setWithoutLeaderInit(ConcurrentHashMap<Integer, Instant> withoutLeaderInit) {
+//		this.withoutLeaderInit = withoutLeaderInit;
+//	}
+//
+//	public ConcurrentHashMap<Integer, Instant> getWithoutLeaderEnd() {
+//		return withoutLeaderEnd;
+//	}
+//
+//	public void setWithoutLeaderEnd(ConcurrentHashMap<Integer, Instant> withoutLeaderEnd) {
+//		this.withoutLeaderEnd = withoutLeaderEnd;
+//	}
 
 	public Duration getWithoutLeaderTimeElapsed() {
 		return withoutLeaderTimeElapsed;

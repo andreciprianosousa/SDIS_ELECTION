@@ -93,10 +93,12 @@ public class AckMessageHandler extends Thread {
 				node.setStoredValue(node.getNodeValue());
 				System.out.println("========================>   Leader agreed upon: " + node.getLeaderID());
 
+				// Metric 1 - Election Timer
 				node.networkEvaluation.setEndElectionTimer(node.getComputationIndex().getId());
 				node.networkEvaluation.getElectionTimer(node.getComputationIndex().getId());
-
+				// Metric 3 - Without Leader Timer
 				node.networkEvaluation.setEndWithoutLeaderTimer();
+				node.networkEvaluation.getWithoutLeaderTimer();
 
 				// send Leader message to all children
 				Iterator<Integer> i = node.getNeighbors().iterator();

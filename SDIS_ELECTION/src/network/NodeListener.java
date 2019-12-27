@@ -71,8 +71,6 @@ public class NodeListener extends Thread {
 
 			print++;
 
-			System.out.println(" Election_Active: " + node.isElectionActive() + " | is_New_Election: "
-					+ node.getNetworkEvaluation().isNewElection());
 			node.getNetworkEvaluation().setStartElectionRateTimer();
 			if (node.getNetworkEvaluation().isNewElection() == true) {
 				node.getNetworkEvaluation().counterElectionRate(node.getComputationIndex().getId());
@@ -92,6 +90,11 @@ public class NodeListener extends Thread {
 						node.resetCharge(); // Charge restored to test new possible death
 
 						// Cipriano - This is for you
+						//
+						//
+						//
+						//
+						//
 						new Bootstrap(node).start(); // New node, so set network and act accordingly
 					}
 					oldState = false;
