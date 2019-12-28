@@ -24,8 +24,8 @@ public class NodeListener extends Thread {
 	private boolean oldState = false;
 	private Instant lastLivenessTest = Instant.now();
 	private Instant deathNode = Instant.now();
+	private static int refreshTestLiveliness = 1000;
 
-	private static final int refreshTestLiveliness = 1000;
 	private static final boolean DEBUG = false;
 	private static final String GoingToSleep = null;
 
@@ -34,6 +34,7 @@ public class NodeListener extends Thread {
 		this.port = node.getPort();
 		this.ipAddress = node.getIpAddress();
 		this.refreshRate = refreshRate;
+		this.refreshTestLiveliness = node.getTimeOut();
 	}
 
 	@Override
@@ -99,7 +100,7 @@ public class NodeListener extends Thread {
 					}
 					oldState = false;
 
-					if (Duration.between(lastLivenessTest, Instant.now()).toMillis() > refreshTestLiveliness) {
+					if (Duration.between(lastLivenessTest, Instant.now()).toMillis() > (refreshTestLiveliness * 1000)) {
 						boolean setToKill = node.testLiveliness();
 						lastLivenessTest = Instant.now();
 						node.setKilled(setToKill);
@@ -137,7 +138,8 @@ public class NodeListener extends Thread {
 					System.out.println("                             (-, - )� zzzZZZ");
 				}
 
-				if ((Duration.between(deathNode, Instant.now()).toMillis()) > (5 * refreshTestLiveliness)) {
+				// Dies for about 5 timeouts
+				if ((Duration.between(deathNode, Instant.now()).toMillis()) > (5 * refreshTestLiveliness * 1000)) {
 					node.setKilled(false);
 				}
 

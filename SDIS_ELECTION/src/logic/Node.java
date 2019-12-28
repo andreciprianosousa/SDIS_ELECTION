@@ -45,10 +45,19 @@ public class Node implements Serializable {
 //// OUTDATED CODE  - Needed when bootstrap has election
 //	private boolean networkSet;
 //	private static final int nodeTimeout = 2;
-	private static final int networkTimeout = 30;
+//	private static final int networkTimeout = 30;
 
 	// Simulation Purpose
 	protected Simulation simNode;
+
+	public int getTimeOut() {
+		return timeOut;
+	}
+
+	public void setTimeOut(int timeOut) {
+		this.timeOut = timeOut;
+	}
+
 	private int medianFailure;
 	private boolean isToTestSimulation;
 	private int medianDeath;
