@@ -55,13 +55,9 @@ public class InfoMessageHandler extends Thread {
 			node.networkEvaluation.setEndExchangingLeadersTimer(infoMessage.getIncomingId());
 			node.networkEvaluation.getExchangingLeaderTimer(infoMessage.getIncomingId());
 
-			// Set End To Timer Without Leader - May not be necessary
-			// node.networkEvaluation.setEndWithoutLeaderTimer();
-//			try {
-//				node.networkEvaluation.getWithoutLeaderTimer();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+			// Metric 3 - Without Leader Timer
+			node.networkEvaluation.setEndWithoutLeaderTimer();
+			node.networkEvaluation.getWithoutLeaderTimer();
 
 			// send "special "Leader message to all neighbours except one that passed the
 			// info to me
@@ -94,6 +90,10 @@ public class InfoMessageHandler extends Thread {
 			// End to Exchanging Leaders Timer && Processing
 			node.networkEvaluation.setEndExchangingLeadersTimer(infoMessage.getIncomingId());
 			node.networkEvaluation.getExchangingLeaderTimer(infoMessage.getIncomingId());
+
+			// Metric 3 - Without Leader Timer
+			node.networkEvaluation.setEndWithoutLeaderTimer();
+			node.networkEvaluation.getWithoutLeaderTimer();
 
 			return;
 		}

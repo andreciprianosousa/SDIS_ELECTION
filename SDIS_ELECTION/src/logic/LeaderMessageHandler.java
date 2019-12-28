@@ -114,7 +114,8 @@ public class LeaderMessageHandler extends Thread {
 		} else if (leaderMessage.isSpecial() && !(node.isElectionActive())) {
 
 			if (leaderMessage.getStoredID() <= node.getLeaderID()) {
-				System.out.println("Men, that guy is weak. Do nothing!");
+				if (DEBUG)
+					System.out.println("Men, that guy is weak. Do nothing!");
 
 				return;
 			}

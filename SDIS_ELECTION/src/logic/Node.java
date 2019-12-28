@@ -42,9 +42,10 @@ public class Node implements Serializable {
 	private int nodeRange;
 	private int timeOut;
 
-	private boolean networkSet;
-	private static final int nodeTimeout = 2;
-	private static final int networkTimeout = 10;
+//// OUTDATED CODE  - Needed when bootstrap has election
+//	private boolean networkSet;
+//	private static final int nodeTimeout = 2;
+	private static final int networkTimeout = 30;
 
 	// Simulation Purpose
 	protected Simulation simNode;
@@ -97,7 +98,6 @@ public class Node implements Serializable {
 		this.medianFailure = medianFailure;
 		this.medianDeath = medianDeath;
 		this.isKilled = false;
-		this.networkSet = false;
 		this.init = Instant.now();
 
 		// Mobility Purpose
@@ -136,8 +136,10 @@ public class Node implements Serializable {
 		}
 
 		// Initial coordinates
-		xCoordinate = (int) xMax; // (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
-		yCoordinate = (int) yMax; // (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
+//		xCoordinate = (int) xMax; // (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
+//		yCoordinate = (int) yMax; // (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
+		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
+		yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
 
 		if (DEBUG) {
 
@@ -153,7 +155,7 @@ public class Node implements Serializable {
 		new NodeListener(this, refreshRate).start();
 		new NodeTransmitter(this, timeOut).start();
 
-		this.networkEvaluation = new Evaluation(this);
+		this.networkEvaluation = new Evaluation(this, 1);
 
 		this.getNetworkEvaluation().checkWithoutLeader();
 		new Bootstrap(this).start(); // New node, so set network and act accordingly
@@ -198,7 +200,8 @@ public class Node implements Serializable {
 
 			}
 		}
-		updateNetworkSet();
+//// OUTDATED CODE  - Needed when bootstrap has election
+//		updateNetworkSet();
 	}
 
 	// Used in update removed nodes
@@ -360,13 +363,14 @@ public class Node implements Serializable {
 		return max;
 	}
 
-	private void updateNetworkSet() {
-		if (Duration.between(init, Instant.now()).toMillis() > (timeOut * 1000)) {
-			timeOut = nodeTimeout;
-		} else {
-			timeOut = networkTimeout;
-		}
-	}
+// OUTDATED CODE  - Needed when bootstrap has election
+//	private void updateNetworkSet() {
+//		if (Duration.between(init, Instant.now()).toMillis() > (timeOut * 1000)) {
+//			 timeOut = nodeTimeout;
+//		} else {
+//			timeOut = networkTimeout;
+//		}
+//	}
 
 	public void printNeighbors() {
 
@@ -471,7 +475,6 @@ public class Node implements Serializable {
 
 	public void setStoredId(int storedId) {
 		this.storedId = storedId;
-		;
 	}
 
 	public float getStoredValue() {

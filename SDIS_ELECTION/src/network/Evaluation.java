@@ -17,10 +17,17 @@ public class Evaluation {
 	private static final boolean DEBUG_WithoutLeaderTimer = true;
 	private static final boolean DEBUG_ExchangingLeader = false;
 	private static final boolean DEBUG_ElectionRate = false;
+
+	private static boolean electionTimerTest = false;
+	private static boolean msgOverheadTest = false;
+	private static boolean withoutLeaderTimerTest = false;
+	private static boolean exchangingLeaderTest = false;
+	private static boolean electionRateTest = false;
+
 	private static final int timeoutLeaderExchange = 3000;
 	private static final int timeoutWithoutLeader = 5000;
 
-	private static boolean toWrite = false;
+	private static boolean toWrite = true;
 
 	private Node node;
 	// 1st Metric Vars
@@ -50,8 +57,38 @@ public class Evaluation {
 	private boolean newTestElectionRate;
 	private boolean newElection;
 
-	public Evaluation(Node node) {
+	public Evaluation(Node node, int typeOfTest) {
 		this.node = node;
+
+		switch (typeOfTest) {
+		case (0):
+			// As it's everything at false, nothing to do. Others test like +7 do the same
+			break;
+		case (1):
+			this.electionTimerTest = true;
+			break;
+		case (2):
+			this.msgOverheadTest = true;
+			break;
+		case (3):
+			this.withoutLeaderTimerTest = true;
+			break;
+		case (4):
+			this.exchangingLeaderTest = true;
+			break;
+		case (5):
+			this.electionRateTest = true;
+			break;
+		case (6):
+			this.electionTimerTest = true;
+			this.msgOverheadTest = true;
+			this.withoutLeaderTimerTest = true;
+			this.exchangingLeaderTest = true;
+			this.electionRateTest = true;
+			break;
+		}
+
+		// 5th Metric Vars
 		this.unitTime = 60;
 		this.totalNumberOfElectionRates = 5;
 		this.currentNumberOfElectionRates = 0;
@@ -71,6 +108,9 @@ public class Evaluation {
 	}
 
 	public void getElectionTimer(int id) {
+
+		if (!electionTimerTest)
+			return;
 
 		if (!(electionInit.containsKey(id))) {
 			if (DEBUG_ElectionTimer)
@@ -100,6 +140,9 @@ public class Evaluation {
 	// Message Overhead (M) is the avg number of messages sent by a node in election
 	public void counterMessagesInElection(int id, MessageType type) {
 		int newCounterValue;
+
+		if (!msgOverheadTest)
+			return;
 
 		if (DEBUG_MsgOverhead) {
 			// System.out.println("Election: " + id + " | Message Type: " + type);
@@ -170,6 +213,10 @@ public class Evaluation {
 	// Frac. Time W/out Leader (F) is the fraction of sim time that a node is
 	// involved in an election
 	public void checkWithoutLeader() {
+
+		if (!withoutLeaderTimerTest)
+			return;
+
 		if (DEBUG_WithoutLeaderTimer)
 			System.out.println("<<3>> Node = " + node.getNodeID() + " | Size = " + node.getNeighbors().size()
 					+ " | MaxNeigh = " + node.getMaximumIdNeighbors() + " | Leader = " + node.getLeaderID());
@@ -182,10 +229,7 @@ public class Evaluation {
 		}
 
 		// Case 0.2 - When the node has a leader, that has connection with and it's the
-		// biggest with the network. If so, then retrieve
-		if (node.getLeaderID() == 2) {
-
-		}
+		// biggest with the network. If so, then retrieve (it doesn't)
 
 		// Case 1 - Node has neighbours, and there's one node that is be bigger than him
 		// As we are in the network layer, we have access to that info
@@ -197,7 +241,8 @@ public class Evaluation {
 
 		// Case 2 - Node still has leaderID, but leader was just removed from
 		// neighbourhood
-		if (((node.getNodeID() != node.getLeaderID())) && (!(node.getNeighbors().contains(node.getLeaderID())))) {
+		if (((node.getNodeID() != node.getLeaderID())) && (!(node.getNeighbors().contains(node.getLeaderID())))
+				&& (node.isElectionActive())) {
 			if (DEBUG_WithoutLeaderTimer)
 				System.out.println("<<3>> Starting Timer WL - Case 2");
 			setStartWithoutLeaderTimer();
@@ -213,6 +258,9 @@ public class Evaluation {
 	}
 
 	public void getWithoutLeaderTimer() {
+
+		if (!withoutLeaderTimerTest)
+			return;
 
 		if (withoutLeaderInit == Instant.MIN) {
 			if (DEBUG_WithoutLeaderTimer)
@@ -268,6 +316,9 @@ public class Evaluation {
 
 	public void getExchangingLeaderTimer(int addresseeId) {
 
+		if (!exchangingLeaderTest)
+			return;
+
 		if (!(leaderExchangeInit.containsKey(addresseeId))) {
 			if (DEBUG_ExchangingLeader)
 				System.out.println("<<4>> No Leader Exchange not contains Init [Case 1 or 2]");
@@ -286,7 +337,7 @@ public class Evaluation {
 		this.leaderExchangeElapsed = Duration.between(leaderExchangeInit.get(addresseeId),
 				leaderExchangeEnd.get(addresseeId));
 		if (DEBUG_ExchangingLeader)
-			System.out.println("<<4>> Leader _ Exchange [" + addresseeId + "," + node.getNodeID() + "] Time taken: "
+			System.out.println("<<4>> Leader _ Exchange [" + addresseeId + ";" + node.getNodeID() + "] Time taken: "
 					+ leaderExchangeElapsed.toMillis() + " milliseconds");
 
 		if (toWrite) {
@@ -319,6 +370,9 @@ public class Evaluation {
 	}
 
 	public void counterElectionRate(int id) {
+
+		if (!electionRateTest)
+			return;
 
 		if (isElectionRateDone() == true) {
 			if (DEBUG_ElectionRate)
@@ -373,10 +427,10 @@ public class Evaluation {
 
 	// Storage Facility
 	public void storeElectionTime(int id) throws IOException {
-		String textToAppend = "Time" + "," + Instant.now() + "," + "Election" + "," + id + "," + "Node" + ","
-				+ node.getNodeID() + "," + "ElectionTime" + "," + electionTimeElapsed.toMillis() + "," + "ms" + "\n";
+		String textToAppend = "Time" + ";" + Instant.now() + ";" + "Election" + ";" + id + ";" + "Node" + ";"
+				+ node.getNodeID() + ";" + "ElectionTime" + ";" + electionTimeElapsed.toMillis() + ";" + "ms";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\electionTime.txt", true) // AppendMode
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\electionTime.csv", true) // AppendMode
 		);
 
 		writer.newLine(); // Add new line
@@ -385,10 +439,10 @@ public class Evaluation {
 	}
 
 	public void storeMessageOverhead(int id, int msgOverhead) throws IOException {
-		String textToAppend = "Time" + "," + Instant.now() + "," + "Election" + "," + id + "," + "Node" + ","
-				+ node.getNodeID() + "," + "Msg_Overhead" + "," + msgOverhead + "\n";
+		String textToAppend = "Time" + ";" + Instant.now() + ";" + "Election" + ";" + id + ";" + "Node" + ";"
+				+ node.getNodeID() + ";" + "Msg_Overhead" + ";" + msgOverhead + ";" + "msgs";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\messageOverhead.txt", true) // AppendMode
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\messageOverhead.csv", true) // AppendMode
 		);
 
 		writer.newLine(); // Add new line
@@ -397,10 +451,10 @@ public class Evaluation {
 	}
 
 	public void storeWithoutLeaderTimer() throws IOException {
-		String textToAppend = "Time" + "," + Instant.now() + "," + "W/out Leader" + "," + "-" + "," + "Node" + ","
-				+ node.getNodeID() + "," + "Time" + "," + withoutLeaderTimeElapsed + "\n";
+		String textToAppend = "Time" + ";" + Instant.now() + ";" + "W/out Leader" + ";" + "-" + ";" + "Node" + ";"
+				+ node.getNodeID() + ";" + "Time" + ";" + withoutLeaderTimeElapsed + ";" + "ms";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\withoutLeader.txt", true) // AppendMode
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\withoutLeader.csv", true) // AppendMode
 		);
 
 		writer.newLine(); // Add new line
@@ -409,10 +463,10 @@ public class Evaluation {
 	}
 
 	public void storeExchangingLeaderTimer(int id) throws IOException {
-		String textToAppend = "Time" + "," + Instant.now() + "," + "Leader_Exchange" + "," + id + "," + "Node" + ","
-				+ node.getNodeID() + "," + "ExchangingLeader" + "," + leaderExchangeElapsed + "\n";
+		String textToAppend = "Time" + ";" + Instant.now() + ";" + "Leader_Exchange" + ";" + id + ";" + "Node" + ";"
+				+ node.getNodeID() + ";" + "ExchangingLeader" + ";" + leaderExchangeElapsed + ";" + "ms";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\exchangingLeader.txt", true) // AppendMode
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\exchangingLeader.csv", true) // AppendMode
 		);
 
 		writer.newLine(); // Add new line
@@ -421,11 +475,11 @@ public class Evaluation {
 	}
 
 	public void storeElectionRate(int electionRatetoStore) throws IOException {
-		String textToAppend = "Time" + "," + Instant.now() + "," + "Election_Rate" + "," + "Node" + ","
-				+ node.getNodeID() + "," + "Election_Rate" + "," + electionRatetoStore + "," + "UnitTime" + ","
-				+ unitTime + "," + "s" + "\n";
+		String textToAppend = "Time" + ";" + Instant.now() + ";" + "Election_Rate" + ";" + "Node" + ";"
+				+ node.getNodeID() + ";" + "Election_Rate" + ";" + electionRatetoStore + ";" + "UnitTime" + ";"
+				+ unitTime + ";" + "s";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\electionRate.txt", true) // AppendMode
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\electionRate.csv", true) // AppendMode
 		);
 
 		writer.newLine(); // Add new line

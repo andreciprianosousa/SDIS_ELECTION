@@ -21,7 +21,7 @@ public class NodeTransmitter extends Thread {
 	protected int timeOut;
 	protected String ipAddress;
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private int messageCounter = 0;
 
 	protected byte[] dataToReceive = new byte[2048];

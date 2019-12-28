@@ -63,11 +63,11 @@ public class NodeListener extends Thread {
 
 			node.updateRemovedNodes();
 
-//			if (print % 4 == 0 && (node.isKilled() == false)) {
-//				node.printLeader();
-//				System.out.println("From Node Listener, NODE " + node.getNodeID());
-//				node.printNeighbors();
-//			}
+			if (print % 4 == 0 && (node.isKilled() == false)) {
+				node.printLeader();
+				System.out.println("From Node Listener, NODE " + node.getNodeID());
+				node.printNeighbors();
+			}
 
 			print++;
 
