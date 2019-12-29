@@ -107,8 +107,7 @@ public class NodeListener extends Thread {
 						if (setToKill == true) {
 							deathNode = Instant.now();
 							oldState = true;
-							if (DEBUG)
-								System.out.println("(-, - )� zzzZZZ");
+							System.out.println("(-, - )� zzzZZZ");
 						}
 					}
 				}
@@ -139,7 +138,7 @@ public class NodeListener extends Thread {
 				}
 
 				// Dies for about 5 timeouts
-				if ((Duration.between(deathNode, Instant.now()).toMillis()) > (5 * refreshTestLiveliness * 1000)) {
+				if ((Duration.between(deathNode, Instant.now()).toMillis()) > (4 * refreshTestLiveliness * 1000)) {
 					node.setKilled(false);
 				}
 
