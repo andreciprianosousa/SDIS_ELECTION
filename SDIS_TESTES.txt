@@ -68,21 +68,21 @@ Teste 8 - Testar morte de nó e seu renascimento, numa rede em que o nó que fal
 -----------------------------------------------------------------------------------------------------------------------------------------------
 Testes com 20 Nos. Scripts
 		
-Teste 9 - Testar a iniciação da rede 												=> OK
+Teste 9 - Testar a iniciação da rede 													=> OK
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
 		   * Sem perda de pacotes
 		   * Sem morte de nos
 
-Teste 10 - Testar a remoção de no lider e, consequente, eleição 					=> OK
+Teste 10 - Testar a remoção de no lider e, consequente, eleição 						=> OK
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
 		   * Sem perda de pacotes
 		   * Sem morte de nos
 		  
-Teste 11 - Testar adição de no com ID maior que o lider atual 						=> OK
+Teste 11 - Testar adição de no com ID maior que o lider atual 							=> OK
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
@@ -96,78 +96,74 @@ Teste 12 - Remoção, espaçada em tempo, de 2 nos lideres 								=> OK
 		   * Sem perda de pacotes
 		   * Sem morte de nos
 
-Teste 13 - Testar a iniciação da rede com perda de pacotes [MedianFailure=100]			=>
+Teste 13 - Testar a iniciação da rede com perda de pacotes 			
+						[MedianFailure=100]		
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
 		   * Sem morte de nos
-	13.1 - Remoçao de lider 
+	13.1 - Remoçao de lider 															=> OK (Slight Problem: As vezes, depois de remover, a rede começa a desfalecer => Creio que o principal problema seja ou o timeout ou o facto de estar a trabalhar em Wx)
 	
-	13.2 - Adiçao de novo no com ID maior
+	13.2 - Adiçao de novo no com ID maior												=> OK (SP)
 	
-	13.3 - Remoção, espaçada em tempo, de 2 nos lideres 
+	13.3 - Remoção, espaçada em tempo, de 2 nos lideres 								=> OK (SP)
+						
+						[MedianFailure=10]
+		   * Plano 100x100
+		   * Range 50
+		   * Sem mobilidade
+		   * Sem morte de nos						
+	13.4 - Remoçao de lider, Adiçao de novo no com ID maior, Remoção, 					=> Worked only 1x with 10, then changed to 50
+	espaçada em tempo, de 2 nos lideres										
 
-Teste 14 - Testar a iniciação da rede com morte e renascimento de nos [MedianDeath=1]	=> 
+Teste 14 - Testar a iniciação da rede com morte e renascimento de nos 
+						[MedianDeath=1]	
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
 		   * Sem perda de pacotes
-	14.1 - Remoção de lider
-	
-	14.2 - Adiçao de novo no com ID maior
-	
-	14.3 - Remoção, espaçada em tempo, de 2 nos lideres 
+	14.1 - Remoção de lider																=>
+
+	14.2 - Adiçao de novo no com ID maior 												=> 											
 	
 Teste 15 - Testar iniciação de rede com morte, renascimento e perda de pacotes de nos
+				[MedianDeath=1]	 [MedianFailure=50] 
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
-	15.1 - Remoção de lider
-	
-	15.2 - Adiçao de novo no com ID maior
-	
-	15.3 - Remoção, espaçada em tempo, de 2 nos lideres 
+	15.1 - Remoção de lider, Adiçao de novo no com ID maior & Remoção, 					=>
+	espaçada em tempo, de 2 nos lideres 								
 	
 Teste 16 - Testar iniciação de rede com mobilidade
 		   * Plano 100x100
 		   * Range 50
 		   * Sem perda de pacotes
 		   * Sem morte de nos
-	16.1 - Remoção de lider
-	
-	16.2 - Adiçao de novo no com ID maior
-	
-	16.3 - Remoção, espaçada em tempo, de 2 nos lideres 
+	16.1 - Remoção de lider, Adiçao de novo no com ID maior, Remoção, 					=>
+	espaçada em tempo, de 2 nos lideres 
 	
 Teste 17 - Testar iniciação de rede com mobilidade com perda de pacotes
 		   * Plano 100x100
 		   * Range 50
 		   * Sem morte de nos
-	17.1 - Remoção de lider
-	
-	17.2 - Adiçao de novo no com ID maior
-	
-	17.3 - Remoção, espaçada em tempo, de 2 nos lideres 
+	17.1 - Remoção de lider, Adiçao de novo no com ID maior, Remoção, 					=>
+	espaçada em tempo, de 2 nos lideres 
 
 Teste 18 - Testar iniciação de rede com mobilidade com morte de nos
 		   * Plano 100x100
 		   * Range 50
 		   * Sem perda de pacotes
-	18.1 - Remoção de lider
-	
-	18.2 - Adiçao de novo no com ID maior
-	
-	18.3 - Remoção, espaçada em tempo, de 2 nos lideres 
+	18.1 - Remoção de lider, Adiçao de novo no com ID maior, Remoção,					=>
+	espaçada em tempo, de 2 nos lideres 
 	
 Teste 19 - Testar iniciação de rede com mobilidade com morte de nos e perda de pocates		 
 		   * Plano 100x100
 		   * Range 50
-	18.1 - Remoção de lider
-	
-	18.2 - Adiçao de novo no com ID maior
-	
-	18.3 - Remoção, espaçada em tempo, de 2 nos lideres 
+	18.1 - Remoção de lider, Adiçao de novo no com ID maior, Remoção, 					=>
+	espaçada em tempo, de 2 nos lideres 
 		   
-	
+---------------------------------------------------------------------------------------------------------------------------------
+
+Teste 20 - Tudo ao Molho. E... Fé EM ATEUS
 
 
