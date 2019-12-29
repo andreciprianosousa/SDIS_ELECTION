@@ -22,7 +22,7 @@ public class Handler extends Thread {
 	byte[] messageToSend = new byte[2048];
 	DatagramPacket datagram;
 
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 
 	// Constructor
 	public Handler(Node node, MessageType messageType, Set<Integer> mailingList) {

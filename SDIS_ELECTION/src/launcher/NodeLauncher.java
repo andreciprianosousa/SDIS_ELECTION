@@ -13,7 +13,7 @@ public class NodeLauncher {
 
 	/* Network configurations */
 	protected static int refreshRate = 1; // Every refreshRate seconds, each node sends a HelloMessage
-	protected static int timeOut = 8 * refreshRate; // If a node does not react for timeOut seconds, it's dead
+	protected static int timeOut = 15 * refreshRate; // If a node does not react for timeOut seconds, it's dead
 	// 20 Nodes - 10 , 40 Nodes - 20, 60/80 Nodes - 30
 	protected static boolean DEBUG = false;
 
