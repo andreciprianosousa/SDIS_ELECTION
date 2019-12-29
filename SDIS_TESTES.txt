@@ -116,31 +116,27 @@ Teste 13 - Testar a iniciação da rede com perda de pacotes
 	13.4 - Remoçao de lider, Adiçao de novo no com ID maior, Remoção, 					=> Worked only 1x with 10, then changed to 50
 	espaçada em tempo, de 2 nos lideres										
 
-Teste 14 - Testar a iniciação da rede com morte e renascimento de nos 
+Teste 14 - Testar a iniciação da rede com morte e renascimento de nos      		
 						[MedianDeath=1]	
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
-		   * Sem perda de pacotes
-	14.1 - Remoção de lider																=>
-
-	14.2 - Adiçao de novo no com ID maior 												=> 											
+		   * Sem perda de pacotes		
+	14.1 - Com apenas 1 No de Teste 													=> OK
 	
 Teste 15 - Testar iniciação de rede com morte, renascimento e perda de pacotes de nos
 				[MedianDeath=1]	 [MedianFailure=50] 
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
-	15.1 - Remoção de lider, Adiçao de novo no com ID maior & Remoção, 					=>
-	espaçada em tempo, de 2 nos lideres 								
+	15.1 - Com apenas 1 No de Teste 													=> Nao tenho a certeza que funcionou a 100%, Repetir em Linux							
 	
 Teste 16 - Testar iniciação de rede com mobilidade
 		   * Plano 100x100
 		   * Range 50
 		   * Sem perda de pacotes
 		   * Sem morte de nos
-	16.1 - Remoção de lider, Adiçao de novo no com ID maior, Remoção, 					=>
-	espaçada em tempo, de 2 nos lideres 
+	16.1 - Remoção de lider, Adiçao de novo no com ID maior								=>
 	
 Teste 17 - Testar iniciação de rede com mobilidade com perda de pacotes
 		   * Plano 100x100
