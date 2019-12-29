@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Simulation {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	private int medianFailure = 100; // 100 Messages
 	private int medianDeath = 5; // 5 minute

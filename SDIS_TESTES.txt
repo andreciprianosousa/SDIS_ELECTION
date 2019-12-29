@@ -68,35 +68,35 @@ Teste 8 - Testar morte de nó e seu renascimento, numa rede em que o nó que fal
 -----------------------------------------------------------------------------------------------------------------------------------------------
 Testes com 20 Nos. Scripts
 		
-Teste 9 - Testar a iniciação da rede => OK
+Teste 9 - Testar a iniciação da rede 												=> OK
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
 		   * Sem perda de pacotes
 		   * Sem morte de nos
 
-Teste 10 - Testar a remoção de no lider e, consequente, eleição => OK
+Teste 10 - Testar a remoção de no lider e, consequente, eleição 					=> OK
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
 		   * Sem perda de pacotes
 		   * Sem morte de nos
 		  
-Teste 11 - Testar adição de no com ID maior que o lider atual => OK
+Teste 11 - Testar adição de no com ID maior que o lider atual 						=> OK
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
 		   * Sem perda de pacotes
 		   * Sem morte de nos
 		  
-Teste 12 - Remoção, espaçada em tempo, de 2 nos lideres => OK
+Teste 12 - Remoção, espaçada em tempo, de 2 nos lideres 								=> OK
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
 		   * Sem perda de pacotes
 		   * Sem morte de nos
 
-Teste 13 - Testar a iniciação da rede com perda de pacotes
+Teste 13 - Testar a iniciação da rede com perda de pacotes [MedianFailure=100]			=>
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
@@ -107,7 +107,7 @@ Teste 13 - Testar a iniciação da rede com perda de pacotes
 	
 	13.3 - Remoção, espaçada em tempo, de 2 nos lideres 
 
-Teste 14 - Testar a iniciação da rede com morte e renascimento de nos
+Teste 14 - Testar a iniciação da rede com morte e renascimento de nos [MedianDeath=1]	=> 
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
