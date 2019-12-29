@@ -164,7 +164,7 @@ public class Node implements Serializable {
 		new NodeListener(this, refreshRate).start();
 		new NodeTransmitter(this, timeOut).start();
 
-		this.networkEvaluation = new Evaluation(this, 1);
+		this.networkEvaluation = new Evaluation(this, 0);
 
 		this.getNetworkEvaluation().checkWithoutLeader();
 		new Bootstrap(this).start(); // New node, so set network and act accordingly

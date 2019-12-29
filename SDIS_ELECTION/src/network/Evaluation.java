@@ -14,7 +14,7 @@ public class Evaluation {
 	private static final boolean DEBUG = false;
 	private static final boolean DEBUG_ElectionTimer = false;
 	private static final boolean DEBUG_MsgOverhead = false;
-	private static final boolean DEBUG_WithoutLeaderTimer = true;
+	private static final boolean DEBUG_WithoutLeaderTimer = false;
 	private static final boolean DEBUG_ExchangingLeader = false;
 	private static final boolean DEBUG_ElectionRate = false;
 
@@ -435,7 +435,7 @@ public class Evaluation {
 				+ node.getNodeID() + ";" + "ElectionInit" + ";" + electionInit.get(id).toString() + ";" + "ElectionTime"
 				+ ";" + electionTimeElapsed.toMillis() + ";" + "ms";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\electionTime.csv", true) // AppendMode
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\M1_electionTime.csv", true) // AppendMode
 		);
 
 		writer.newLine(); // Add new line
@@ -447,7 +447,7 @@ public class Evaluation {
 		String textToAppend = "Time" + ";" + Instant.now() + ";" + "Election" + ";" + id + ";" + "Node" + ";"
 				+ node.getNodeID() + ";" + "Msg_Overhead" + ";" + msgOverhead + ";" + "msgs";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\messageOverhead.csv", true) // AppendMode
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\M2_messageOverhead.csv", true) // AppendMode
 		);
 
 		writer.newLine(); // Add new line
@@ -457,9 +457,9 @@ public class Evaluation {
 
 	public void storeWithoutLeaderTimer() throws IOException {
 		String textToAppend = "Time" + ";" + Instant.now() + ";" + "W/out Leader" + ";" + "-" + ";" + "Node" + ";"
-				+ node.getNodeID() + ";" + "Time" + ";" + withoutLeaderTimeElapsed + ";" + "ms";
+				+ node.getNodeID() + ";" + "Time" + ";" + withoutLeaderTimeElapsed.toMillis() + ";" + "ms";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\withoutLeader.csv", true) // AppendMode
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\M3_withoutLeader.csv", true) // AppendMode
 		);
 
 		writer.newLine(); // Add new line
@@ -469,9 +469,9 @@ public class Evaluation {
 
 	public void storeExchangingLeaderTimer(int id) throws IOException {
 		String textToAppend = "Time" + ";" + Instant.now() + ";" + "Leader_Exchange" + ";" + id + ";" + "Node" + ";"
-				+ node.getNodeID() + ";" + "ExchangingLeader" + ";" + leaderExchangeElapsed + ";" + "ms";
+				+ node.getNodeID() + ";" + "ExchangingLeader" + ";" + leaderExchangeElapsed.toMillis() + ";" + "ms";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\exchangingLeader.csv", true) // AppendMode
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\M4_exchangingLeader.csv", true) // AppendMode
 		);
 
 		writer.newLine(); // Add new line
@@ -484,7 +484,7 @@ public class Evaluation {
 				+ node.getNodeID() + ";" + "Election_Rate" + ";" + electionRatetoStore + ";" + "UnitTime" + ";"
 				+ unitTime + ";" + "s";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\electionRate.csv", true) // AppendMode
+		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\M5_electionRate.csv", true) // AppendMode
 		);
 
 		writer.newLine(); // Add new line

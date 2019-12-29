@@ -19,8 +19,7 @@ public class Handler extends Thread {
 	protected ElectionMessage electionMessage = null;
 	protected LeaderMessage leaderMessage = null;
 	protected InfoMessage infoMessage = null;
-	byte[] messageToSend; // = new byte[2048]; // This value does nothing, I could pu a 0 here and it
-							// would work
+	byte[] messageToSend = new byte[2048];
 	DatagramPacket datagram;
 
 	private static boolean DEBUG = true;

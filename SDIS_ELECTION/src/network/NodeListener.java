@@ -24,7 +24,7 @@ public class NodeListener extends Thread {
 	private boolean oldState = false;
 	private Instant lastLivenessTest = Instant.now();
 	private Instant deathNode = Instant.now();
-	private static int refreshTestLiveliness = 1000;
+	private int refreshTestLiveliness = 1000;
 
 	private static final boolean DEBUG = false;
 	private static final String GoingToSleep = null;
