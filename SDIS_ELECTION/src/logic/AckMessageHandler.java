@@ -94,8 +94,10 @@ public class AckMessageHandler extends Thread {
 				System.out.println("========================>   Leader agreed upon: " + node.getLeaderID());
 
 				// Metric 1 - Election Timer
-				node.networkEvaluation.setEndElectionTimer(node.getComputationIndex().getId());
-				node.networkEvaluation.getElectionTimer(node.getComputationIndex().getId());
+				if (node.getNodeID() == node.getComputationIndex().getId()) {
+					node.networkEvaluation.setEndElectionTimer(node.getComputationIndex().getId());
+					node.networkEvaluation.getElectionTimer(node.getComputationIndex().getId());
+				}
 				// Metric 3 - Without Leader Timer
 				node.networkEvaluation.setEndWithoutLeaderTimer();
 				node.networkEvaluation.getWithoutLeaderTimer();

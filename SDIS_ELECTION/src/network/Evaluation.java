@@ -18,11 +18,11 @@ public class Evaluation {
 	private static final boolean DEBUG_ExchangingLeader = false;
 	private static final boolean DEBUG_ElectionRate = false;
 
-	private static boolean electionTimerTest = false;
-	private static boolean msgOverheadTest = false;
-	private static boolean withoutLeaderTimerTest = false;
-	private static boolean exchangingLeaderTest = false;
-	private static boolean electionRateTest = false;
+	private boolean electionTimerTest = false;
+	private boolean msgOverheadTest = false;
+	private boolean withoutLeaderTimerTest = false;
+	private boolean exchangingLeaderTest = false;
+	private boolean electionRateTest = false;
 
 	private static final int timeoutLeaderExchange = 3000;
 	private static final int timeoutWithoutLeader = 5000;
@@ -100,7 +100,11 @@ public class Evaluation {
 	// 1st Metric - Election Time
 	// Mean Time nodes are in election
 	public void setStartElectionTimer(int id) {
-		electionInit.put(id, Instant.now());
+		if (!(electionInit.containsKey(id))) {
+			electionInit.put(id, Instant.now());
+		} else {
+			electionInit.replace(id, Instant.now());
+		}
 	}
 
 	public void setEndElectionTimer(int id) {
@@ -428,7 +432,8 @@ public class Evaluation {
 	// Storage Facility
 	public void storeElectionTime(int id) throws IOException {
 		String textToAppend = "Time" + ";" + Instant.now() + ";" + "Election" + ";" + id + ";" + "Node" + ";"
-				+ node.getNodeID() + ";" + "ElectionTime" + ";" + electionTimeElapsed.toMillis() + ";" + "ms";
+				+ node.getNodeID() + ";" + "ElectionInit" + ";" + electionInit.get(id).toString() + ";" + "ElectionTime"
+				+ ";" + electionTimeElapsed.toMillis() + ";" + "ms";
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\electionTime.csv", true) // AppendMode
 		);

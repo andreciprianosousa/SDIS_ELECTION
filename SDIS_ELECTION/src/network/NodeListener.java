@@ -19,7 +19,7 @@ public class NodeListener extends Thread {
 	protected String helloMessage;
 	byte[] messageToSend = new byte[2048];
 	DatagramPacket datagram;
-	private int print = 0;
+	private int print = 1;
 
 	private boolean oldState = false;
 	private Instant lastLivenessTest = Instant.now();
@@ -70,7 +70,7 @@ public class NodeListener extends Thread {
 				node.printNeighbors();
 			}
 
-			print++;
+//			print++;
 
 			node.getNetworkEvaluation().setStartElectionRateTimer();
 			if (node.getNetworkEvaluation().isNewElection() == true) {

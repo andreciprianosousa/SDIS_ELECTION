@@ -23,7 +23,7 @@ public class Handler extends Thread {
 							// would work
 	DatagramPacket datagram;
 
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 
 	// Constructor
 	public Handler(Node node, MessageType messageType, Set<Integer> mailingList) {
@@ -106,11 +106,14 @@ public class Handler extends Thread {
 			// Only starts counting time when it's send an Election Msg
 			// Starts Counting messages in election with Election Msg
 			if ((messageType == MessageType.ELECTION) || (messageType == MessageType.ELECTION_GROUP)) {
-				if (DEBUG)
-					System.out.println("Init Election: " + node.getComputationIndex().getId() + " = " + Instant.now());
 
 				node.networkEvaluation.setStartElectionTimer(node.getComputationIndex().getId());
 				node.networkEvaluation.counterMessagesInElection(node.getComputationIndex().getId(), messageType);
+
+				if (DEBUG)
+					System.out.println(
+							"I'm Node: " + node.getNodeID() + " - Init Election: " + node.getComputationIndex().getId()
+									+ " = " + node.getNetworkEvaluation().getElectionInit());
 
 				// Needed for Network Evaluation => Set New Election
 				node.getNetworkEvaluation().setNewElection(true);
