@@ -103,6 +103,9 @@ Teste 13 - Testar a iniciação da rede com perda de pacotes
 		   * Sem mobilidade
 		   * Sem morte de nos
 	13.1 - Remoçao de lider 															=> OK (Slight Problem: As vezes, depois de remover, a rede começa a desfalecer => Creio que o principal problema seja ou o timeout ou o facto de estar a trabalhar em Wx)
+			=> OK por terminal sem o problema anterior em Linux, mas ao colocar um nó lider por eclipse, dá-me: Exception in thread "Thread-0" 												       java.lang.NullPointerException
+at network.NodeListener.run(NodeListener.java:75)
+erro também acontece ao correr setup do teste 16
 	
 	13.2 - Adiçao de novo no com ID maior												=> OK (SP)
 	
@@ -129,7 +132,7 @@ Teste 15 - Testar iniciação de rede com morte, renascimento e perda de pacotes
 		   * Plano 100x100
 		   * Range 50
 		   * Sem mobilidade
-	15.1 - Com apenas 1 No de Teste 													=> Nao tenho a certeza que funcionou a 100%, Repetir em Linux							
+	15.1 - Com apenas 1 No de Teste 													=> Nao tenho a certeza que funcionou a 100%, Repetir em Linux	-> Cipriano: ok em Linux						
 	
 Teste 16 - Testar iniciação de rede com mobilidade
 		   * Plano 100x100
