@@ -62,6 +62,7 @@ public class NodeListener extends Thread {
 
 		while (true) {
 
+			// if (node.getNeighbors().size() == 0)
 			node.updateRemovedNodes();
 
 			if (print % 4 == 0 && (node.isKilled() == false)) {
@@ -77,6 +78,8 @@ public class NodeListener extends Thread {
 				node.getNetworkEvaluation().counterElectionRate(node.getComputationIndex().getId());
 			}
 
+			// DEBUG For cleaned list
+			// node.setKilled(false);
 			if (!(node.isKilled())) {
 
 				// If we want to test the death of a node, then

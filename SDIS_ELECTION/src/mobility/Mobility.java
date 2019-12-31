@@ -16,7 +16,7 @@ public class Mobility extends Thread {
 	protected boolean test;
 
 	protected int nodeSpeed;
-	protected int constantToSleep = 1; // when =1 doesn't interfere with speed
+	protected int constantToSleep = 1; // when = 1 doesn't interfere with speed
 	protected int nodeDirection;
 	protected int nextX;
 	protected int nextY;

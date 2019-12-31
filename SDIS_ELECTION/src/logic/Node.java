@@ -18,7 +18,7 @@ import simulation.Simulation;
 
 public class Node implements Serializable {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	protected int nodeID;
 	protected ComputationIndex computationIndex;
@@ -190,7 +190,8 @@ public class Node implements Serializable {
 				// at every call of this method and thus doesn't lose new nodes.
 				// ERROR: conflicts with bootstrapping kinda
 				if (this.isElectionActive())
-					return;
+					System.out.println(" ---- Era suposto fazer return ---- ");
+//					return;
 
 				// This check makes sure than, in mobility, if a node recognizes a new node
 				// connecting and not in an election,
@@ -204,12 +205,14 @@ public class Node implements Serializable {
 					new Handler(this, logic.MessageType.INFO, nodeMessageID).start();
 				}
 
+//				neighbors.replace(nodeMessageID, Instant.now());
+//				updateRemovedNodes();
 				neighbors.put(nodeMessageID, Instant.now());
-				// System.out.println("Updated to: " + Instant.now());
+				// System.out.println("Update to: " + neighbors.get(nodeMessageID).toMillis());
 
 			}
 		}
-//// OUTDATED CODE  - Needed when bootstrap has election
+//// OUTDATED CODE  - Needed when bootstrap had election
 //		updateNetworkSet();
 	}
 

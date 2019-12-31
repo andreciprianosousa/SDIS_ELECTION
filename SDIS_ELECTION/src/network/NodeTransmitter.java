@@ -17,7 +17,7 @@ public class NodeTransmitter extends Thread {
 	protected int timeOut;
 	protected String ipAddress;
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private int messageCounter = 0;
 
 	protected byte[] dataToReceive = new byte[2048];
@@ -75,14 +75,21 @@ public class NodeTransmitter extends Thread {
 			message = new String(datagram.getData(), 0, datagram.getData().length, StandardCharsets.UTF_8);
 			// System.out.println("Node " + node.getNodeID() + ". Message " + message);
 
+			// DEBUG For cleaned list
+			// node.setKilled(false);
 			if (!(node.isKilled())) {
 
 				// Start Timer Without Leader
 				node.getNetworkEvaluation().checkWithoutLeader();
 
+//				if (DEBUG && (node.getNodeID() == 888 || node.getNodeID() == 20))
+//					// System.out.println("Processing new message...");
+//					System.out.println("Is noke killed: " + node.isKilled());
+
 				// ------------- Reception and logic starts here-----------------
 				String[] fields = message.split("/");
 				if (message.contains("hello")) {
+					// System.out.print("hello_" + node.getNodeID() + " ");
 
 					// SIM
 					if (node.testPacket(messageCounter) == true) {
