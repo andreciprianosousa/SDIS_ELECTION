@@ -191,7 +191,7 @@ public class Node implements Serializable {
 				// at every call of this method and thus doesn't lose new nodes.
 				// ERROR: conflicts with bootstrapping kinda
 				if (this.isElectionActive())
-					System.out.println(" ---- Era suposto fazer return ---- ");
+					System.out.println("Return should happen here.");
 //					return;
 
 				// This check makes sure than, in mobility, if a node recognizes a new node
@@ -398,7 +398,8 @@ public class Node implements Serializable {
 			System.out.print(neighbor + " ");
 		}
 		System.out.println("]");
-		System.out.print(">>> Node " + this.nodeID + " _ WaitingACKs: " + this.getWaitingAcks().toString());
+		System.out.print(">>> Node " + this.nodeID + " _ WaitingACKs: " + this.getWaitingAcks().toString()
+				+ " - AckStatus: " + this.getAckStatus());
 		System.out.println("");
 		System.out.print(">>> Node " + this.nodeID + " -> Parent: " + getParentActive());
 		System.out.println("");
