@@ -149,6 +149,7 @@ public class Node implements Serializable {
 //		yCoordinate = (int) yMax; // (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
 		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
 		yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
+		System.out.println(">>> Node: " + nodeID + " ___ X = " + xCoordinate + " ---- Y = " + yCoordinate);
 
 		if (DEBUG) {
 
@@ -255,6 +256,8 @@ public class Node implements Serializable {
 				System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
 
 			printNeighbors();
+
+			this.getWaitingAcks().remove(neighbor);
 
 			if (this.isElectionActive()) {
 				this.getWaitingAcks().remove(neighbor);// ... but also from waiting acks, this way a node doesn't wait
@@ -391,6 +394,11 @@ public class Node implements Serializable {
 			System.out.print(neighbor + " ");
 		}
 		System.out.println("]");
+		System.out.print(">>> Node " + this.nodeID + " _ WaitingACKs: " + this.getWaitingAcks().toString());
+		System.out.println("");
+		System.out.print(">>> Node " + this.nodeID + " -> Parent: " + getParentActive());
+		System.out.println("");
+
 	}
 
 	public boolean isInsideNeighborhood(int neighborID, int xNeighbor, int yNeighbor) {

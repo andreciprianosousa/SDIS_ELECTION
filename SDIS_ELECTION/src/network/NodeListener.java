@@ -26,7 +26,7 @@ public class NodeListener extends Thread {
 	private Instant deathNode = Instant.now();
 	private int refreshTestLiveliness = 1000;
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final String GoingToSleep = null;
 
 	public NodeListener(Node node, int refreshRate) {

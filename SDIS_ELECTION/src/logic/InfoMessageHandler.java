@@ -9,7 +9,7 @@ public class InfoMessageHandler extends Thread {
 	protected Node node;
 	protected InfoMessage infoMessage;
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	public InfoMessageHandler(Node node, InfoMessage infoMessage) {
 

@@ -9,7 +9,7 @@ public class ElectionMessageHandler extends Thread {
 	protected Node node;
 	protected ElectionMessage electionMessage;
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	public ElectionMessageHandler(Node node, ElectionMessage em) {
 
