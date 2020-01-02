@@ -252,6 +252,11 @@ public class Node implements Serializable {
 		for (int neighbor : toRemove) {
 			this.neighbors.remove(neighbor); // Remove from neighbours...
 
+			// If parent is the one removed we need to put -1 in correct place
+			if (neighbor == this.getParentActive()) {
+				this.setParentActive(-1);
+			}
+
 			if (DEBUG)
 				System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
 
@@ -272,11 +277,10 @@ public class Node implements Serializable {
 						if (DEBUG)
 							System.out.println("Sending to my parent " + this.getParentActive() + " the Leader Id "
 									+ this.getStoredId() + " from removed last ack.");
-						sendMessage(logic.MessageType.ACK, this.getParentActive());
 
 					}
 					// or prepare to send leader message if this node is the source of the election
-					// (if it has no parent)
+					// or if parent is no longer connected!
 					else {
 
 						this.setAckStatus(true);
