@@ -201,23 +201,21 @@ public class Node implements Serializable {
 					}
 				}
 
-			}
-
-			// This check makes sure than, in mobility, if a node recognizes a new node
-			// connecting and not in an election,
-			// it exchanges info messages with it to establish leader in the new overall
-			// network
-			if (!neighbors.containsKey(nodeMessageID)) {
-				// Starts the timer of Exchanging Leaders
-				if (this.nodeID < nodeMessageID) {
-					this.networkEvaluation.setStartExchangingLeadersTimer(nodeMessageID);
+				// This check makes sure than, in mobility, if a node recognizes a new node
+				// connecting and not in an election,
+				// it exchanges info messages with it to establish leader in the new overall
+				// network
+				if (!neighbors.containsKey(nodeMessageID)) {
+					// Starts the timer of Exchanging Leaders
+					if (this.nodeID < nodeMessageID) {
+						this.networkEvaluation.setStartExchangingLeadersTimer(nodeMessageID);
+					}
+					new Handler(this, logic.MessageType.INFO, nodeMessageID).start();
 				}
-				new Handler(this, logic.MessageType.INFO, nodeMessageID).start();
+
+				neighbors.put(nodeMessageID, Instant.now());
+				// System.out.println("Update to: " + neighbors.get(nodeMessageID).toMillis());
 			}
-
-			neighbors.put(nodeMessageID, Instant.now());
-			// System.out.println("Update to: " + neighbors.get(nodeMessageID).toMillis());
-
 		}
 	}
 

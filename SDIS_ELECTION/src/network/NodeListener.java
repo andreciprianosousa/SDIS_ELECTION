@@ -73,10 +73,10 @@ public class NodeListener extends Thread {
 
 			print++;
 
-			node.getNetworkEvaluation().setStartElectionRateTimer();
-			if (node.getNetworkEvaluation().isNewElection() == true) {
-				node.getNetworkEvaluation().counterElectionRate(node.getComputationIndex().getId());
-			}
+//			node.getNetworkEvaluation().setStartElectionRateTimer();
+//			if (node.getNetworkEvaluation().isNewElection() == true) {
+//				node.getNetworkEvaluation().counterElectionRate(node.getComputationIndex().getId());
+//			}
 
 			// DEBUG For cleaned list
 			// node.setKilled(false);
