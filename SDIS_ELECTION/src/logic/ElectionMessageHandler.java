@@ -1,6 +1,7 @@
 package logic;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -120,6 +121,7 @@ public class ElectionMessageHandler extends Thread {
 		// have any
 		else {
 			node.setElectionActive(true);
+			node.setResendElec(Instant.now());
 			node.setParentActive(electionMessage.getIncomingId());
 
 			node.getComputationIndex().setNum(electionMessage.getComputationIndex().getNum());

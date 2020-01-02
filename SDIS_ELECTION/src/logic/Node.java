@@ -79,6 +79,7 @@ public class Node implements Serializable {
 	protected String ipAddress;
 
 	protected Instant init;
+	protected Instant resendElec;
 
 	public Node(int nodeID, int port, String ipAddress, int[] dimensions, int refreshRate, int timeOut,
 			int medianFailure, int medianDeath, int[] finalDestination) throws InterruptedException {
@@ -189,32 +190,35 @@ public class Node implements Serializable {
 				// also cuts down on number of inconsequential messages and network passivity
 				// This only works because every node updates itself (connects all nodes around)
 				// at every call of this method and thus doesn't lose new nodes.
-				// ERROR: conflicts with bootstrapping kinda
-				if (this.isElectionActive())
-					System.out.println("Return should happen here.");
-//					return;
+				if (this.isElectionActive()) {
+					if (Duration.between(resendElec, Instant.now()).toMillis() > 5000) {
+						if (!this.getWaitingAcks().isEmpty()) {
+							new Handler(this, logic.MessageType.ELECTION_GROUP, this.getWaitingAcks()).start();
+							System.out.println(
+									"8------------------D Retransmitting to " + this.getWaitingAcks().toString());
+						}
 
-				// This check makes sure than, in mobility, if a node recognizes a new node
-				// connecting and not in an election,
-				// it exchanges info messages with it to establish leader in the new overall
-				// network
-				if (!neighbors.containsKey(nodeMessageID)) {
-					// Starts the timer of Exchanging Leaders
-					if (this.nodeID < nodeMessageID) {
-						this.networkEvaluation.setStartExchangingLeadersTimer(nodeMessageID);
 					}
-					new Handler(this, logic.MessageType.INFO, nodeMessageID).start();
 				}
 
-//				neighbors.replace(nodeMessageID, Instant.now());
-//				updateRemovedNodes();
-				neighbors.put(nodeMessageID, Instant.now());
-				// System.out.println("Update to: " + neighbors.get(nodeMessageID).toMillis());
-
 			}
+
+			// This check makes sure than, in mobility, if a node recognizes a new node
+			// connecting and not in an election,
+			// it exchanges info messages with it to establish leader in the new overall
+			// network
+			if (!neighbors.containsKey(nodeMessageID)) {
+				// Starts the timer of Exchanging Leaders
+				if (this.nodeID < nodeMessageID) {
+					this.networkEvaluation.setStartExchangingLeadersTimer(nodeMessageID);
+				}
+				new Handler(this, logic.MessageType.INFO, nodeMessageID).start();
+			}
+
+			neighbors.put(nodeMessageID, Instant.now());
+			// System.out.println("Update to: " + neighbors.get(nodeMessageID).toMillis());
+
 		}
-//// OUTDATED CODE  - Needed when bootstrap had election
-//		updateNetworkSet();
 	}
 
 	// Used in update removed nodes
@@ -338,6 +342,7 @@ public class Node implements Serializable {
 				this.getNetworkEvaluation().checkWithoutLeader();
 
 				this.setElectionActive(true);
+				this.setResendElec(Instant.now());
 				this.setStoredId(this.nodeID);
 				this.setStoredValue(this.nodeValue);
 				this.setLeaderID(this.nodeID);
@@ -524,6 +529,14 @@ public class Node implements Serializable {
 
 	public void setParentActive(int parentActive) {
 		this.parentActive = parentActive;
+	}
+
+	public Instant getResendElec() {
+		return resendElec;
+	}
+
+	public void setResendElec(Instant resendElec) {
+		this.resendElec = resendElec;
 	}
 
 	public int getLeaderID() {
