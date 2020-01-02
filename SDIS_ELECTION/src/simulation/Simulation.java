@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Simulation {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	private int medianFailure = 100; // 100 Messages
 	private int medianDeath = 5; // 5 minute
@@ -82,12 +82,13 @@ public class Simulation {
 		aux = -(1.0) * ((double) messageCount / (double) medianFailure);
 		Probability = (double) (1 - Math.pow(2, aux)) * 100;
 
-		if (DEBUG)
-			System.out.println(
-					"meanTimeToHappenFailure >>> decisionN =  " + decisionFailure + " | Probability = " + Probability);
+//		if (DEBUG)
+//			System.out.println(
+//					"meanTimeToHappenFailure >>> decisionN =  " + decisionFailure + " | Probability = " + Probability);
 
 		if (decisionFailure < Probability) {
 			takeDecisionFailure = true;
+			Probability = 0;
 			return true; // Packet Dropped
 		} else {
 			return false;
@@ -119,6 +120,7 @@ public class Simulation {
 		if (decisionDeath < Probability) {
 			setNodeKilled(true);
 			takeDecisionDeath = true;
+			Probability = 0;
 			return true; // Node death
 		} else {
 			setNodeKilled(false);

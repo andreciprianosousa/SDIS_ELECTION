@@ -92,14 +92,14 @@ public class NodeTransmitter extends Thread {
 					// System.out.print("hello_" + node.getNodeID() + " ");
 
 					// SIM
-					if (node.testPacket(messageCounter) == true) {
-						System.out.println("> Packet Drop[HELLO PACKET]! In node " + node.getNodeID() + ".");
-						messageCounter = 0;
-					} else {
-						messageCounter++;
-						this.node.updateNeighbors(Integer.parseInt(fields[1]), Integer.parseInt(fields[2]),
-								Integer.parseInt(fields[3]));
-					}
+//					if (node.testPacket(messageCounter) == true) {
+//						System.out.println("> Packet Drop[HELLO PACKET]! In node " + node.getNodeID() + ".");
+//						messageCounter = 0;
+//					} else {
+//						messageCounter++;
+					this.node.updateNeighbors(Integer.parseInt(fields[1]), Integer.parseInt(fields[2]),
+							Integer.parseInt(fields[3]));
+//				}
 				}
 
 				else if (message.contains("elec")) {
