@@ -10,6 +10,7 @@ public class NodeLauncher {
 	protected static int[] finalDestination = new int[3];
 	protected static int medianFailure;
 	protected static int medianDeath;
+	protected static int mode;
 
 	/* Network configurations */
 	protected static int refreshRate = 1; // Every refreshRate seconds, each node sends a HelloMessage
@@ -22,7 +23,7 @@ public class NodeLauncher {
 		if (args.length != 9) {
 			System.out.println("Incorrect usage! To run the program use:");
 			System.out.println(
-					"Java -jar <nodeID> <xDimension> <yDimension> <nodeRange> <medianFailure> <medianDeath> <FinalX> <FinalY> <MovementDirection[0=H,1=V]>");
+					"Java -jar <nodeID> <xDimension> <yDimension> <nodeRange> <medianFailure> <medianDeath> <FinalX> <FinalY> <MovementDirection[0=H,1=V]> <Mode>");
 		}
 
 		nodeID = Integer.parseInt(args[0]);
@@ -34,19 +35,20 @@ public class NodeLauncher {
 		finalDestination[0] = Integer.parseInt(args[6]);
 		finalDestination[1] = Integer.parseInt(args[7]);
 		finalDestination[2] = Integer.parseInt(args[8]);
+		mode = Integer.parseInt(args[9]);
 
 		if (DEBUG) {
 			System.out.println("### Welcome ### \n" + "# nodeID = " + nodeID + "\n# Xi = " + dimensions[0] + " | Yi = "
 					+ dimensions[1] + "\n# Range = " + dimensions[2] + "\n# MedianFailure = " + medianFailure
 					+ "\n# MedianDeath = " + medianDeath + "\n# Xf = " + finalDestination[0] + " | Yf = "
-					+ finalDestination[1] + "\n# Direction = " + finalDestination[2] + "\n\n\n");
+					+ finalDestination[1] + "\n# Direction = " + finalDestination[2] + "\n" + mode + "\n\n\n");
 		}
 
 		port = 5000;
 		ipAddress = "225.225.221.6"; // between 224.0.0.0 and 239.255.255.255
 		System.out.println("Starting Node " + nodeID);
 		new Node(nodeID, port, ipAddress, dimensions, refreshRate, timeOut, medianFailure, medianDeath,
-				finalDestination);
+				finalDestination, mode);
 
 	}
 }

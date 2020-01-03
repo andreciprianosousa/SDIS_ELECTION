@@ -82,7 +82,7 @@ public class Node implements Serializable {
 	protected Instant resendElec;
 
 	public Node(int nodeID, int port, String ipAddress, int[] dimensions, int refreshRate, int timeOut,
-			int medianFailure, int medianDeath, int[] finalDestination) throws InterruptedException {
+			int medianFailure, int medianDeath, int[] finalDestination, int mode) throws InterruptedException {
 		this.nodeID = nodeID;
 		this.port = port;
 		this.ipAddress = ipAddress;
@@ -146,10 +146,14 @@ public class Node implements Serializable {
 		}
 
 		// Initial coordinates
-//		xCoordinate = (int) xMax; // (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
-//		yCoordinate = (int) yMax; // (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
-		xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
-		yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
+		if (mode == 1) {
+			xCoordinate = (int) ((Math.random() * ((xMax - 0) + 1)) + 0);
+			yCoordinate = (int) ((Math.random() * ((yMax - 0) + 1)) + 0);
+		} else if (mode == 0) {
+			xCoordinate = (int) xMax;
+			yCoordinate = (int) yMax;
+		}
+
 		System.out.println(">>> Node: " + nodeID + " ___ X = " + xCoordinate + " ---- Y = " + yCoordinate);
 
 		if (DEBUG) {
