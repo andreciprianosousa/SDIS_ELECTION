@@ -23,7 +23,7 @@ public class Mobility extends Thread {
 	protected int sleepTime;
 	protected boolean isMoving;
 	protected boolean newMove;
-	protected boolean print = true;
+	protected boolean print = false;
 
 	private static final int speed = 1;
 

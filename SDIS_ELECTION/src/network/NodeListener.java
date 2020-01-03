@@ -26,7 +26,7 @@ public class NodeListener extends Thread {
 	private Instant deathNode = Instant.now();
 	private int refreshTestLiveliness = 1000;
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String GoingToSleep = null;
 
 	public NodeListener(Node node, int refreshRate) {
@@ -62,12 +62,11 @@ public class NodeListener extends Thread {
 
 		while (true) {
 
-			// if (node.getNeighbors().size() == 0)
 			node.updateRemovedNodes();
 
 			if (print % 4 == 0 && (node.isKilled() == false)) {
 				node.printLeader();
-				System.out.println("From Node Listener, NODE " + node.getNodeID());
+				System.out.println("Node Listener: NODE " + node.getNodeID());
 				node.printNeighbors();
 			}
 
@@ -78,8 +77,6 @@ public class NodeListener extends Thread {
 //				node.getNetworkEvaluation().counterElectionRate(node.getComputationIndex().getId());
 //			}
 
-			// DEBUG For cleaned list
-			// node.setKilled(false);
 			if (!(node.isKilled())) {
 
 				// If we want to test the death of a node, then
@@ -88,16 +85,12 @@ public class NodeListener extends Thread {
 				// perceive Resurrection
 				if (node.isToTestDeath()) {
 					if (oldState == true) {
-						System.out
-								.println(">>> Ressurection!  " + Duration.between(deathNode, Instant.now()).toMillis());
+						System.out.println("Node Listener: Ressurection!  "
+								+ Duration.between(deathNode, Instant.now()).toMillis());
 
 						node.resetCharge(); // Charge restored to test new possible death
 
 						// Cipriano - This is for you
-						//
-						//
-						//
-						//
 						//
 						new Bootstrap(node).start(); // New node, so set network and act accordingly
 					}
@@ -110,7 +103,7 @@ public class NodeListener extends Thread {
 						if (setToKill == true) {
 							deathNode = Instant.now();
 							oldState = true;
-							System.out.println("(-, - )� zzzZZZ");
+							System.out.println("Node Listener: Start Sleeping.");
 						}
 					}
 				}
@@ -137,7 +130,7 @@ public class NodeListener extends Thread {
 
 			} else {
 				if (DEBUG) {
-					System.out.println("                             (-, - )� zzzZZZ");
+					System.out.print("Node Listener: Sleeping...");
 				}
 
 				// Dies for about 5 timeouts

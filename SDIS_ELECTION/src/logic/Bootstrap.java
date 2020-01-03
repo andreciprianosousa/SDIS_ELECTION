@@ -7,7 +7,7 @@ public class Bootstrap extends Thread {
 	protected Node node;
 
 	private static final int NetworkSet_Delay = 1000;
-	private static final int Election_Delay = 4000;
+//	private static final int Election_Delay = 4000;
 
 	private static final boolean DEBUG = false;
 
@@ -37,8 +37,8 @@ public class Bootstrap extends Thread {
 			node.networkEvaluation.getWithoutLeaderTimer();
 		}
 
-		// OUTDATED CODE, BUT MAY STILL BE USEFUL IN THE INITIAL BOOTSTRAP IF WE NEED TO
-		// If not, start an election with neighbours or join current network
+// OUTDATED CODE, BUT MAY STILL BE USEFUL IN THE INITIAL BOOTSTRAP IF WE NEED TO
+// If not, start an election with neighbours or join current network
 //		else {
 //
 //			// Only biggest ID node should bootstrap election, should many nodes instantiate

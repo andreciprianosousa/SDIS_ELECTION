@@ -10,7 +10,7 @@ public class ElectionMessageHandler extends Thread {
 	protected Node node;
 	protected ElectionMessage electionMessage;
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	public ElectionMessageHandler(Node node, ElectionMessage em) {
 
@@ -22,7 +22,8 @@ public class ElectionMessageHandler extends Thread {
 
 	public void sendMessage(logic.MessageType messageType, Set<Integer> mailingList) {
 		if (mailingList.isEmpty()) {
-			System.out.println("Mailing List is Empty");
+			if (DEBUG)
+				System.out.println("Mailing List is Empty");
 			return;
 		}
 		new Handler(this.node, messageType, mailingList).start();
@@ -36,8 +37,8 @@ public class ElectionMessageHandler extends Thread {
 	public synchronized void run() {
 
 		if (DEBUG)
-			System.out.println("Receiving election from " + electionMessage.getIncomingId() + " Election status: "
-					+ node.isElectionActive());
+			System.out.println("ELECTION HANDLER: 1) Receiving election from " + electionMessage.getIncomingId()
+					+ " Election status: " + node.isElectionActive());
 
 		// If I'm already in the process of electing:
 		// If it's the same election we're talking about, send immediate ack to the
@@ -53,8 +54,8 @@ public class ElectionMessageHandler extends Thread {
 				// storedId
 
 				if (DEBUG)
-					System.out.println(
-							"Already in same election! Sending immediate ack to " + electionMessage.getIncomingId());
+					System.out.println("ELECTION HANDLER: 2) Already in same election! Sending immediate ack to "
+							+ electionMessage.getIncomingId());
 
 				sendMessage(logic.MessageType.ACK, electionMessage.getIncomingId());
 
@@ -73,14 +74,15 @@ public class ElectionMessageHandler extends Thread {
 					electionMessage.setAGroup(false);
 
 					if (DEBUG)
-						System.out
-								.println("My CP is higher, sending my election to " + electionMessage.getIncomingId());
+						System.out.println("ELECTION HANDLER: 3) My CP is higher, sending my election to "
+								+ electionMessage.getIncomingId());
 
 					sendMessage(logic.MessageType.ELECTION, electionMessage.getIncomingId());
 				} else {
 
 					if (DEBUG)
-						System.out.println("Incoming CP is higher, propagating that election instead...");
+						System.out.println(
+								"ELECTION HANDLER: 4) Incoming CP is higher, propagating that election instead...");
 
 					// If the sender has priority, I clean myself and propagate its message
 					node.getComputationIndex().setNum(electionMessage.getComputationIndex().getNum());
@@ -128,7 +130,7 @@ public class ElectionMessageHandler extends Thread {
 			node.getComputationIndex().setId(electionMessage.getComputationIndex().getId());
 			node.getComputationIndex().setValue(electionMessage.getComputationIndex().getValue());
 
-//			// Needed for Network Evaluation
+//			Needed for Network Evaluation
 //			node.getNetworkEvaluation().setNewElection(true);
 
 			// If this node has no neighbours except parent, send ack to parent and set
@@ -137,13 +139,15 @@ public class ElectionMessageHandler extends Thread {
 				node.setAckStatus(false);
 
 				if (DEBUG)
-					System.out.println("Sending immediate ack since I only have parent.");
+					System.out.println("ELECTION HANDLER: 5) Sending immediate ack since I only have parent.");
 
 				sendMessage(logic.MessageType.ACK, node.getParentActive());
 			} else {
 				node.setAckStatus(true); // true means it has not sent ack to parent, in ack handler we will put this to
 											// false again
 
+				if (DEBUG)
+					System.out.println("ELECTION HANDLER: 6) Sending Election to my Children.");
 				// For every neighbour except parent, put them in waitingAck
 				Iterator<Integer> i = node.getNeighbors().iterator();
 				while (i.hasNext()) {

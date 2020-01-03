@@ -18,7 +18,7 @@ import simulation.Simulation;
 
 public class Node implements Serializable {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	protected int nodeID;
 	protected ComputationIndex computationIndex;
@@ -42,11 +42,6 @@ public class Node implements Serializable {
 	private int nodeRange;
 	private int timeOut;
 
-//// OUTDATED CODE  - Needed when bootstrap has election
-//	private boolean networkSet;
-//	private static final int nodeTimeout = 2;
-//	private static final int networkTimeout = 30;
-
 	// Simulation Purpose
 	protected Simulation simNode;
 
@@ -65,7 +60,7 @@ public class Node implements Serializable {
 	private boolean isKilled;
 
 	// Mobility Purpose
-	protected Mobility automovel;
+	protected Mobility mobilityTest;
 	protected int finalX;
 	protected int finalY;
 	protected int direction;
@@ -175,12 +170,12 @@ public class Node implements Serializable {
 		this.getNetworkEvaluation().checkWithoutLeader();
 		new Bootstrap(this).start(); // New node, so set network and act accordingly
 
-		this.automovel = new Mobility(this, hasMobility, testMobility);
-		automovel.start();
+		this.mobilityTest = new Mobility(this, hasMobility, testMobility);
+		mobilityTest.start();
 
 		// Arg 1: 1 = x final coordenate | 2 = y final coordenate |
 		// 3 - direction [0 - Horizontal, 1 - Vertical] | 4 - Sleep time
-		automovel.testMobility(finalX, finalY, direction, 1);
+		mobilityTest.testMobility(finalX, finalY, direction, 1);
 
 	}
 
@@ -198,8 +193,8 @@ public class Node implements Serializable {
 					if (Duration.between(resendElec, Instant.now()).toMillis() > 5000) {
 						if (!this.getWaitingAcks().isEmpty()) {
 							new Handler(this, logic.MessageType.ELECTION_GROUP, this.getWaitingAcks()).start();
-							System.out.println(
-									"8------------------D Retransmitting to " + this.getWaitingAcks().toString());
+							System.out
+									.println("NODE HANDLER: 1) Retransmitting to " + this.getWaitingAcks().toString());
 						}
 
 					}
@@ -227,7 +222,8 @@ public class Node implements Serializable {
 	// "Send Message" for type Leader
 	public void sendMessage(logic.MessageType messageType, Set<Integer> mailingList) {
 		if (mailingList.isEmpty()) {
-			System.out.println("Mailing List is Empty");
+			if (DEBUG)
+				System.out.println("Mailing List is Empty");
 			return;
 		}
 		new Handler(this, messageType, mailingList).start();
@@ -248,7 +244,7 @@ public class Node implements Serializable {
 			// Instant.now()).toMillis());
 			if (Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() > (timeOut * 1000)) {
 				if (DEBUG)
-					System.out.println("Removed because Duration = "
+					System.out.println("NODE HANDLER: 2) Removed because Duration = "
 							+ Duration.between(neighbors.get(neighbor), Instant.now()).toMillis() + "ms.");
 				toRemove.add(neighbor);
 			}
@@ -264,7 +260,7 @@ public class Node implements Serializable {
 			}
 
 			if (DEBUG)
-				System.out.println("Removed neighbor " + neighbor + " from node " + this.getNodeID());
+				System.out.println("NODE HANDLER: 3) Removed neighbor " + neighbor + " from node " + this.getNodeID());
 
 			printNeighbors();
 
@@ -281,8 +277,8 @@ public class Node implements Serializable {
 						this.setAckStatus(false);
 						// send ACK message to parent stored in node.getParentActive()
 						if (DEBUG)
-							System.out.println("Sending to my parent " + this.getParentActive() + " the Leader Id "
-									+ this.getStoredId() + " from removed last ack.");
+							System.out.println("NODE HANDLER: 4) Sending to my parent " + this.getParentActive()
+									+ " the Leader Id " + this.getStoredId() + " from removed last ack.");
 
 					}
 					// or prepare to send leader message if this node is the source of the election
@@ -296,7 +292,8 @@ public class Node implements Serializable {
 						this.setStoredId(this.getNodeID());
 						this.setStoredValue(this.getNodeValue());
 						if (DEBUG)
-							System.out.println("========================>   Leader agreed upon: " + this.getLeaderID());
+							System.out.println("NODE HANDLER: 5)");
+						System.out.println("========================>   Leader agreed upon: " + this.getLeaderID());
 
 						// Metric 1 - Election Timer
 						this.networkEvaluation.setEndElectionTimer(this.getComputationIndex().getId());
@@ -316,7 +313,8 @@ public class Node implements Serializable {
 						}
 						// Send Election Message to all neighbours
 						if (DEBUG)
-							System.out.println("Sending leader to all nodes.\n-----------------------------");
+							System.out.println(
+									"NODE HANDLER: 6) Sending leader to all nodes.\n-----------------------------");
 
 						sendMessage(logic.MessageType.LEADER, toSend);
 					}
@@ -326,7 +324,7 @@ public class Node implements Serializable {
 			// Auto check to prevent multiple leader elections
 			if (this.isElectionActive()) {
 				if (DEBUG)
-					System.out.println("...but already in election so no need to start another.");
+					System.out.println("NODE HANDLER: 7) Already in election so no need to start another.");
 				return;
 			}
 
@@ -354,7 +352,7 @@ public class Node implements Serializable {
 
 				if (DEBUG)
 					System.out.println(
-							"Leader gone or one of my neighbours gone but I don't have direct connection to leader.");
+							"NODE HANDLER: 8) Leader gone or one of my neighbours gone but I don't have direct connection to leader.");
 
 				synchronized (this) {
 					Iterator<Integer> i = this.getNeighbors().iterator();
@@ -366,8 +364,8 @@ public class Node implements Serializable {
 					}
 				}
 
-				if (DEBUG)
-					System.out.println("Node " + this.getNodeID() + " bootstrapped election on leader removal.");
+				System.out.println(
+						"NODE HANDLER: 9) Node " + this.getNodeID() + " bootstrapped election on leader removal.");
 
 				// -----------CP Tests-----------
 				this.getComputationIndex().setNum(this.getComputationIndex().getNum() + 1);
@@ -388,15 +386,6 @@ public class Node implements Serializable {
 		}
 		return max;
 	}
-
-// OUTDATED CODE  - Needed when bootstrap has election
-//	private void updateNetworkSet() {
-//		if (Duration.between(init, Instant.now()).toMillis() > (timeOut * 1000)) {
-//			 timeOut = nodeTimeout;
-//		} else {
-//			timeOut = networkTimeout;
-//		}
-//	}
 
 	public void printNeighbors() {
 

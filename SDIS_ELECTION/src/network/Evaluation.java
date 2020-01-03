@@ -433,7 +433,8 @@ public class Evaluation {
 	public void storeElectionTime(int id) throws IOException {
 		String textToAppend = "Time" + ";" + Instant.now() + ";" + "Election" + ";" + id + ";" + "Node" + ";"
 				+ node.getNodeID() + ";" + "ElectionInit" + ";" + electionInit.get(id).toString() + ";" + "ElectionTime"
-				+ ";" + electionTimeElapsed.toMillis() + ";" + "ms";
+				+ ";" + electionTimeElapsed.toMillis() + ";" + "ms" + ";" + "NumberOfNodes(Leader)" + ";"
+				+ node.getLeaderID() + ";";
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter("..\\Statistics\\M1_electionTime.csv", true) // AppendMode
 		);

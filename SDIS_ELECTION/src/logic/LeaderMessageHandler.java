@@ -11,7 +11,7 @@ public class LeaderMessageHandler extends Thread {
 	protected Node node;
 	protected LeaderMessage leaderMessage;
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	public LeaderMessageHandler(Node node, LeaderMessage lm) {
 
@@ -23,7 +23,8 @@ public class LeaderMessageHandler extends Thread {
 
 	public void sendMessage(logic.MessageType messageType, Set<Integer> mailingList) {
 		if (mailingList.isEmpty()) {
-			System.out.println("Mailing List is Empty");
+			if (DEBUG)
+				System.out.println("Mailing List is Empty");
 			return;
 		}
 		new Handler(this.node, messageType, mailingList).start();
@@ -55,14 +56,13 @@ public class LeaderMessageHandler extends Thread {
 		// reject that info.
 		if (!(leaderMessage.isSpecial())) {
 			if (DEBUG)
-				System.out.println("Leader incoming/current parent " + leaderMessage.getIncomingId() + "/"
-						+ node.getParentActive());
+				System.out.println("LEADER HANLDER: 1) Leader incoming/current parent " + leaderMessage.getIncomingId()
+						+ "/" + node.getParentActive());
 			if (!(leaderMessage.getIncomingId() == node.getParentActive())) {
 
 				if (DEBUG)
-					System.out.println("Ignoring leader message from " + leaderMessage.getIncomingId()
-							+ "\n-----------------------------");
-
+					System.out.println("LEADER HANLDER: 2) Ignoring leader message from "
+							+ leaderMessage.getIncomingId() + "\n-----------------------------");
 				return;
 			}
 		}
@@ -74,7 +74,8 @@ public class LeaderMessageHandler extends Thread {
 		if (node.isElectionActive() && (!(leaderMessage.isSpecial()))) {
 
 			if (DEBUG)
-				System.out.println("Receiving leader assurance from " + leaderMessage.getIncomingId());
+				System.out
+						.println("LEADER HANLDER: 3) Receiving leader assurance from " + leaderMessage.getIncomingId());
 
 			node.setElectionActive(false);
 			node.setLeaderID(leaderMessage.getStoredID());
@@ -90,6 +91,7 @@ public class LeaderMessageHandler extends Thread {
 			node.networkEvaluation.getWithoutLeaderTimer();
 
 			if (DEBUG) {
+				System.out.println("LEADER HANLDER: 4)");
 				System.out.println("Node " + node.getNodeID() + "'s leader is " + node.getLeaderID());
 				System.out.println("CP(num/value/id): " + node.getComputationIndex().getNum() + " - "
 						+ node.getComputationIndex().getValue() + " - " + node.getComputationIndex().getId());
@@ -107,7 +109,7 @@ public class LeaderMessageHandler extends Thread {
 			// everything
 		} else if (!(node.isElectionActive()) && !(leaderMessage.isSpecial())) {
 			if (DEBUG)
-				System.out.println("Not election and not special, end.");
+				System.out.println("LEADER HANLDER: 5) Not in Election and not Special Leader. Ignore.");
 			return;
 
 			// If message is special and I'm not in election
@@ -115,8 +117,7 @@ public class LeaderMessageHandler extends Thread {
 
 			if (leaderMessage.getStoredID() <= node.getLeaderID()) {
 				if (DEBUG)
-					System.out.println("Men, that guy is weak. Do nothing!");
-
+					System.out.println("LEADER HANLDER: 6) Leader sent is weaker. My Leader is stronger.");
 				return;
 			}
 
@@ -140,7 +141,7 @@ public class LeaderMessageHandler extends Thread {
 			// If message is special and I'm in election, reject leader special message
 		} else if (leaderMessage.isSpecial() && node.isElectionActive()) {
 			if (DEBUG)
-				System.out.println("Rejection special message while on election!");
+				System.out.println("LEADER HANDLER: 7) Rejection special message while on election!");
 			return;
 		}
 	}

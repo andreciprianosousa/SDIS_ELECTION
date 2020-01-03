@@ -12,7 +12,7 @@ public class AckMessageHandler extends Thread {
 	protected Node node;
 	protected AckMessage ackMessage;
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	public AckMessageHandler(Node node, AckMessage ackMessage) {
 
@@ -25,7 +25,8 @@ public class AckMessageHandler extends Thread {
 	// "Send Message" for type Leader
 	public void sendMessage(logic.MessageType messageType, Set<Integer> mailingList) {
 		if (mailingList.isEmpty()) {
-			System.out.println("Mailing List is Empty");
+			if (DEBUG)
+				System.out.println("Mailing List is Empty");
 			return;
 		}
 		new Handler(this.node, messageType, mailingList).start();
@@ -45,14 +46,17 @@ public class AckMessageHandler extends Thread {
 		if (!(ackMessage.getCp().getNum() == node.getComputationIndex().getNum()
 				&& ackMessage.getCp().getValue() == node.getComputationIndex().getValue()
 				&& ackMessage.getCp().getId() == node.getComputationIndex().getId())) {
+
+			if (DEBUG)
+				System.out.println("ACK HANDLER: 1) Same CP. Ignore.");
 			return; // Ignore ack from other CP that no longer matters
 		}
 
-		if (DEBUG)
-			System.out.println("Receiving ack from " + ackMessage.getIncomingId());
-
 		// When this node receives an Ack Message, updates waiting Acks first
 		if ((node.getWaitingAcks().contains(ackMessage.getIncomingId()))) {
+
+			if (DEBUG)
+				System.out.println("ACK HANDLER: 2) Receiving ack from " + ackMessage.getIncomingId());
 
 			node.getWaitingAcks().remove(ackMessage.getIncomingId());
 
@@ -68,12 +72,16 @@ public class AckMessageHandler extends Thread {
 		// If this was the last acknowledge needed, then send to parent my own ack and
 		// update my parameters
 		if ((node.getWaitingAcks().isEmpty()) && (node.getAckStatus() == true)) {
+
+			if (DEBUG)
+				System.out.println("ACK HANDLER: 3) WaitingACKs is Empty & AckStatus is True.");
+
 			if (node.getParentActive() != -1) {
 				node.setAckStatus(false);
 				// send ACK message to parent stored in node.getParentActive()
 				if (DEBUG)
-					System.out.println(
-							"Sending to my parent " + node.getParentActive() + " the Leader Id " + node.getStoredId());
+					System.out.println("ACK HANDLER: 4) Sending to my parent " + node.getParentActive()
+							+ " the Leader Id " + node.getStoredId());
 				sendMessage(logic.MessageType.ACK, node.getParentActive());
 
 				// This ACK is sent only if in election
@@ -91,7 +99,8 @@ public class AckMessageHandler extends Thread {
 				node.setLeaderValue(node.getStoredValue());
 				node.setStoredId(node.getNodeID());
 				node.setStoredValue(node.getNodeValue());
-				System.out.println("========================>   Leader agreed upon: " + node.getLeaderID());
+				System.out.println(
+						"ACK HANDLER: 5) ========================>   Leader agreed upon: " + node.getLeaderID());
 
 				// Metric 1 - Election Timer
 				if (node.getNodeID() == node.getComputationIndex().getId()) {
@@ -113,7 +122,7 @@ public class AckMessageHandler extends Thread {
 				}
 				// Send Election Message to all neighbours
 				if (DEBUG)
-					System.out.println("Sending leader to all nodes.\n-----------------------------");
+					System.out.println("ACK HANDLER: 6) Sending leader to all nodes\n-----------------------------");
 
 				sendMessage(logic.MessageType.LEADER, toSend);
 			}

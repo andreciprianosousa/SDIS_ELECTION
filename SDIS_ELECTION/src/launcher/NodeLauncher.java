@@ -23,7 +23,7 @@ public class NodeLauncher {
 		if (args.length != 10) {
 			System.out.println("Incorrect usage! To run the program use:");
 			System.out.println(
-					"Java -jar <nodeID> <xDimension> <yDimension> <nodeRange> <medianFailure> <medianDeath> <FinalX> <FinalY> <MovementDirection[0=H,1=V]> <Mode>");
+					"Java -jar <nodeID> <xDimension> <yDimension> <nodeRange> <medianFailure> <medianDeath> <FinalX> <FinalY> <MovementDirection[0=H,1=V]> <Mode[0=Static,1=Dynamic]>");
 		}
 
 		nodeID = Integer.parseInt(args[0]);
@@ -41,7 +41,8 @@ public class NodeLauncher {
 			System.out.println("### Welcome ### \n" + "# nodeID = " + nodeID + "\n# Xi = " + dimensions[0] + " | Yi = "
 					+ dimensions[1] + "\n# Range = " + dimensions[2] + "\n# MedianFailure = " + medianFailure
 					+ "\n# MedianDeath = " + medianDeath + "\n# Xf = " + finalDestination[0] + " | Yf = "
-					+ finalDestination[1] + "\n# Direction = " + finalDestination[2] + "\n" + mode + "\n\n\n");
+					+ finalDestination[1] + "\n# Direction[0=H,1=V] = " + finalDestination[2]
+					+ "\n# Mode[0=Static,1=Dynamic] =" + mode + "\n\n\n");
 		}
 
 		port = 5000;

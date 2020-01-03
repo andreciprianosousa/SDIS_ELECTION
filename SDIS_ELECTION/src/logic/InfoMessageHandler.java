@@ -9,7 +9,7 @@ public class InfoMessageHandler extends Thread {
 	protected Node node;
 	protected InfoMessage infoMessage;
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	public InfoMessageHandler(Node node, InfoMessage infoMessage) {
 
@@ -28,7 +28,8 @@ public class InfoMessageHandler extends Thread {
 	// "Send Message" for type Leader Special
 	public void sendMessage(logic.MessageType messageType, HashSet<Integer> mailingList) {
 		if (mailingList.isEmpty()) {
-			System.out.println("Mailing List is Empty");
+			if (DEBUG)
+				System.out.println("Mailing List is Empty");
 			return;
 		}
 		new Handler(this.node, messageType, mailingList).start();
@@ -48,8 +49,8 @@ public class InfoMessageHandler extends Thread {
 			node.setLeaderValue(infoMessage.getStoredValue());
 			node.setStoredId(node.getNodeID());
 			node.setStoredValue(node.getNodeValue());
-			System.out.println("Leader changed in Node " + node.getNodeID() + " to: " + node.getLeaderID()
-					+ " due to exchanging messages with " + infoMessage.getIncomingId());
+			System.out.println("INFO HANDLER: 1) Leader changed in Node " + node.getNodeID() + " to: "
+					+ node.getLeaderID() + " due to exchanging messages with " + infoMessage.getIncomingId());
 
 			// End to Exchanging Leaders Timer && Processing
 			node.networkEvaluation.setEndExchangingLeadersTimer(infoMessage.getIncomingId());
@@ -76,7 +77,7 @@ public class InfoMessageHandler extends Thread {
 			if (!(toSend.isEmpty())) {
 
 				if (DEBUG)
-					System.out.println("Sending special leader to all nodes.");
+					System.out.println("INFO HANDLER: 2) Sending special leader to all nodes.");
 
 				sendMessage(logic.MessageType.LEADER_SPECIAL, toSend);
 			}
@@ -85,7 +86,7 @@ public class InfoMessageHandler extends Thread {
 		} else if ((infoMessage.getStoredValue() == node.getLeaderValue()) // Prevents infinite message passing
 				&& (infoMessage.getLeaderId() == node.getLeaderID())) {
 			if (DEBUG)
-				System.out.println("Same Leader! Now We can Rest in Peace!");
+				System.out.println("INFO HANDLER: 3) Same Leader! Agreement Reached.");
 
 			// End to Exchanging Leaders Timer && Processing
 			node.networkEvaluation.setEndExchangingLeadersTimer(infoMessage.getIncomingId());
@@ -103,7 +104,7 @@ public class InfoMessageHandler extends Thread {
 		else {
 
 			if (DEBUG)
-				System.out.println("Sending back stronger leader.\n-----------------------------");
+				System.out.println("INFO HANDLER: 4) Sending back stronger leader.\n-----------------------------");
 
 			sendMessage(logic.MessageType.INFO, infoMessage.getIncomingId());
 
