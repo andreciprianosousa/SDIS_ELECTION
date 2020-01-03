@@ -20,7 +20,7 @@ public class NodeLauncher {
 
 	public static void main(String[] args) throws InterruptedException {
 
-		if (args.length != 9) {
+		if (args.length != 10) {
 			System.out.println("Incorrect usage! To run the program use:");
 			System.out.println(
 					"Java -jar <nodeID> <xDimension> <yDimension> <nodeRange> <medianFailure> <medianDeath> <FinalX> <FinalY> <MovementDirection[0=H,1=V]> <Mode>");
