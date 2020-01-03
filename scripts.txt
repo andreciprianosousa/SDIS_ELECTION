@@ -1,0 +1,66 @@
+--------------------------------Static Networks (with limited mobility sometimes)------------------------------------
+Teste 1 - Network Setup todos-sabem-todos (5 nós, mas pode ser mais, até ao que o PC aguentar)
+	1.1 - Criar rede
+        gnome-terminal --title="Node 1" -e "java -jar /home/andre/Desktop/network.jar 1 0 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 2" -e "java -jar /home/andre/Desktop/network.jar 2 0 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 3" -e "java -jar /home/andre/Desktop/network.jar 3 0 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 4" -e "java -jar /home/andre/Desktop/network.jar 4 0 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 5" -e "java -jar /home/andre/Desktop/network.jar 5 0 0 5 -1 -1 -1 -1 -1 0 &"
+
+	1.2 - Remover líder
+
+Teste 2 - Network Setup topologia estática mas com líder a fazer de ponte, removendo depois o líder
+	1.1 - Criar rede
+        gnome-terminal --title="Node 1" -e "java -jar /home/andre/Desktop/network.jar 1 0 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 2" -e "java -jar /home/andre/Desktop/network.jar 2 10 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 3" -e "java -jar /home/andre/Desktop/network.jar 3 5 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 4" -e "java -jar /home/andre/Desktop/network.jar 4 0 10 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 5" -e "java -jar /home/andre/Desktop/network.jar 5 10 10 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 6" -e "java -jar /home/andre/Desktop/network.jar 6 5 10 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 7" -e "java -jar /home/andre/Desktop/network.jar 7 0 5 5 -1 -1 -1 -1 -1 0 &"
+
+	1.2 - Remover líder e criar partição, resultando em duas redes
+
+Teste 3 - Network Setup estatica, com nó que não é líder a fazer de ponte
+	1.1 - Criar rede
+        gnome-terminal --title="Node 1" -e "java -jar /home/andre/Desktop/network.jar 1 0 5 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 2" -e "java -jar /home/andre/Desktop/network.jar 2 5 10 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 3" -e "java -jar /home/andre/Desktop/network.jar 3 10 10 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 4" -e "java -jar /home/andre/Desktop/network.jar 4 0 10 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 5" -e "java -jar /home/andre/Desktop/network.jar 5 5 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 6" -e "java -jar /home/andre/Desktop/network.jar 6 10 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 7" -e "java -jar /home/andre/Desktop/network.jar 7 0 0 5 -1 -1 -1 -1 -1 0 &"
+
+	1.2 - Remover nó e tirar parte da rede de contacto indireto com líder, resultando em duas redes
+
+Teste 4 - Network Setup com 1 ou mais nós estáticos e outro a movimentar-se até ao range do primeiro
+        gnome-terminal --title="Node 1" -e "java -jar /home/andre/Desktop/network.jar 1 0 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 2" -e "java -jar /home/andre/Desktop/network.jar 2 15 0 5 -1 -1 5 0 0 0 &"
+
+Teste 5 - Network Setup com 1 ou mais nós estáticos e outro a movimentar-se fora do range do primeiro
+        gnome-terminal --title="Node 1" -e "java -jar /home/andre/Desktop/network.jar 1 0 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 2" -e "java -jar /home/andre/Desktop/network.jar 2 1 0 5 -1 -1 15 0 0 0 &"
+	
+Teste 6 - Network Setup com 2 redes estáticas e com um nó a mover-se para o meio entre as duas, criando uma ponte, sendo o nó o novo líder to be
+        gnome-terminal --title="Node 1" -e "java -jar /home/andre/Desktop/network.jar 1 0 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 2" -e "java -jar /home/andre/Desktop/network.jar 2 5 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 3" -e "java -jar /home/andre/Desktop/network.jar 3 15 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 4" -e "java -jar /home/andre/Desktop/network.jar 4 20 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 5" -e "java -jar /home/andre/Desktop/network.jar 5 10 15 5 -1 -1 10 0 1 0 &"
+
+Teste 7 - Network Setup com 2 redes estáticas e com um nó a mover-se para o meio entre as duas, criando uma ponte, sendo o nó não líder to be
+        gnome-terminal --title="Node 1" -e "java -jar /home/andre/Desktop/network.jar 1 10 15 5 -1 -1 10 0 1 0 &"
+        gnome-terminal --title="Node 2" -e "java -jar /home/andre/Desktop/network.jar 2 0 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 3" -e "java -jar /home/andre/Desktop/network.jar 3 5 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 4" -e "java -jar /home/andre/Desktop/network.jar 4 15 0 5 -1 -1 -1 -1 -1 0 &"
+        gnome-terminal --title="Node 5" -e "java -jar /home/andre/Desktop/network.jar 5 20 0 5 -1 -1 -1 -1 -1 0 &"
+
+---------------------------------------------Dynamic Networks-----------------------------------------------
+
+Change node number in for and replace the -1 with appropriate values to test each of the developed functions
+Since networks are random we can't really showcase a specific scenario like in static networks
+
+for i in {1..5..1}
+do
+	gnome-terminal --title="Node $i" -e "java -jar /home/andre/Desktop/network.jar "$i" 10 10 100 -1 -1 -1 -1 -1 1 1 &"
+done
