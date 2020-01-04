@@ -165,7 +165,7 @@ public class Node implements Serializable {
 		new NodeListener(this, refreshRate).start();
 		new NodeTransmitter(this, timeOut).start();
 
-		this.networkEvaluation = new Evaluation(this, 1);
+		this.networkEvaluation = new Evaluation(this, 6);
 
 		this.getNetworkEvaluation().checkWithoutLeader();
 		new Bootstrap(this).start(); // New node, so set network and act accordingly
@@ -192,6 +192,7 @@ public class Node implements Serializable {
 				if (this.isElectionActive()) {
 					if (Duration.between(resendElec, Instant.now()).toMillis() > 5000) {
 						if (!this.getWaitingAcks().isEmpty()) {
+							resendElec = Instant.now();
 							new Handler(this, logic.MessageType.ELECTION_GROUP, this.getWaitingAcks()).start();
 							System.out
 									.println("NODE HANDLER: 1) Retransmitting to " + this.getWaitingAcks().toString());
@@ -397,7 +398,7 @@ public class Node implements Serializable {
 		System.out.print(">>> Node " + this.nodeID + " _ WaitingACKs: " + this.getWaitingAcks().toString()
 				+ " - AckStatus: " + this.getAckStatus());
 		System.out.println("");
-		System.out.print(">>> Node " + this.nodeID + " -> Parent: " + getParentActive());
+//		System.out.print(">>> Node " + this.nodeID + " -> Parent: " + getParentActive());
 		System.out.println("");
 
 	}

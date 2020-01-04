@@ -361,6 +361,9 @@ public class Evaluation {
 	// It depends on so many things ...
 	public void setStartElectionRateTimer() {
 
+		if (!electionRateTest)
+			return;
+
 		if (isElectionRateDone() == true) {
 			return;
 		}
