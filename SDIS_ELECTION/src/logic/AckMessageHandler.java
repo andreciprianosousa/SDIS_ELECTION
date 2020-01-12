@@ -39,7 +39,11 @@ public class AckMessageHandler extends Thread {
 
 	@Override
 	public synchronized void run() { // Needs synchronization because 2+ acks may arrive at same time and alter
-										// hashset simultaneously, other handlers also have this
+										// hashset simultaneously, other handlers also have this~
+
+		if (DEBUG)
+			System.out.println("ACK HANDLER: 1) Receiving election from " + ackMessage.getIncomingId()
+					+ " Election status: " + node.isElectionActive() + "\n" + " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ");
 
 		// Assuming this Ack was intended for me in the first place and I'm in the same
 		// Computation Index

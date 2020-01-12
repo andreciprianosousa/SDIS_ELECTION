@@ -165,7 +165,7 @@ public class Node implements Serializable {
 		new NodeListener(this, refreshRate).start();
 		new NodeTransmitter(this, timeOut).start();
 
-		this.networkEvaluation = new Evaluation(this, 6);
+		this.networkEvaluation = new Evaluation(this, 1);
 
 		this.getNetworkEvaluation().checkWithoutLeader();
 		new Bootstrap(this).start(); // New node, so set network and act accordingly
@@ -190,14 +190,21 @@ public class Node implements Serializable {
 				// This only works because every node updates itself (connects all nodes around)
 				// at every call of this method and thus doesn't lose new nodes.
 				if (this.isElectionActive()) {
-					if (Duration.between(resendElec, Instant.now()).toMillis() > 5000) {
+
+					if (Duration.between(resendElec, Instant.now()).toMillis() > 2000) {
+//
+//						if ((this.getWaitingAcks().contains(leaderID))) {
+//							System.out.println(
+//									">>>>>>>> Leader is alone. Exiting // " + this.getWaitingAcks().toString());
+//							this.getWaitingAcks().remove(leaderID);
+//						}
+//
 						if (!this.getWaitingAcks().isEmpty()) {
 							resendElec = Instant.now();
 							new Handler(this, logic.MessageType.ELECTION_GROUP, this.getWaitingAcks()).start();
 							System.out
 									.println("NODE HANDLER: 1) Retransmitting to " + this.getWaitingAcks().toString());
 						}
-
 					}
 				}
 
@@ -280,6 +287,8 @@ public class Node implements Serializable {
 						if (DEBUG)
 							System.out.println("NODE HANDLER: 4) Sending to my parent " + this.getParentActive()
 									+ " the Leader Id " + this.getStoredId() + " from removed last ack.");
+
+						sendMessage(logic.MessageType.ACK, this.getParentActive());
 
 					}
 					// or prepare to send leader message if this node is the source of the election
@@ -365,8 +374,10 @@ public class Node implements Serializable {
 					}
 				}
 
-				System.out.println(
-						"NODE HANDLER: 9) Node " + this.getNodeID() + " bootstrapped election on leader removal.");
+				System.out.println("NODE HANDLER: 9) Node " + this.getNodeID()
+						+ " bootstrapped election on leader removal." + "--->\n" + "--->\n" + "--->\n" + "--->\n"
+						+ "--->\n" + "--->\n" + "--->\n" + "--->\n" + "--->\n" + "--->\n" + "--->\n" + "--->\n"
+						+ "--->\n" + "--->\n" + "--->\n" + "--->\n" + "--->\n" + "--->\n" + "--->\n");
 
 				// -----------CP Tests-----------
 				this.getComputationIndex().setNum(this.getComputationIndex().getNum() + 1);
@@ -648,10 +659,10 @@ public class Node implements Serializable {
 	}
 
 	public void printLeader() {
-		System.out.println(
-				"Node: " + nodeID + " || Leader: " + leaderID + " || LeaderValue: " + leaderValue + " || Stored Id: "
-						+ storedId + " || Stored Value: " + storedValue + " || CP: " + computationIndex.getNum() + "/"
-						+ computationIndex.getValue() + "/" + computationIndex.getId() + this.isElectionActive());
+		System.out.println("Node: " + nodeID + " || Leader: " + leaderID + " || LeaderValue: " + leaderValue
+				+ " || Stored Id: " + storedId + " || Stored Value: " + storedValue + " || CP: "
+				+ computationIndex.getNum() + "/" + computationIndex.getValue() + "/" + computationIndex.getId()
+				+ "ElectionMode: " + this.isElectionActive());
 		System.out.println("............................................");
 	}
 

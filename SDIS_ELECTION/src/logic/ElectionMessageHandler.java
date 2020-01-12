@@ -38,7 +38,7 @@ public class ElectionMessageHandler extends Thread {
 
 		if (DEBUG)
 			System.out.println("ELECTION HANDLER: 1) Receiving election from " + electionMessage.getIncomingId()
-					+ " Election status: " + node.isElectionActive());
+					+ " Election status: " + node.isElectionActive() + "\n" + " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ");
 
 		// If I'm already in the process of electing:
 		// If it's the same election we're talking about, send immediate ack to the

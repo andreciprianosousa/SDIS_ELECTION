@@ -50,6 +50,5 @@ public class NodeLauncher {
 		System.out.println("Starting Node " + nodeID);
 		new Node(nodeID, port, ipAddress, dimensions, refreshRate, timeOut, medianFailure, medianDeath,
 				finalDestination, mode);
-
 	}
 }
